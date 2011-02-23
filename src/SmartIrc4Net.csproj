@@ -48,7 +48,6 @@
     <Compile Include="IrcClient\Channel.cs" />
     <Compile Include="IrcClient\ChannelInfo.cs" />
     <Compile Include="IrcClient\ChannelUser.cs" />
-    <Compile Include="IrcClient\Delegates.cs" />
     <Compile Include="IrcClient\EventArgs.cs" />
     <Compile Include="IrcClient\IrcClient.cs" />
     <Compile Include="IrcClient\IrcMessageData.cs" />
@@ -58,7 +57,6 @@
     <Compile Include="IrcClient\WhoInfo.cs" />
     <Compile Include="IrcCommands\IrcCommands.cs" />
     <Compile Include="IrcCommands\Rfc2812.cs" />
-    <Compile Include="IrcConnection\Delegates.cs" />
     <Compile Include="IrcConnection\EventArgs.cs" />
     <Compile Include="IrcConnection\IrcConnection.cs" />
     <Compile Include="IrcConnection\IrcProperties.cs" />

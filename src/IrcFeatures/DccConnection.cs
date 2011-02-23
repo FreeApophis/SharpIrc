@@ -91,61 +91,61 @@ namespace Meebey.SmartIrc4net
         #endregion        
         
         #region Public DCC Events
-        public event DccConnectionHandler OnDccChatRequestEvent;
+        public event EventHandler<DccEventArgs> OnDccChatRequestEvent;
         protected virtual void DccChatRequestEvent(DccEventArgs e) {
             if (OnDccChatRequestEvent!=null) {OnDccChatRequestEvent(this, e); }
               Irc.DccChatRequestEvent(e);
         }
 
-        public event DccSendRequestHandler OnDccSendRequestEvent;
+        public event EventHandler<DccSendRequestEventArgs> OnDccSendRequestEvent;
         protected virtual void DccSendRequestEvent(DccSendRequestEventArgs e) {
             if (OnDccSendRequestEvent!=null) {OnDccSendRequestEvent(this, e); }
               Irc.DccSendRequestEvent(e);
         }
         
-        public event DccConnectionHandler OnDccChatStartEvent;
+        public event EventHandler<DccEventArgs> OnDccChatStartEvent;
         protected virtual void DccChatStartEvent(DccEventArgs e) {
             if (OnDccChatStartEvent!=null) {OnDccChatStartEvent(this, e); }
               Irc.DccChatStartEvent(e);
         }
 
-        public event DccConnectionHandler OnDccSendStartEvent;
+        public event EventHandler<DccEventArgs> OnDccSendStartEvent;
         protected virtual void DccSendStartEvent(DccEventArgs e) {
             if (OnDccSendStartEvent!=null) {OnDccSendStartEvent(this, e); }
             Irc.DccSendStartEvent(e);
         }
         
-        public event DccChatLineHandler OnDccChatReceiveLineEvent;
+        public event EventHandler<DccChatEventArgs> OnDccChatReceiveLineEvent;
         protected virtual void DccChatReceiveLineEvent(DccChatEventArgs e) {
             if (OnDccChatReceiveLineEvent!=null) {OnDccChatReceiveLineEvent(this, e); }
             Irc.DccChatReceiveLineEvent(e);
         }
 
-        public event DccSendPacketHandler OnDccSendReceiveBlockEvent;
+        public event EventHandler<DccSendEventArgs> OnDccSendReceiveBlockEvent;
         protected virtual void DccSendReceiveBlockEvent(DccSendEventArgs e) {
             if (OnDccSendReceiveBlockEvent!=null) {OnDccSendReceiveBlockEvent(this, e); }
             Irc.DccSendReceiveBlockEvent(e); 
         }
 
-        public event DccChatLineHandler OnDccChatSentLineEvent;
+        public event EventHandler<DccChatEventArgs> OnDccChatSentLineEvent;
         protected virtual void DccChatSentLineEvent(DccChatEventArgs e) {
             if (OnDccChatSentLineEvent!=null) {OnDccChatSentLineEvent(this, e); }
             Irc.DccChatSentLineEvent(e); 
         }
 
-        public event DccSendPacketHandler OnDccSendSentBlockEvent;
+        public event EventHandler<DccSendEventArgs> OnDccSendSentBlockEvent;
         protected virtual void DccSendSentBlockEvent(DccSendEventArgs e) {
             if (OnDccSendSentBlockEvent!=null) {OnDccSendSentBlockEvent(this, e); }
             Irc.DccSendSentBlockEvent(e); 
         }
 
-        public event DccConnectionHandler OnDccChatStopEvent;
+        public event EventHandler<DccEventArgs> OnDccChatStopEvent;
         protected virtual void DccChatStopEvent(DccEventArgs e) {
             if (OnDccChatStopEvent!=null) {OnDccChatStopEvent(this, e); }
             Irc.DccChatStopEvent(e); 
         }
 
-        public event DccConnectionHandler OnDccSendStopEvent;
+        public event EventHandler<DccEventArgs> OnDccSendStopEvent;
         protected virtual void DccSendStopEvent(DccEventArgs e) {
             if (OnDccSendStopEvent!=null) {OnDccSendStopEvent(this, e); }
             Irc.DccSendStopEvent(e); 

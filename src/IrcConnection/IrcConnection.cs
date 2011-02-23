@@ -91,11 +91,11 @@ namespace Meebey.SmartIrc4net
         /// <event cref="OnReadLine">
         /// Raised when a \r\n terminated line is read from the socket
         /// </event>
-        public event ReadLineEventHandler   OnReadLine;
+        public event EventHandler<ReadLineEventArgs>   OnReadLine;
         /// <event cref="OnWriteLine">
         /// Raised when a \r\n terminated line is written to the socket
         /// </event>
-        public event WriteLineEventHandler  OnWriteLine;
+        public event EventHandler<WriteLineEventArgs>  OnWriteLine;
         /// <event cref="OnConnect">
         /// Raised before the connect attempt
         /// </event>
@@ -116,10 +116,10 @@ namespace Meebey.SmartIrc4net
         /// Raised when the connection got into an error state
         /// </event>
         public event EventHandler           OnConnectionError;
-        /// <event cref="AutoConnectErrorEventHandler">
+        /// <event cref="EventHandler<AutoConnectEventHandler<ErrorEventArgs>>">
         /// Raised when the connection got into an error state during auto connect loop
         /// </event>
-        public event AutoConnectErrorEventHandler   OnAutoConnectError;
+        public event EventHandler<AutoConnectErrorEventArgs>   OnAutoConnectError;
         
         /// <summary>
         /// When a connection error is detected this property will return true
@@ -522,7 +522,7 @@ namespace Meebey.SmartIrc4net
             _SendBuffer[Priority.Low]         = Queue.Synchronized(new Queue());
 
             // setup own callbacks
-            OnReadLine        += new ReadLineEventHandler(_SimpleParser);
+            OnReadLine        += new EventHandler<ReadLineEventArgs>(_SimpleParser);
             OnConnectionError += new EventHandler(_OnConnectionError);
 
             _ReadThread  = new ReadThread(this);

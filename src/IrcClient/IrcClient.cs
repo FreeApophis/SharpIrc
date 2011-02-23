@@ -82,47 +82,47 @@ namespace Meebey.SmartIrc4net
         private AutoResetEvent   _BanListReceivedEvent;
 
         public event EventHandler               OnRegistered;
-        public event PingEventHandler           OnPing;
-        public event PongEventHandler           OnPong;
-        public event IrcEventHandler            OnRawMessage;
-        public event ErrorEventHandler          OnError;
-        public event IrcEventHandler            OnErrorMessage;
-        public event JoinEventHandler           OnJoin;
-        public event NamesEventHandler          OnNames;
-        public event ListEventHandler           OnList;
-        public event PartEventHandler           OnPart;
-        public event QuitEventHandler           OnQuit;
-        public event KickEventHandler           OnKick;
-        public event AwayEventHandler           OnAway;
-        public event IrcEventHandler            OnUnAway;
-        public event IrcEventHandler            OnNowAway;
-        public event InviteEventHandler         OnInvite;
-        public event BanEventHandler            OnBan;
-        public event UnbanEventHandler          OnUnban;
-        public event OpEventHandler             OnOp;
-        public event DeopEventHandler           OnDeop;
-        public event HalfopEventHandler         OnHalfop;
-        public event DehalfopEventHandler       OnDehalfop;
-        public event VoiceEventHandler          OnVoice;
-        public event DevoiceEventHandler        OnDevoice;
-        public event WhoEventHandler            OnWho;
-        public event MotdEventHandler           OnMotd;
-        public event TopicEventHandler          OnTopic;
-        public event TopicChangeEventHandler    OnTopicChange;
-        public event NickChangeEventHandler     OnNickChange;
-        public event IrcEventHandler            OnModeChange;
-        public event IrcEventHandler            OnUserModeChange;
-        public event IrcEventHandler            OnChannelModeChange;
-        public event IrcEventHandler            OnChannelMessage;
-        public event ActionEventHandler         OnChannelAction;
-        public event IrcEventHandler            OnChannelNotice;
-        public event IrcEventHandler            OnChannelActiveSynced;
-        public event IrcEventHandler            OnChannelPassiveSynced;
-        public event IrcEventHandler            OnQueryMessage;
-        public event ActionEventHandler         OnQueryAction;
-        public event IrcEventHandler            OnQueryNotice;
-        public event CtcpEventHandler           OnCtcpRequest;
-        public event CtcpEventHandler           OnCtcpReply;
+        public event EventHandler<PingEventArgs>           OnPing;
+        public event EventHandler<PongEventArgs>           OnPong;
+        public event EventHandler<IrcEventArgs>            OnRawMessage;
+        public event EventHandler<ErrorEventArgs>          OnError;
+        public event EventHandler<IrcEventArgs>            OnErrorMessage;
+        public event EventHandler<JoinEventArgs>           OnJoin;
+        public event EventHandler<NamesEventArgs>          OnNames;
+        public event EventHandler<ListEventArgs>           OnList;
+        public event EventHandler<PartEventArgs>           OnPart;
+        public event EventHandler<QuitEventArgs>           OnQuit;
+        public event EventHandler<KickEventArgs>           OnKick;
+        public event EventHandler<AwayEventArgs>           OnAway;
+        public event EventHandler<IrcEventArgs>            OnUnAway;
+        public event EventHandler<IrcEventArgs>            OnNowAway;
+        public event EventHandler<InviteEventArgs>         OnInvite;
+        public event EventHandler<BanEventArgs>            OnBan;
+        public event EventHandler<UnbanEventArgs>          OnUnban;
+        public event EventHandler<OpEventArgs>             OnOp;
+        public event EventHandler<DeopEventArgs>           OnDeop;
+        public event EventHandler<HalfopEventArgs>         OnHalfop;
+        public event EventHandler<DehalfopEventArgs>       OnDehalfop;
+        public event EventHandler<VoiceEventArgs>          OnVoice;
+        public event EventHandler<DevoiceEventArgs>        OnDevoice;
+        public event EventHandler<WhoEventArgs>            OnWho;
+        public event EventHandler<MotdEventArgs>           OnMotd;
+        public event EventHandler<TopicEventArgs>          OnTopic;
+        public event EventHandler<TopicChangeEventArgs>    OnTopicChange;
+        public event EventHandler<NickChangeEventArgs>     OnNickChange;
+        public event EventHandler<IrcEventArgs>            OnModeChange;
+        public event EventHandler<IrcEventArgs>            OnUserModeChange;
+        public event EventHandler<IrcEventArgs>            OnChannelModeChange;
+        public event EventHandler<IrcEventArgs>            OnChannelMessage;
+        public event EventHandler<ActionEventArgs>         OnChannelAction;
+        public event EventHandler<IrcEventArgs>            OnChannelNotice;
+        public event EventHandler<IrcEventArgs>            OnChannelActiveSynced;
+        public event EventHandler<IrcEventArgs>            OnChannelPassiveSynced;
+        public event EventHandler<IrcEventArgs>            OnQueryMessage;
+        public event EventHandler<ActionEventArgs>         OnQueryAction;
+        public event EventHandler<IrcEventArgs>            OnQueryNotice;
+        public event EventHandler<CtcpEventArgs>           OnCtcpRequest;
+        public event EventHandler<CtcpEventArgs>           OnCtcpReply;
 
         /// <summary>
         /// Enables/disables the active channel sync feature.
@@ -432,7 +432,7 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
             Logger.Main.Debug("IrcClient created");
 #endif
-            OnReadLine        += new ReadLineEventHandler(_Worker);
+            OnReadLine        += new EventHandler<ReadLineEventArgs>(_Worker);
             OnDisconnected    += new EventHandler(_OnDisconnected);
             OnConnectionError += new EventHandler(_OnConnectionError);
         }

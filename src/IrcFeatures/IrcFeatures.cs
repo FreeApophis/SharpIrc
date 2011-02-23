@@ -118,52 +118,52 @@ namespace Meebey.SmartIrc4net
         #endregion
 
         #region Public DCC Events (Global: All Dcc Events)
-        public event DccConnectionHandler OnDccChatRequestEvent;
+        public event EventHandler<DccEventArgs> OnDccChatRequestEvent;
         public void DccChatRequestEvent(DccEventArgs e) {
             if (OnDccChatRequestEvent!=null) {OnDccChatRequestEvent(this, e); }
         }
 
-        public event DccSendRequestHandler OnDccSendRequestEvent;
+        public event EventHandler<DccSendRequestEventArgs> OnDccSendRequestEvent;
         public void DccSendRequestEvent(DccSendRequestEventArgs e) {
             if (OnDccSendRequestEvent!=null) {OnDccSendRequestEvent(this, e); }
         }
         
-        public event DccConnectionHandler OnDccChatStartEvent;
+        public event EventHandler<DccEventArgs> OnDccChatStartEvent;
         public void DccChatStartEvent(DccEventArgs e) {
             if (OnDccChatStartEvent!=null) {OnDccChatStartEvent(this, e); }
         }
 
-        public event DccConnectionHandler OnDccSendStartEvent;
+        public event EventHandler<DccEventArgs> OnDccSendStartEvent;
         public void DccSendStartEvent(DccEventArgs e) {
             if (OnDccSendStartEvent!=null) {OnDccSendStartEvent(this, e); }
         }
         
-        public event DccChatLineHandler OnDccChatReceiveLineEvent;
+        public event EventHandler<DccChatEventArgs> OnDccChatReceiveLineEvent;
         public void DccChatReceiveLineEvent(DccChatEventArgs e) {
             if (OnDccChatReceiveLineEvent!=null) {OnDccChatReceiveLineEvent(this, e); }
         }
 
-        public event DccSendPacketHandler OnDccSendReceiveBlockEvent;
+        public event EventHandler<DccSendEventArgs> OnDccSendReceiveBlockEvent;
         public void DccSendReceiveBlockEvent(DccSendEventArgs e) {
             if (OnDccSendReceiveBlockEvent!=null) {OnDccSendReceiveBlockEvent(this, e); }
         }
 
-        public event DccChatLineHandler OnDccChatSentLineEvent;
+        public event EventHandler<DccChatEventArgs> OnDccChatSentLineEvent;
         public void DccChatSentLineEvent(DccChatEventArgs e) {
             if (OnDccChatSentLineEvent!=null) {OnDccChatSentLineEvent(this, e); }
         }
 
-        public event DccSendPacketHandler OnDccSendSentBlockEvent;
+        public event EventHandler<DccSendEventArgs> OnDccSendSentBlockEvent;
         internal void DccSendSentBlockEvent(DccSendEventArgs e) {
             if (OnDccSendSentBlockEvent!=null) {OnDccSendSentBlockEvent(this, e); }
         }
 
-        public event DccConnectionHandler OnDccChatStopEvent;
+        public event EventHandler<DccEventArgs> OnDccChatStopEvent;
         public void DccChatStopEvent(DccEventArgs e) {
             if (OnDccChatStopEvent!=null) {OnDccChatStopEvent(this, e); }
         }
 
-        public event DccConnectionHandler OnDccSendStopEvent;
+        public event EventHandler<DccEventArgs> OnDccSendStopEvent;
         public void DccSendStopEvent(DccEventArgs e) {
             if (OnDccSendStopEvent!=null) {OnDccSendStopEvent(this, e); }
         }
@@ -174,7 +174,7 @@ namespace Meebey.SmartIrc4net
         public IrcFeatures() : base()
         {
             // This method calls all the ctcp handlers defined below (or added anywhere else)
-            this.OnCtcpRequest += new CtcpEventHandler(this.CtcpRequestsHandler);
+            this.OnCtcpRequest += new EventHandler<CtcpEventArgs>(this.CtcpRequestsHandler);
 
             // Adding ctcp handler, all commands are lower case (.ToLower() in handler)
             _CtcpDelegates.Add("version", this.CtcpVersionDelegate);
