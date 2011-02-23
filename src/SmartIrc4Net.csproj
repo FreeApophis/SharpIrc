@@ -15,7 +15,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;LOG4NET</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -28,9 +28,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <RootNamespace>SmartIrc4Net</RootNamespace>
+    <RootNamespace>Meebey.SmartIrc4net</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\..\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -59,7 +62,6 @@
     <Compile Include="IrcCommands\Rfc2812.cs" />
     <Compile Include="IrcConnection\EventArgs.cs" />
     <Compile Include="IrcConnection\IrcConnection.cs" />
-    <Compile Include="IrcConnection\IrcProperties.cs" />
     <Compile Include="IrcConnection\ProxyType.cs" />
     <Compile Include="IrcFeatures\DccChat.cs" />
     <Compile Include="IrcFeatures\DccConnection.cs" />

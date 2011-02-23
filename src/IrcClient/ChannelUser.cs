@@ -37,8 +37,7 @@ namespace Meebey.SmartIrc4net
     /// <threadsafety static="true" instance="true" />
     public class ChannelUser
     {
-        private readonly string _Channel;
-        private readonly IrcUser _IrcUser;
+        private readonly IrcUser ircUser;
 
         /// <summary>
         /// 
@@ -47,8 +46,8 @@ namespace Meebey.SmartIrc4net
         /// <param name="ircuser"> </param>
         internal ChannelUser(string channel, IrcUser ircuser)
         {
-            _Channel = channel;
-            _IrcUser = ircuser;
+            Channel = channel;
+            ircUser = ircuser;
         }
 
 #if LOG4NET
@@ -61,17 +60,14 @@ namespace Meebey.SmartIrc4net
         /// <summary>
         /// Gets the channel name
         /// </summary>
-        public string Channel
-        {
-            get { return _Channel; }
-        }
+        public string Channel { get; private set; }
 
         /// <summary>
         /// Gets the server operator status of the user
         /// </summary>
         public bool IsIrcOp
         {
-            get { return _IrcUser.IsIrcOp; }
+            get { return ircUser.IsIrcOp; }
         }
 
         /// <summary>
@@ -95,7 +91,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public bool IsAway
         {
-            get { return _IrcUser.IsAway; }
+            get { return ircUser.IsAway; }
         }
 
         /// <summary>
@@ -103,7 +99,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public IrcUser IrcUser
         {
-            get { return _IrcUser; }
+            get { return ircUser; }
         }
 
         /// <summary>
@@ -111,7 +107,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public string Nick
         {
-            get { return _IrcUser.Nick; }
+            get { return ircUser.Nick; }
         }
 
         /// <summary>
@@ -119,7 +115,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public string Ident
         {
-            get { return _IrcUser.Ident; }
+            get { return ircUser.Ident; }
         }
 
         /// <summary>
@@ -127,7 +123,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public string Host
         {
-            get { return _IrcUser.Host; }
+            get { return ircUser.Host; }
         }
 
         /// <summary>
@@ -135,7 +131,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public string Realname
         {
-            get { return _IrcUser.Realname; }
+            get { return ircUser.Realname; }
         }
 
         /// <summary>
@@ -144,7 +140,7 @@ namespace Meebey.SmartIrc4net
         /// <value> </value>
         public string Server
         {
-            get { return _IrcUser.Server; }
+            get { return ircUser.Server; }
         }
 
         /// <summary>
@@ -152,7 +148,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public int HopCount
         {
-            get { return _IrcUser.HopCount; }
+            get { return ircUser.HopCount; }
         }
 
         /// <summary>
@@ -160,7 +156,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public string[] JoinedChannels
         {
-            get { return _IrcUser.JoinedChannels; }
+            get { return ircUser.JoinedChannels; }
         }
     }
 }

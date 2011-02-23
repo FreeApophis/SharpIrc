@@ -30,30 +30,17 @@ namespace Meebey.SmartIrc4net
 {
     public class ChannelInfo
     {
-        private readonly string f_Channel;
-        private readonly string f_Topic;
-        private readonly int f_UserCount;
-
         internal ChannelInfo(string channel, int userCount, string topic)
         {
-            f_Channel = channel;
-            f_UserCount = userCount;
-            f_Topic = topic;
+            Channel = channel;
+            UserCount = userCount;
+            Topic = topic;
         }
 
-        public string Channel
-        {
-            get { return f_Channel; }
-        }
+        public string Channel { get; private set; }
 
-        public int UserCount
-        {
-            get { return f_UserCount; }
-        }
+        public int UserCount { get; private set; }
 
-        public string Topic
-        {
-            get { return f_Topic; }
-        }
+        public string Topic { get; private set; }
     }
 }

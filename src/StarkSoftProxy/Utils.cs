@@ -15,12 +15,11 @@ namespace Starksoft.Net.Proxy
             string host = "";
             try
             {
-                host = ((IPEndPoint) client.Client.RemoteEndPoint).Address.ToString();
+                host = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
             }
-            catch
+            catch (Exception)
             {
             }
-            ;
 
             return host;
         }
@@ -33,12 +32,11 @@ namespace Starksoft.Net.Proxy
             string port = "";
             try
             {
-                port = ((IPEndPoint) client.Client.RemoteEndPoint).Port.ToString(CultureInfo.InvariantCulture);
+                port = ((IPEndPoint)client.Client.RemoteEndPoint).Port.ToString(CultureInfo.InvariantCulture);
             }
-            catch
+            catch (Exception)
             {
             }
-            ;
 
             return port;
         }

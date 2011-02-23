@@ -32,22 +32,18 @@ namespace Meebey.SmartIrc4net
     /// <summary>
     /// Dcc Chat Connection, Line Based Text
     /// </summary>
-    public class DccChat : DccConnection
+    public sealed class DccChat : DccConnection
     {
         #region Private Variables
 
-        private int _lines;
-        private StreamReader _sr;
-        private StreamWriter _sw;
+        private StreamReader streamReader;
+        private StreamWriter streamWriter;
 
         #endregion
 
         #region Public Properties
 
-        public int Lines
-        {
-            get { return _lines; }
-        }
+        public int LineCount { get; private set; }
 
         #endregion
 
@@ -67,17 +63,15 @@ namespace Meebey.SmartIrc4net
 
             if (passive)
             {
-                irc.SendMessage(SendType.CtcpRequest, user,
-                                "DCC CHAT chat " + HostToDccInt(externalIpAdress) + " 0 " + session, priority);
+                irc.SendMessage(SendType.CtcpRequest, user, "DCC CHAT chat " + HostToDccInt(externalIpAdress) + " 0 " + SessionID, priority);
                 Disconnect();
             }
             else
             {
                 DccServer = new TcpListener(new IPEndPoint(IPAddress.Any, 0));
                 DccServer.Start();
-                LocalEndPoint = (IPEndPoint) DccServer.LocalEndpoint;
-                irc.SendMessage(SendType.CtcpRequest, user,
-                                "DCC CHAT chat " + HostToDccInt(externalIpAdress) + " " + LocalEndPoint.Port, priority);
+                LocalEndPoint = (IPEndPoint)DccServer.LocalEndpoint;
+                irc.SendMessage(SendType.CtcpRequest, user, "DCC CHAT chat " + HostToDccInt(externalIpAdress) + " " + LocalEndPoint.Port, priority);
             }
         }
 
@@ -93,13 +87,13 @@ namespace Meebey.SmartIrc4net
             ExternalIPAdress = externalIpAdress;
             User = e.Data.Nick;
 
-            long ip;
-            int port;
             if (e.Data.MessageArray.Length > 4)
             {
+                long ip;
                 bool okIP = long.TryParse(e.Data.MessageArray[3], out ip);
-                bool okPo = int.TryParse(FilterMarker(e.Data.MessageArray[4]), out port); // port 0 = passive
-                if ((e.Data.MessageArray[2] == "chat") && okIP && okPo)
+                int port;
+                bool okPort = int.TryParse(FilterMarker(e.Data.MessageArray[4]), out port); // port 0 = passive
+                if ((e.Data.MessageArray[2] == "chat") && okIP && okPort)
                 {
                     RemoteEndPoint = new IPEndPoint(IPAddress.Parse(DccIntToHost(ip)), port);
                     if (e.Data.MessageArray.Length > 5 && e.Data.MessageArray[5] != "T")
@@ -110,16 +104,13 @@ namespace Meebey.SmartIrc4net
                     DccChatRequestEvent(new DccEventArgs(this));
                     return;
                 }
-                else
-                {
-                    irc.SendMessage(SendType.CtcpReply, e.Data.Nick, "ERRMSG DCC Chat Parameter Error");
-                }
+                irc.SendMessage(SendType.CtcpReply, e.Data.Nick, "ERRMSG DCC Chat Parameter Error");
             }
             else
             {
                 irc.SendMessage(SendType.CtcpReply, e.Data.Nick, "ERRMSG DCC Chat not enough parameters");
             }
-            isValid = false;
+            IsValid = false;
         }
 
         internal override void InitWork(Object stateInfo)
@@ -129,18 +120,18 @@ namespace Meebey.SmartIrc4net
             if (DccServer != null)
             {
                 Connection = DccServer.AcceptTcpClient();
-                RemoteEndPoint = (IPEndPoint) Connection.Client.RemoteEndPoint;
+                RemoteEndPoint = (IPEndPoint)Connection.Client.RemoteEndPoint;
                 DccServer.Stop();
-                isConnected = true;
+                IsConnected = true;
             }
             else
             {
-                while (!isConnected)
+                while (!IsConnected)
                 {
                     Thread.Sleep(500); // We wait till Request is Accepted (or jump out when rejected)
-                    if (reject)
+                    if (Reject)
                     {
-                        isValid = false;
+                        IsValid = false;
                         return;
                     }
                 }
@@ -148,18 +139,17 @@ namespace Meebey.SmartIrc4net
 
             DccChatStartEvent(new DccEventArgs(this));
 
-            _sr = new StreamReader(Connection.GetStream(), Irc.Encoding);
-            _sw = new StreamWriter(Connection.GetStream(), Irc.Encoding);
-            _sw.AutoFlush = true;
+            streamReader = new StreamReader(Connection.GetStream(), Irc.Encoding);
+            streamWriter = new StreamWriter(Connection.GetStream(), Irc.Encoding) { AutoFlush = true };
 
             string line;
-            while (((line = _sr.ReadLine()) != null) && (isConnected))
+            while (((line = streamReader.ReadLine()) != null) && (IsConnected))
             {
                 DccChatReceiveLineEvent(new DccChatEventArgs(this, line));
-                _lines++;
+                LineCount++;
             }
-            isValid = false;
-            isConnected = false;
+            IsValid = false;
+            IsConnected = false;
             DccChatStopEvent(new DccEventArgs(this));
         }
 
@@ -171,7 +161,7 @@ namespace Meebey.SmartIrc4net
         /// <returns></returns>
         public bool AcceptRequest()
         {
-            if (isConnected)
+            if (IsConnected)
                 return false;
             try
             {
@@ -179,7 +169,7 @@ namespace Meebey.SmartIrc4net
                 {
                     DccServer = new TcpListener(new IPEndPoint(IPAddress.Any, 0));
                     DccServer.Start();
-                    LocalEndPoint = (IPEndPoint) DccServer.LocalEndpoint;
+                    LocalEndPoint = (IPEndPoint)DccServer.LocalEndpoint;
                     Irc.SendMessage(SendType.CtcpRequest, User,
                                     "DCC CHAT chat " + HostToDccInt(ExternalIPAdress) + " " + LocalEndPoint.Port);
                 }
@@ -187,24 +177,24 @@ namespace Meebey.SmartIrc4net
                 {
                     Connection = new TcpClient();
                     Connection.Connect(RemoteEndPoint);
-                    isConnected = true;
+                    IsConnected = true;
                 }
                 return true;
             }
             catch (Exception)
             {
-                isValid = false;
-                isConnected = false;
+                IsValid = false;
+                IsConnected = false;
                 return false;
             }
         }
 
         public void WriteLine(string message)
         {
-            if (isConnected)
+            if (IsConnected)
             {
-                _sw.WriteLine(message);
-                _lines++;
+                streamWriter.WriteLine(message);
+                LineCount++;
                 DccChatSentLineEvent(new DccChatEventArgs(this, message));
             }
             else

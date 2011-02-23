@@ -38,24 +38,10 @@ namespace Meebey.SmartIrc4net
     /// <threadsafety static="true" instance="true" />
     public class Channel
     {
-        private readonly string _Name;
-        private string _Key = String.Empty;
+        private readonly Hashtable users = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
+        private readonly Hashtable ops = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
 
-        private readonly Hashtable _Users =
-            Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
-
-        private readonly Hashtable _Ops =
-            Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
-
-        private readonly Hashtable _Voices =
-            Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
-
-        private readonly StringCollection _Bans = new StringCollection();
-        private string _Topic = String.Empty;
-        private string _Mode = String.Empty;
-        private readonly DateTime _ActiveSyncStart;
-        private DateTime _ActiveSyncStop;
-        private TimeSpan _ActiveSyncTime;
+        private DateTime activeSyncStop;
 
         /// <summary>
         /// 
@@ -63,8 +49,13 @@ namespace Meebey.SmartIrc4net
         /// <param name="name"> </param>
         internal Channel(string name)
         {
-            _Name = name;
-            _ActiveSyncStart = DateTime.Now;
+            Mode = String.Empty;
+            Topic = String.Empty;
+            Bans = new StringCollection();
+            UnsafeVoices = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
+            Key = String.Empty;
+            Name = name;
+            ActiveSyncStart = DateTime.Now;
         }
 
 #if LOG4NET
@@ -78,20 +69,13 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public string Name
-        {
-            get { return _Name; }
-        }
+        public string Name { get; private set; }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        public string Key
-        {
-            get { return _Key; }
-            set { _Key = value; }
-        }
+        public string Key { get; set; }
 
         /// <summary>
         /// 
@@ -99,7 +83,7 @@ namespace Meebey.SmartIrc4net
         /// <value> </value>
         public Hashtable Users
         {
-            get { return (Hashtable) _Users.Clone(); }
+            get { return (Hashtable)users.Clone(); }
         }
 
         /// <summary>
@@ -108,7 +92,7 @@ namespace Meebey.SmartIrc4net
         /// <value> </value>
         internal Hashtable UnsafeUsers
         {
-            get { return _Users; }
+            get { return users; }
         }
 
         /// <summary>
@@ -117,7 +101,7 @@ namespace Meebey.SmartIrc4net
         /// <value> </value>
         public Hashtable Ops
         {
-            get { return (Hashtable) _Ops.Clone(); }
+            get { return (Hashtable)ops.Clone(); }
         }
 
         /// <summary>
@@ -126,7 +110,7 @@ namespace Meebey.SmartIrc4net
         /// <value> </value>
         internal Hashtable UnsafeOps
         {
-            get { return _Ops; }
+            get { return ops; }
         }
 
         /// <summary>
@@ -135,36 +119,26 @@ namespace Meebey.SmartIrc4net
         /// <value> </value>
         public Hashtable Voices
         {
-            get { return (Hashtable) _Voices.Clone(); }
+            get { return (Hashtable)UnsafeVoices.Clone(); }
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeVoices
-        {
-            get { return _Voices; }
-        }
+        internal Hashtable UnsafeVoices { get; private set; }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        public StringCollection Bans
-        {
-            get { return _Bans; }
-        }
+        public StringCollection Bans { get; private set; }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        public string Topic
-        {
-            get { return _Topic; }
-            set { _Topic = value; }
-        }
+        public string Topic { get; set; }
 
         /// <summary>
         /// 
@@ -176,20 +150,13 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public string Mode
-        {
-            get { return _Mode; }
-            set { _Mode = value; }
-        }
+        public string Mode { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        public DateTime ActiveSyncStart
-        {
-            get { return _ActiveSyncStart; }
-        }
+        public DateTime ActiveSyncStart { get; private set; }
 
         /// <summary>
         /// 
@@ -197,11 +164,11 @@ namespace Meebey.SmartIrc4net
         /// <value> </value>
         public DateTime ActiveSyncStop
         {
-            get { return _ActiveSyncStop; }
+            get { return activeSyncStop; }
             set
             {
-                _ActiveSyncStop = value;
-                _ActiveSyncTime = _ActiveSyncStop.Subtract(_ActiveSyncStart);
+                activeSyncStop = value;
+                ActiveSyncTime = activeSyncStop.Subtract(ActiveSyncStart);
             }
         }
 
@@ -209,10 +176,7 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public TimeSpan ActiveSyncTime
-        {
-            get { return _ActiveSyncTime; }
-        }
+        public TimeSpan ActiveSyncTime { get; private set; }
 
         public bool IsSycned { get; set; }
     }

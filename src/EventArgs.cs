@@ -36,19 +36,14 @@ namespace Meebey.SmartIrc4net
     /// <threadsafety static="true" instance="true" />
     public class IrcEventArgs : EventArgs
     {
-        private readonly IrcMessageData _Data;
-
         internal IrcEventArgs(IrcMessageData data)
         {
-            _Data = data;
+            Data = data;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public IrcMessageData Data
-        {
-            get { return _Data; }
-        }
+        public IrcMessageData Data { get; private set; }
     }
 }

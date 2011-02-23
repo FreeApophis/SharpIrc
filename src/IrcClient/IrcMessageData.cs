@@ -38,21 +38,21 @@ namespace Meebey.SmartIrc4net
     /// <threadsafety static="true" instance="true" />
     public class IrcMessageData
     {
-        private static readonly Regex _PrefixRegex = new Regex("([^!@]+)(![^@]+)?(@.+)?");
-        private readonly string[] _Args;
-        private readonly string _Command;
-        private readonly IrcClient _Irc;
-        private readonly string[] _MessageArray;
-        private readonly string _Prefix;
-        private readonly string _RawMessage;
-        private readonly string[] _RawMessageArray;
-        private readonly string _Rest;
-        private string _Channel;
-        private string _Host;
-        private string _Ident;
-        private string _Nick;
-        private ReplyCode _ReplyCode;
-        private ReceiveType _Type;
+        private static readonly Regex PrefixRegex = new Regex("([^!@]+)(![^@]+)?(@.+)?");
+        private readonly string[] args;
+        private readonly string command;
+        private readonly IrcClient irc;
+        private readonly string[] messageArray;
+        private readonly string prefix;
+        private readonly string rawMessage;
+        private readonly string[] rawMessageArray;
+        private readonly string rest;
+        private string channel;
+        private string host;
+        private string ident;
+        private string nick;
+        private ReplyCode replyCode;
+        private ReceiveType type;
 
         /// <summary>
         /// Constructor to create an instace of IrcMessageData
@@ -70,28 +70,28 @@ namespace Meebey.SmartIrc4net
         public IrcMessageData(IrcClient ircclient, string from, string nick, string ident, string host, string channel,
                               string message, string rawmessage, ReceiveType type, ReplyCode replycode)
         {
-            _Irc = ircclient;
-            _RawMessage = rawmessage;
-            _RawMessageArray = rawmessage.Split(new[] {' '});
-            _Type = type;
-            _ReplyCode = replycode;
-            _Prefix = from;
-            _Nick = nick;
-            _Ident = ident;
-            _Host = host;
-            _Channel = channel;
+            irc = ircclient;
+            rawMessage = rawmessage;
+            rawMessageArray = rawmessage.Split(new[] { ' ' });
+            this.type = type;
+            replyCode = replycode;
+            prefix = from;
+            this.nick = nick;
+            this.ident = ident;
+            this.host = host;
+            this.channel = channel;
             if (message != null)
             {
                 // message is optional
-                _Rest = message;
-                _MessageArray = message.Split(new[] {' '});
+                rest = message;
+                messageArray = message.Split(new[] { ' ' });
             }
         }
 
         /// <summary>
         /// Constructor to create an instace of IrcMessageData
         /// </summary>
-        /// <param name="ircclient">IrcClient the message originated from</param>
+        /// <param name="ircClient">IrcClient the message originated from</param>
         /// <param name="rawMessage">message as it appears on wire, stripped of newline</param>
         public IrcMessageData(IrcClient ircClient, string rawMessage)
         {
@@ -100,52 +100,52 @@ namespace Meebey.SmartIrc4net
             if (rawMessage == "")
                 throw new ArgumentException("Cannot parse empty message");
 
-            _Irc = ircClient;
-            _RawMessage = rawMessage;
-            _RawMessageArray = rawMessage.Split(' ');
-            _Prefix = "";
-            _Rest = "";
+            irc = ircClient;
+            this.rawMessage = rawMessage;
+            rawMessageArray = rawMessage.Split(' ');
+            prefix = "";
+            this.rest = "";
 
             int start = 0;
             int len = 0;
-            if (_RawMessageArray[0][0] == ':')
+            if (rawMessageArray[0][0] == ':')
             {
-                _Prefix = _RawMessageArray[0].Substring(1);
+                prefix = rawMessageArray[0].Substring(1);
                 start = 1;
-                len += _Prefix.Length + 1;
+                len += prefix.Length + 1;
             }
 
-            _Command = _RawMessageArray[start];
-            len += _Command.Length + 1;
+            command = rawMessageArray[start];
+            len += command.Length + 1;
 
-            int rest = _RawMessageArray.Length;
+            int rest = rawMessageArray.Length;
 
             if (start + 1 < rest)
             {
-                for (int i = start + 1; i < _RawMessageArray.Length; i++)
+                for (int i = start + 1; i < rawMessageArray.Length; i++)
                 {
-                    if (_RawMessageArray[i][0] == ':')
+                    if (rawMessageArray[i][0] == ':')
                     {
                         rest = i;
                         break;
                     }
                     else
-                        len += _RawMessageArray[i].Length + 1;
+                        len += rawMessageArray[i].Length + 1;
                 }
 
-                _Args = new string[rest - start - 1];
-                Array.Copy(_RawMessageArray, start + 1, _Args, 0, rest - start - 1);
-                if (rest < _RawMessageArray.Length)
+                args = new string[rest - start - 1];
+                Array.Copy(rawMessageArray, start + 1, args, 0, rest - start - 1);
+                if (rest < rawMessageArray.Length)
                 {
-                    _Rest = _RawMessage.Substring(_RawMessage.IndexOf(':', len) + 1);
-                    _MessageArray = _Rest.Split(' ');
+                    this.rest = this.rawMessage.Substring(this.rawMessage.IndexOf(':', len) + 1);
+                    messageArray = this.rest.Split(' ');
                 }
             }
             else
-                _Args = new string[0];
+                args = new string[0];
 
-            _ReplyCode = ReplyCode.Null;
-            _Type = ReceiveType.Unknown;
+            replyCode = ReplyCode.Null;
+            type = ReceiveType.Unknown;
 
             _ParseLegacyInfo();
         }
@@ -155,7 +155,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public IrcClient Irc
         {
-            get { return _Irc; }
+            get { return irc; }
         }
 
         /// <summary>
@@ -166,7 +166,7 @@ namespace Meebey.SmartIrc4net
         /// </example>
         public string From
         {
-            get { return _Prefix; }
+            get { return prefix; }
         }
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public string Nick
         {
-            get { return _Nick; }
+            get { return nick; }
         }
 
         /// <summary>
@@ -182,7 +182,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public string Ident
         {
-            get { return _Ident; }
+            get { return ident; }
         }
 
         /// <summary>
@@ -190,7 +190,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public string Host
         {
-            get { return _Host; }
+            get { return host; }
         }
 
         /// <summary>
@@ -198,7 +198,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public string Channel
         {
-            get { return _Channel; }
+            get { return channel; }
         }
 
         /// <summary>
@@ -206,7 +206,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public string Message
         {
-            get { return _Rest; }
+            get { return rest; }
         }
 
         /// <summary>
@@ -214,7 +214,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public string[] MessageArray
         {
-            get { return _MessageArray; }
+            get { return messageArray; }
         }
 
         /// <summary>
@@ -222,7 +222,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public string RawMessage
         {
-            get { return _RawMessage; }
+            get { return rawMessage; }
         }
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public string[] RawMessageArray
         {
-            get { return _RawMessageArray; }
+            get { return rawMessageArray; }
         }
 
         /// <summary>
@@ -238,7 +238,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public ReceiveType Type
         {
-            get { return _Type; }
+            get { return type; }
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public ReplyCode ReplyCode
         {
-            get { return _ReplyCode; }
+            get { return replyCode; }
         }
 
         /// <summary>
@@ -254,7 +254,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public string Prefix
         {
-            get { return _Prefix; }
+            get { return prefix; }
         }
 
         /// <summary>
@@ -262,7 +262,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public string Command
         {
-            get { return _Command; }
+            get { return command; }
         }
 
         /// <summary>
@@ -270,7 +270,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public string[] Args
         {
-            get { return _Args; }
+            get { return args; }
         }
 
         /// <summary>
@@ -278,36 +278,36 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public string Rest
         {
-            get { return _Rest; }
+            get { return rest; }
         }
 
         // refactored old field parsing code below, ignore for own sanity
         private void _ParseLegacyInfo()
         {
-            Match match = _PrefixRegex.Match(_Prefix);
+            Match match = PrefixRegex.Match(prefix);
 
             if (match.Success)
             {
-                if (match.Groups[2].Success || match.Groups[3].Success || (_Prefix.IndexOf('.') < 0))
-                    _Nick = match.Groups[1].ToString();
+                if (match.Groups[2].Success || match.Groups[3].Success || (prefix.IndexOf('.') < 0))
+                    nick = match.Groups[1].ToString();
             }
 
             if (match.Groups[2].Success)
-                _Ident = match.Groups[2].ToString().Substring(1);
+                ident = match.Groups[2].ToString().Substring(1);
             if (match.Groups[3].Success)
-                _Host = match.Groups[3].ToString().Substring(1);
+                host = match.Groups[3].ToString().Substring(1);
 
             int replyCode;
-            if (int.TryParse(_Command, out replyCode))
-                _ReplyCode = (ReplyCode) replyCode;
+            if (int.TryParse(command, out replyCode))
+                this.replyCode = (ReplyCode)replyCode;
             else
-                _ReplyCode = ReplyCode.Null;
+                this.replyCode = ReplyCode.Null;
 
-            if (_ReplyCode != ReplyCode.Null)
+            if (this.replyCode != ReplyCode.Null)
             {
                 // categorize replies
 
-                switch (_ReplyCode)
+                switch (this.replyCode)
                 {
                     case ReplyCode.Welcome:
                     case ReplyCode.YourHost:
@@ -318,7 +318,7 @@ namespace Meebey.SmartIrc4net
                     case ReplyCode.SaslFailure1:
                     case ReplyCode.SaslFailure2:
                     case ReplyCode.SaslAbort:
-                        _Type = ReceiveType.Login;
+                        type = ReceiveType.Login;
                         break;
 
                     case ReplyCode.LuserClient:
@@ -326,39 +326,39 @@ namespace Meebey.SmartIrc4net
                     case ReplyCode.LuserUnknown:
                     case ReplyCode.LuserMe:
                     case ReplyCode.LuserChannels:
-                        _Type = ReceiveType.Info;
+                        type = ReceiveType.Info;
                         break;
 
                     case ReplyCode.MotdStart:
                     case ReplyCode.Motd:
                     case ReplyCode.EndOfMotd:
-                        _Type = ReceiveType.Motd;
+                        type = ReceiveType.Motd;
                         break;
 
                     case ReplyCode.NamesReply:
                     case ReplyCode.EndOfNames:
-                        _Type = ReceiveType.Name;
+                        type = ReceiveType.Name;
                         break;
 
                     case ReplyCode.WhoReply:
                     case ReplyCode.EndOfWho:
-                        _Type = ReceiveType.Who;
+                        type = ReceiveType.Who;
                         break;
 
                     case ReplyCode.ListStart:
                     case ReplyCode.List:
                     case ReplyCode.ListEnd:
-                        _Type = ReceiveType.List;
+                        type = ReceiveType.List;
                         break;
 
                     case ReplyCode.BanList:
                     case ReplyCode.EndOfBanList:
-                        _Type = ReceiveType.BanList;
+                        type = ReceiveType.BanList;
                         break;
 
                     case ReplyCode.Topic:
                     case ReplyCode.NoTopic:
-                        _Type = ReceiveType.Topic;
+                        type = ReceiveType.Topic;
                         break;
 
                     case ReplyCode.WhoIsUser:
@@ -367,31 +367,31 @@ namespace Meebey.SmartIrc4net
                     case ReplyCode.WhoIsIdle:
                     case ReplyCode.WhoIsChannels:
                     case ReplyCode.EndOfWhoIs:
-                        _Type = ReceiveType.WhoIs;
+                        type = ReceiveType.WhoIs;
                         break;
 
                     case ReplyCode.WhoWasUser:
                     case ReplyCode.EndOfWhoWas:
-                        _Type = ReceiveType.WhoWas;
+                        type = ReceiveType.WhoWas;
                         break;
 
                     case ReplyCode.UserModeIs:
-                        _Type = ReceiveType.UserMode;
+                        type = ReceiveType.UserMode;
                         break;
 
                     case ReplyCode.ChannelModeIs:
-                        _Type = ReceiveType.ChannelMode;
+                        type = ReceiveType.ChannelMode;
                         break;
 
                     default:
                         if ((replyCode >= 400) &&
                             (replyCode <= 599))
                         {
-                            _Type = ReceiveType.ErrorMessage;
+                            type = ReceiveType.ErrorMessage;
                         }
                         else
                         {
-                            _Type = ReceiveType.Unknown;
+                            type = ReceiveType.Unknown;
                         }
                         break;
                 }
@@ -400,130 +400,130 @@ namespace Meebey.SmartIrc4net
             {
                 // categorize commands
 
-                switch (_Command)
+                switch (command)
                 {
                     case "PING":
-                        _Type = ReceiveType.Unknown;
+                        type = ReceiveType.Unknown;
                         break;
 
                     case "ERROR":
-                        _Type = ReceiveType.Error;
+                        type = ReceiveType.Error;
                         break;
 
                     case "PRIVMSG":
-                        if (_Args.Length > 0 && _Rest.StartsWith("\x1" + "ACTION") && _Rest.EndsWith("\x1"))
+                        if (args.Length > 0 && rest.StartsWith("\x1" + "ACTION") && rest.EndsWith("\x1"))
                         {
-                            switch (_Args[0][0])
+                            switch (args[0][0])
                             {
                                 case '#':
                                 case '!':
                                 case '&':
                                 case '+':
-                                    _Type = ReceiveType.ChannelAction;
+                                    type = ReceiveType.ChannelAction;
                                     break;
 
                                 default:
-                                    _Type = ReceiveType.QueryAction;
+                                    type = ReceiveType.QueryAction;
                                     break;
                             }
                         }
-                        else if (_Rest.StartsWith("\x1") && _Rest.EndsWith("\x1"))
+                        else if (rest.StartsWith("\x1") && rest.EndsWith("\x1"))
                         {
-                            _Type = ReceiveType.CtcpRequest;
+                            type = ReceiveType.CtcpRequest;
                         }
-                        else if (_Args.Length > 0)
+                        else if (args.Length > 0)
                         {
-                            switch (_Args[0][0])
+                            switch (args[0][0])
                             {
                                 case '#':
                                 case '!':
                                 case '&':
                                 case '+':
-                                    _Type = ReceiveType.ChannelMessage;
+                                    type = ReceiveType.ChannelMessage;
                                     break;
 
                                 default:
-                                    _Type = ReceiveType.QueryMessage;
+                                    type = ReceiveType.QueryMessage;
                                     break;
                             }
                         }
                         break;
 
                     case "NOTICE":
-                        if (_Rest.StartsWith("\x1") && _Rest.EndsWith("\x1"))
+                        if (rest.StartsWith("\x1") && rest.EndsWith("\x1"))
                         {
-                            _Type = ReceiveType.CtcpReply;
+                            type = ReceiveType.CtcpReply;
                         }
-                        else if (_Args.Length > 0)
+                        else if (args.Length > 0)
                         {
-                            switch (_Args[0][0])
+                            switch (args[0][0])
                             {
                                 case '#':
                                 case '!':
                                 case '&':
                                 case '+':
-                                    _Type = ReceiveType.ChannelNotice;
+                                    type = ReceiveType.ChannelNotice;
                                     break;
 
                                 default:
-                                    _Type = ReceiveType.QueryNotice;
+                                    type = ReceiveType.QueryNotice;
                                     break;
                             }
                         }
                         break;
 
                     case "INVITE":
-                        _Type = ReceiveType.Invite;
+                        type = ReceiveType.Invite;
                         break;
 
                     case "JOIN":
-                        _Type = ReceiveType.Join;
+                        type = ReceiveType.Join;
                         break;
 
                     case "PART":
-                        _Type = ReceiveType.Part;
+                        type = ReceiveType.Part;
                         break;
 
                     case "TOPIC":
-                        _Type = ReceiveType.TopicChange;
+                        type = ReceiveType.TopicChange;
                         break;
 
                     case "NICK":
-                        _Type = ReceiveType.NickChange;
+                        type = ReceiveType.NickChange;
                         break;
 
                     case "KICK":
-                        _Type = ReceiveType.Kick;
+                        type = ReceiveType.Kick;
                         break;
 
                     case "MODE":
-                        switch (_Args[0][0])
+                        switch (args[0][0])
                         {
                             case '#':
                             case '!':
                             case '&':
                             case '+':
-                                _Type = ReceiveType.ChannelModeChange;
+                                type = ReceiveType.ChannelModeChange;
                                 break;
 
                             default:
-                                _Type = ReceiveType.UserModeChange;
+                                type = ReceiveType.UserModeChange;
                                 break;
                         }
                         break;
 
                     case "QUIT":
-                        _Type = ReceiveType.Quit;
+                        type = ReceiveType.Quit;
                         break;
 
                     case "CAP":
                     case "AUTHENTICATE":
-                        _Type = ReceiveType.Other;
+                        type = ReceiveType.Other;
                         break;
                 }
             }
 
-            switch (_Type)
+            switch (type)
             {
                 case ReceiveType.Join:
                 case ReceiveType.Kick:
@@ -533,7 +533,7 @@ namespace Meebey.SmartIrc4net
                 case ReceiveType.ChannelMessage:
                 case ReceiveType.ChannelAction:
                 case ReceiveType.ChannelNotice:
-                    _Channel = _RawMessageArray[2];
+                    channel = rawMessageArray[2];
                     break;
 
                 case ReceiveType.Who:
@@ -541,25 +541,27 @@ namespace Meebey.SmartIrc4net
                 case ReceiveType.Invite:
                 case ReceiveType.BanList:
                 case ReceiveType.ChannelMode:
-                    _Channel = _RawMessageArray[3];
+                    channel = rawMessageArray[3];
                     break;
 
                 case ReceiveType.Name:
-                    _Channel = _RawMessageArray[4];
+                    channel = rawMessageArray[4];
                     break;
             }
 
-            switch (_ReplyCode)
+            switch (this.replyCode)
             {
                 case ReplyCode.List:
                 case ReplyCode.ListEnd:
                 case ReplyCode.ErrorNoChannelModes:
-                    _Channel = _Args[1];
+                    channel = args[1];
                     break;
             }
 
-            if (_Channel != null && _Channel.StartsWith(":"))
-                _Channel = Channel.Substring(1);
+            if (channel != null && channel.StartsWith(":"))
+            {
+                channel = Channel.Substring(1);
+            }
         }
 
         public override string ToString()
@@ -567,16 +569,16 @@ namespace Meebey.SmartIrc4net
             var sb = new StringBuilder("[");
 
             sb.Append("<");
-            sb.Append(_Prefix ?? "null");
+            sb.Append(prefix ?? "null");
             sb.Append("> ");
 
             sb.Append("<");
-            sb.Append(_Command ?? "null");
+            sb.Append(command ?? "null");
             sb.Append("> ");
 
             sb.Append("<");
             string sep = "";
-            foreach (string a in (_Args ?? new string[0]))
+            foreach (string a in (args ?? new string[0]))
             {
                 sb.Append(sep);
                 sep = ", ";
@@ -585,27 +587,27 @@ namespace Meebey.SmartIrc4net
             sb.Append("> ");
 
             sb.Append("<");
-            sb.Append(_Rest ?? "null");
+            sb.Append(rest ?? "null");
             sb.Append("> ");
 
             sb.Append("(Type=");
-            sb.Append(_Type.ToString());
+            sb.Append(type.ToString());
             sb.Append(") ");
 
             sb.Append("(Nick=");
-            sb.Append(_Nick ?? "null");
+            sb.Append(nick ?? "null");
             sb.Append(") ");
 
             sb.Append("(Ident=");
-            sb.Append(_Ident ?? "null");
+            sb.Append(ident ?? "null");
             sb.Append(") ");
 
             sb.Append("(Host=");
-            sb.Append(_Host ?? "null");
+            sb.Append(host ?? "null");
             sb.Append(") ");
 
             sb.Append("(Channel=");
-            sb.Append(_Channel ?? "null");
+            sb.Append(channel ?? "null");
             sb.Append(") ");
 
             return sb.ToString();

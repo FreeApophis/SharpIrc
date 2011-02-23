@@ -35,17 +35,12 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class ReadLineEventArgs : EventArgs
     {
-        private readonly string _Line;
-
         internal ReadLineEventArgs(string line)
         {
-            _Line = line;
+            Line = line;
         }
 
-        public string Line
-        {
-            get { return _Line; }
-        }
+        public string Line { get; private set; }
     }
 
     /// <summary>
@@ -53,17 +48,12 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class WriteLineEventArgs : EventArgs
     {
-        private readonly string _Line;
-
         internal WriteLineEventArgs(string line)
         {
-            _Line = line;
+            Line = line;
         }
 
-        public string Line
-        {
-            get { return _Line; }
-        }
+        public string Line { get; private set; }
     }
 
     /// <summary>
@@ -71,30 +61,17 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class AutoConnectErrorEventArgs : EventArgs
     {
-        private readonly string _Address;
-        private readonly Exception _Exception;
-        private readonly int _Port;
-
         internal AutoConnectErrorEventArgs(string address, int port, Exception ex)
         {
-            _Address = address;
-            _Port = port;
-            _Exception = ex;
+            Address = address;
+            Port = port;
+            Exception = ex;
         }
 
-        public Exception Exception
-        {
-            get { return _Exception; }
-        }
+        public Exception Exception { get; private set; }
 
-        public string Address
-        {
-            get { return _Address; }
-        }
+        public string Address { get; private set; }
 
-        public int Port
-        {
-            get { return _Port; }
-        }
+        public int Port { get; private set; }
     }
 }

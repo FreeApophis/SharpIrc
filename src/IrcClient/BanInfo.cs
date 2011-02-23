@@ -31,30 +31,18 @@ namespace Meebey.SmartIrc4net
 {
     public class BanInfo
     {
-        private string f_Channel;
-        private string f_Mask;
-
         private BanInfo()
         {
         }
 
-        public string Channel
-        {
-            get { return f_Channel; }
-        }
+        public string Channel { get; private set; }
 
-        public string Mask
-        {
-            get { return f_Mask; }
-        }
+        public string Mask { get; private set; }
 
         public static BanInfo Parse(IrcMessageData data)
         {
-            var info = new BanInfo();
             // :magnet.oftc.net 367 meebey #smuxi test!test@test meebey!~meebey@e176002059.adsl.alicedsl.de 1216309801..
-            info.f_Channel = data.RawMessageArray[3];
-            info.f_Mask = data.RawMessageArray[4];
-            return info;
+            return new BanInfo { Channel = data.RawMessageArray[3], Mask = data.RawMessageArray[4] };
         }
     }
 }

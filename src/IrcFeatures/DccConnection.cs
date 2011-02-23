@@ -22,6 +22,7 @@
  */
 
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
@@ -43,11 +44,11 @@ namespace Meebey.SmartIrc4net
         protected DateTime Timeout;
         protected string User;
 
-        protected bool isConnected;
-        protected bool isValid = true;
+        protected bool IsConnected;
+        protected bool IsValid = true;
 
-        protected bool reject;
-        protected long session;
+        protected bool Reject;
+        protected long SessionID;
 
         private class Session
         {
@@ -68,7 +69,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public bool Connected
         {
-            get { return isConnected; }
+            get { return IsConnected; }
         }
 
         /// <summary>
@@ -76,7 +77,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public bool Valid
         {
-            get { return isValid && (isConnected || (DateTime.Now < Timeout)); }
+            get { return IsValid && (IsConnected || (DateTime.Now < Timeout)); }
         }
 
         /// <summary>
@@ -206,7 +207,7 @@ namespace Meebey.SmartIrc4net
         internal DccConnection()
         {
             //Each DccConnection gets a Unique Identifier (just used internally until we have a TcpClient connected)
-            session = Session.Next;
+            SessionID = Session.Next;
             // If a Connection is not established within 120 Seconds we invalidate the DccConnection (see property Valid)
             Timeout = DateTime.Now.AddSeconds(120);
         }
@@ -216,9 +217,9 @@ namespace Meebey.SmartIrc4net
             throw new NotSupportedException();
         }
 
-        internal bool isSession(long session)
+        internal bool IsSession(long session)
         {
-            return (session == this.session);
+            return (session == this.SessionID);
         }
 
         #region Public Methods
@@ -226,21 +227,20 @@ namespace Meebey.SmartIrc4net
         public void RejectRequest()
         {
             Irc.SendMessage(SendType.CtcpReply, User, "ERRMSG DCC Rejected");
-            reject = true;
-            isValid = false;
+            Reject = true;
+            IsValid = false;
         }
 
 
         public void Disconnect()
         {
-            isConnected = false;
-            isValid = false;
+            IsConnected = false;
+            IsValid = false;
         }
 
         public override string ToString()
         {
-            return "DCC Session " + session + " of " + GetType() + " is " +
-                   ((isConnected) ? "connected to " + RemoteEndPoint.Address : "not connected") + "[" + User + "]";
+            return "DCC Session " + SessionID + " of " + GetType() + " is " + ((IsConnected) ? "connected to " + RemoteEndPoint.Address : "not connected") + "[" + User + "]";
         }
 
         #endregion
@@ -259,30 +259,24 @@ namespace Meebey.SmartIrc4net
         protected string DccIntToHost(long ip)
         {
             var ep = new IPEndPoint(ip, 80);
-            char[] sep = {'.'};
+            char[] sep = { '.' };
             string[] ipparts = ep.Address.ToString().Split(sep);
             return ipparts[3] + "." + ipparts[2] + "." + ipparts[1] + "." + ipparts[0];
         }
 
-        protected byte[] getAck(long SentBytes)
+        protected byte[] GetAck(long sentBytes)
         {
             var acks = new byte[4];
-            acks[0] = (byte) ((SentBytes >> 24)%256);
-            acks[1] = (byte) ((SentBytes >> 16)%256);
-            acks[2] = (byte) ((SentBytes >> 8)%256);
-            acks[3] = (byte) ((SentBytes)%256);
+            acks[0] = (byte)((sentBytes >> 24) % 256);
+            acks[1] = (byte)((sentBytes >> 16) % 256);
+            acks[2] = (byte)((sentBytes >> 8) % 256);
+            acks[3] = (byte)((sentBytes) % 256);
             return acks;
         }
 
         protected string FilterMarker(string msg)
         {
-            string result = "";
-            foreach (char c in msg)
-            {
-                if (c != IrcConstants.CtcpChar)
-                    result += c;
-            }
-            return result;
+            return msg.Where(c => c != IrcConstants.CtcpChar).Aggregate("", (current, c) => current + c);
         }
 
         #endregion

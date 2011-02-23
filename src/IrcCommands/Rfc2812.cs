@@ -36,19 +36,15 @@ namespace Meebey.SmartIrc4net
     ///
     /// </summary>
     /// <threadsafety static="true" instance="true" />
-    public sealed class Rfc2812
+    public static class Rfc2812
     {
         // nickname   =  ( letter / special ) *8( letter / digit / special / "-" )
         // letter     =  %x41-5A / %x61-7A       ; A-Z / a-z
         // digit      =  %x30-39                 ; 0-9
         // special    =  %x5B-60 / %x7B-7D
         //                  ; "[", "]", "\", "`", "_", "^", "{", "|", "}"
-        private static readonly Regex _NicknameRegex = new Regex(@"^[A-Za-z\[\]\\`_^{|}][A-Za-z0-9\[\]\\`_\-^{|}]+$",
-                                                                 RegexOptions.Compiled);
 
-        private Rfc2812()
-        {
-        }
+        private static readonly Regex NicknameRegex = new Regex(@"^[A-Za-z\[\]\\`_^{|}][A-Za-z0-9\[\]\\`_\-^{|}]+$", RegexOptions.Compiled);
 
         /// <summary>
         /// Checks if the passed nickname is valid according to the RFC
@@ -57,14 +53,7 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         public static bool IsValidNickname(string nickname)
         {
-            if ((nickname != null) &&
-                (nickname.Length > 0) &&
-                (_NicknameRegex.Match(nickname).Success))
-            {
-                return true;
-            }
-
-            return false;
+            return (!string.IsNullOrEmpty(nickname)) && (NicknameRegex.Match(nickname).Success);
         }
 
         public static string Pass(string password)
@@ -435,7 +424,7 @@ namespace Meebey.SmartIrc4net
             var newMode = new StringBuilder(newModes.Length);
             var newModeParameter = new StringBuilder();
             // as per RFC 3.2.3, maximum is 3 modes changes at once
-            int maxModeChanges = 3;
+            const int maxModeChanges = 3;
             if (newModes.Length > maxModeChanges)
             {
                 throw new ArgumentOutOfRangeException(

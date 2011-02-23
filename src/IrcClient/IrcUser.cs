@@ -26,7 +26,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-using System.Collections.Specialized;
+using System.Linq;
 
 namespace Meebey.SmartIrc4net
 {
@@ -42,20 +42,19 @@ namespace Meebey.SmartIrc4net
     /// <threadsafety static="true" instance="true" />
     public class IrcUser
     {
-        private readonly IrcClient _IrcClient;
-        private string _Nick;
-        private int _HopCount = -1;
+        private readonly IrcClient ircClient;
 
         internal IrcUser(string nickname, IrcClient ircclient)
         {
-            _IrcClient = ircclient;
-            _Nick = nickname;
+            HopCount = -1;
+            ircClient = ircclient;
+            Nick = nickname;
         }
 
 #if LOG4NET
         ~IrcUser()
         {
-            Logger.ChannelSyncing.Debug("IrcUser ("+Nick+") destroyed");
+            Logger.ChannelSyncing.Debug("IrcUser (" + Nick + ") destroyed");
         }
 #endif
 
@@ -65,11 +64,7 @@ namespace Meebey.SmartIrc4net
         /// <remarks>
         /// Do _not_ set this value, it will break channel sync!
         /// </remarks>
-        public string Nick
-        {
-            get { return _Nick; }
-            set { _Nick = value; }
-        }
+        public string Nick { get; set; }
 
         /// <summary>
         /// Gets or sets the identity (username) of the user which is used by some IRC networks for authentication. 
@@ -130,11 +125,7 @@ namespace Meebey.SmartIrc4net
         /// <remarks>
         /// Do _not_ set this value, it will break channel sync!
         /// </remarks>
-        public int HopCount
-        {
-            get { return _HopCount; }
-            set { _HopCount = value; }
-        }
+        public int HopCount { get; set; }
 
         /// <summary>
         /// Gets the list of channels the user has joined
@@ -143,23 +134,12 @@ namespace Meebey.SmartIrc4net
         {
             get
             {
-                Channel channel;
-                string[] result;
-                string[] channels = _IrcClient.GetChannels();
-                var joinedchannels = new StringCollection();
-                foreach (string channelname in channels)
-                {
-                    channel = _IrcClient.GetChannel(channelname);
-                    if (channel.UnsafeUsers.ContainsKey(_Nick))
-                    {
-                        joinedchannels.Add(channelname);
-                    }
-                }
+                string[] channels = ircClient.GetChannels();
 
-                result = new string[joinedchannels.Count];
-                joinedchannels.CopyTo(result, 0);
-                return result;
-                //return joinedchannels;
+                return channels
+                    .Select(c => ircClient.GetChannel(c))
+                    .Where(c => c.UnsafeUsers.ContainsKey(Nick))
+                    .Select(c => c.Name).ToArray();
             }
         }
     }

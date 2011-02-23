@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Meebey.SmartIrc4net
@@ -38,20 +39,16 @@ namespace Meebey.SmartIrc4net
     /// <threadsafety static="true" instance="true" />
     public class IrcCommands : IrcConnection
     {
-        private int _MaxModeChanges = 3;
-
-        protected int MaxModeChanges
-        {
-            get { return _MaxModeChanges; }
-            set { _MaxModeChanges = value; }
-        }
-
-#if LOG4NET
         public IrcCommands()
         {
+            MaxModeChanges = 3;
+#if LOG4NET
             Logger.Main.Debug("IrcCommands created");
-        }
 #endif
+        }
+
+        protected int MaxModeChanges { get; set; }
+
 
 #if LOG4NET
         ~IrcCommands()
@@ -148,7 +145,7 @@ namespace Meebey.SmartIrc4net
         ///
         /// </summary>
         /// <param name="channel"></param>
-        /// <param name="nickname"></param>
+        /// <param name="nicknames"></param>
         public void Op(string channel, string[] nicknames)
         {
             if (nicknames == null)
@@ -156,12 +153,7 @@ namespace Meebey.SmartIrc4net
                 throw new ArgumentNullException("nicknames");
             }
 
-            var modes = new string[nicknames.Length];
-            for (int i = 0; i < nicknames.Length; i++)
-            {
-                modes[i] = "+o";
-            }
-            Mode(channel, modes, nicknames);
+            Mode(channel, nicknames.Select(n => "+o").ToArray(), nicknames);
         }
 
         public void Op(string channel, string nickname)
@@ -194,7 +186,7 @@ namespace Meebey.SmartIrc4net
         ///
         /// </summary>
         /// <param name="channel"></param>
-        /// <param name="nickname"></param>
+        /// <param name="nicknames"></param>
         public void Deop(string channel, string[] nicknames)
         {
             if (nicknames == null)
@@ -202,12 +194,7 @@ namespace Meebey.SmartIrc4net
                 throw new ArgumentNullException("nicknames");
             }
 
-            var modes = new string[nicknames.Length];
-            for (int i = 0; i < nicknames.Length; i++)
-            {
-                modes[i] = "-o";
-            }
-            Mode(channel, modes, nicknames);
+            Mode(channel, nicknames.Select(n => "-o").ToArray(), nicknames);
         }
 
         /// <summary>
@@ -235,7 +222,7 @@ namespace Meebey.SmartIrc4net
         ///
         /// </summary>
         /// <param name="channel"></param>
-        /// <param name="nickname"></param>
+        /// <param name="nicknames"></param>
         public void Voice(string channel, string[] nicknames)
         {
             if (nicknames == null)
@@ -243,12 +230,7 @@ namespace Meebey.SmartIrc4net
                 throw new ArgumentNullException("nicknames");
             }
 
-            var modes = new string[nicknames.Length];
-            for (int i = 0; i < nicknames.Length; i++)
-            {
-                modes[i] = "+v";
-            }
-            Mode(channel, modes, nicknames);
+            Mode(channel, nicknames.Select(n => "+v").ToArray(), nicknames);
         }
 
         /// <summary>
@@ -284,12 +266,7 @@ namespace Meebey.SmartIrc4net
                 throw new ArgumentNullException("nicknames");
             }
 
-            var modes = new string[nicknames.Length];
-            for (int i = 0; i < nicknames.Length; i++)
-            {
-                modes[i] = "-v";
-            }
-            Mode(channel, modes, nicknames);
+            Mode(channel, nicknames.Select(n => "-v").ToArray(), nicknames);
         }
 
         /// <summary>
@@ -344,12 +321,7 @@ namespace Meebey.SmartIrc4net
                 throw new ArgumentNullException("hostmasks");
             }
 
-            var modes = new string[hostmasks.Length];
-            for (int i = 0; i < hostmasks.Length; i++)
-            {
-                modes[i] = "+b";
-            }
-            Mode(channel, modes, hostmasks);
+            Mode(channel, hostmasks.Select(n => "+b").ToArray(), hostmasks);
         }
 
         /// <summary>
@@ -385,12 +357,7 @@ namespace Meebey.SmartIrc4net
                 throw new ArgumentNullException("hostmasks");
             }
 
-            var modes = new string[hostmasks.Length];
-            for (int i = 0; i < hostmasks.Length; i++)
-            {
-                modes[i] = "-b";
-            }
-            Mode(channel, modes, hostmasks);
+            Mode(channel, hostmasks.Select(n => "-b").ToArray(), hostmasks);
         }
 
         // non-RFC commands
@@ -399,7 +366,6 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
-        /// <param name="priority"></param>
         public void Halfop(string channel, string nickname)
         {
             WriteLine(Rfc2812.Mode(channel, "+h " + nickname));
@@ -417,12 +383,7 @@ namespace Meebey.SmartIrc4net
                 throw new ArgumentNullException("nicknames");
             }
 
-            var modes = new string[nicknames.Length];
-            for (int i = 0; i < nicknames.Length; i++)
-            {
-                modes[i] = "+h";
-            }
-            Mode(channel, modes, nicknames);
+            Mode(channel, nicknames.Select(n => "+h").ToArray(), nicknames);
         }
 
         /// <summary>
@@ -447,12 +408,7 @@ namespace Meebey.SmartIrc4net
                 throw new ArgumentNullException("nicknames");
             }
 
-            var modes = new string[nicknames.Length];
-            for (int i = 0; i < nicknames.Length; i++)
-            {
-                modes[i] = "-h";
-            }
-            Mode(channel, modes, nicknames);
+            Mode(channel, nicknames.Select(n => "-h").ToArray(), nicknames);
         }
 
         /// <summary>
@@ -488,7 +444,7 @@ namespace Meebey.SmartIrc4net
                 throw new ArgumentException("newModes and newModeParameters must have the same size.", "newModes");
             }
 
-            int maxModeChanges = _MaxModeChanges;
+            int maxModeChanges = MaxModeChanges;
             for (int i = 0; i < newModes.Length; i += maxModeChanges)
             {
                 var newModeChunks = new List<string>(maxModeChanges);
@@ -502,8 +458,7 @@ namespace Meebey.SmartIrc4net
                     newModeChunks.Add(newModes[i + j]);
                     newModeParameterChunks.Add(newModeParameters[i + j]);
                 }
-                WriteLine(Rfc2812.Mode(target, newModeChunks.ToArray(),
-                                       newModeParameterChunks.ToArray()));
+                WriteLine(Rfc2812.Mode(target, newModeChunks.ToArray(), newModeParameterChunks.ToArray()));
             }
         }
 

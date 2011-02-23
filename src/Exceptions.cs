@@ -33,42 +33,48 @@ namespace Meebey.SmartIrc4net
 {
     /// <threadsafety static="true" instance="true" />
     [Serializable]
-    public class SmartIrc4netException : ApplicationException
+    public class SmartIrc4NetException : ApplicationException
     {
-        public SmartIrc4netException()
+        public SmartIrc4NetException()
         {
         }
 
-        public SmartIrc4netException(string message) : base(message)
+        public SmartIrc4NetException(string message)
+            : base(message)
         {
         }
 
-        public SmartIrc4netException(string message, Exception e) : base(message, e)
+        public SmartIrc4NetException(string message, Exception e)
+            : base(message, e)
         {
         }
 
-        protected SmartIrc4netException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected SmartIrc4NetException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }
 
     /// <threadsafety static="true" instance="true" />
     [Serializable]
-    public class ConnectionException : SmartIrc4netException
+    public class ConnectionException : SmartIrc4NetException
     {
         public ConnectionException()
         {
         }
 
-        public ConnectionException(string message) : base(message)
+        public ConnectionException(string message)
+            : base(message)
         {
         }
 
-        public ConnectionException(string message, Exception e) : base(message, e)
+        public ConnectionException(string message, Exception e)
+            : base(message, e)
         {
         }
 
-        protected ConnectionException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected ConnectionException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }
@@ -81,15 +87,18 @@ namespace Meebey.SmartIrc4net
         {
         }
 
-        public CouldNotConnectException(string message) : base(message)
+        public CouldNotConnectException(string message)
+            : base(message)
         {
         }
 
-        public CouldNotConnectException(string message, Exception e) : base(message, e)
+        public CouldNotConnectException(string message, Exception e)
+            : base(message, e)
         {
         }
 
-        protected CouldNotConnectException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected CouldNotConnectException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }
@@ -102,15 +111,18 @@ namespace Meebey.SmartIrc4net
         {
         }
 
-        public NotConnectedException(string message) : base(message)
+        public NotConnectedException(string message)
+            : base(message)
         {
         }
 
-        public NotConnectedException(string message, Exception e) : base(message, e)
+        public NotConnectedException(string message, Exception e)
+            : base(message, e)
         {
         }
 
-        protected NotConnectedException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected NotConnectedException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }
@@ -123,15 +135,18 @@ namespace Meebey.SmartIrc4net
         {
         }
 
-        public AlreadyConnectedException(string message) : base(message)
+        public AlreadyConnectedException(string message)
+            : base(message)
         {
         }
 
-        public AlreadyConnectedException(string message, Exception e) : base(message, e)
+        public AlreadyConnectedException(string message, Exception e)
+            : base(message, e)
         {
         }
 
-        protected AlreadyConnectedException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected AlreadyConnectedException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
     }

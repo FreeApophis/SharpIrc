@@ -32,17 +32,17 @@ namespace Meebey.SmartIrc4net
     /// <summary>
     /// Dcc Send Connection, Filetransfer
     /// </summary>
-    public class DccSend : DccConnection
+    public sealed class DccSend : DccConnection
     {
         #region Private Variables
 
-        private readonly byte[] _Buffer = new byte[8192];
-        private readonly bool _DirectionUp;
-        private readonly string _Filename;
-        private readonly long _Filesize;
-        private readonly DccSpeed _Speed;
-        private Stream _File;
-        private long _SentBytes;
+        private readonly byte[] buffer = new byte[8192];
+        private readonly bool directionUp;
+        private readonly string filename;
+        private readonly long filesize;
+        private readonly DccSpeed speed;
+        private Stream file;
+        private long sentBytes;
 
         #endregion
 
@@ -50,36 +50,31 @@ namespace Meebey.SmartIrc4net
 
         public long SentBytes
         {
-            get { return _SentBytes; }
+            get { return sentBytes; }
         }
 
         #endregion
 
-        internal DccSend(IrcFeatures irc, string user, IPAddress externalIpAdress, Stream file, string filename,
-                         long filesize, DccSpeed speed, bool passive, Priority priority)
+        internal DccSend(IrcFeatures irc, string user, IPAddress externalIpAdress, Stream file, string filename, long filesize, DccSpeed speed, bool passive, Priority priority)
         {
             Irc = irc;
-            _DirectionUp = true;
-            _File = file;
-            _Filesize = filesize;
-            _Filename = filename;
-            _Speed = speed;
+            directionUp = true;
+            this.file = file;
+            this.filesize = filesize;
+            this.filename = filename;
+            this.speed = speed;
             User = user;
 
             if (passive)
             {
-                irc.SendMessage(SendType.CtcpRequest, user,
-                                "DCC SEND \"" + filename + "\" " + HostToDccInt(externalIpAdress) + " 0 " + filesize +
-                                " " + session, priority);
+                irc.SendMessage(SendType.CtcpRequest, user, "DCC SEND \"" + filename + "\" " + HostToDccInt(externalIpAdress) + " 0 " + filesize + " " + SessionID, priority);
             }
             else
             {
                 DccServer = new TcpListener(new IPEndPoint(IPAddress.Any, 0));
                 DccServer.Start();
-                LocalEndPoint = (IPEndPoint) DccServer.LocalEndpoint;
-                irc.SendMessage(SendType.CtcpRequest, user,
-                                "DCC SEND \"" + filename + "\" " + HostToDccInt(externalIpAdress) + " " +
-                                LocalEndPoint.Port + " " + filesize, priority);
+                LocalEndPoint = (IPEndPoint)DccServer.LocalEndpoint;
+                irc.SendMessage(SendType.CtcpRequest, user, "DCC SEND \"" + filename + "\" " + HostToDccInt(externalIpAdress) + " " + LocalEndPoint.Port + " " + filesize, priority);
             }
         }
 
@@ -87,7 +82,7 @@ namespace Meebey.SmartIrc4net
         {
             /* Remote Request */
             Irc = irc;
-            _DirectionUp = false;
+            directionUp = false;
             User = e.Data.Nick;
 
             if (e.Data.MessageArray.Length > 4)
@@ -99,8 +94,8 @@ namespace Meebey.SmartIrc4net
                 if (e.Data.MessageArray.Length > 5)
                 {
                     bool okFs = long.TryParse(FilterMarker(e.Data.MessageArray[5]), out filesize);
-                    _Filesize = filesize;
-                    _Filename = e.Data.MessageArray[2].Trim(new[] {'\"'});
+                    this.filesize = filesize;
+                    filename = e.Data.MessageArray[2].Trim(new[] { '\"' });
                 }
                 if (okIP && okPo)
                 {
@@ -108,10 +103,7 @@ namespace Meebey.SmartIrc4net
                     DccSendRequestEvent(new DccSendRequestEventArgs(this, e.Data.MessageArray[2], filesize));
                     return;
                 }
-                else
-                {
-                    irc.SendMessage(SendType.CtcpReply, e.Data.Nick, "ERRMSG DCC Send Parameter Error");
-                }
+                irc.SendMessage(SendType.CtcpReply, e.Data.Nick, "ERRMSG DCC Send Parameter Error");
             }
             else
             {
@@ -126,79 +118,80 @@ namespace Meebey.SmartIrc4net
             if (DccServer != null)
             {
                 Connection = DccServer.AcceptTcpClient();
-                RemoteEndPoint = (IPEndPoint) Connection.Client.RemoteEndPoint;
+                RemoteEndPoint = (IPEndPoint)Connection.Client.RemoteEndPoint;
                 DccServer.Stop();
-                isConnected = true;
+                IsConnected = true;
             }
             else
             {
-                while (!isConnected)
+                while (!IsConnected)
                 {
                     Thread.Sleep(500); // We wait till Request is Accepted (or jump out when rejected)
-                    if (reject)
-                        return;
+                    if (Reject) return;
                 }
             }
 
             DccSendStartEvent(new DccEventArgs(this));
             int bytes;
 
-            if (_DirectionUp)
+            if (directionUp)
             {
                 do
                 {
                     while (Connection.Available > 0)
                     {
-                        switch (_Speed)
+                        switch (speed)
                         {
                             case DccSpeed.Rfc:
-                                Connection.GetStream().Read(_Buffer, 0, _Buffer.Length);
+                                Connection.GetStream().Read(buffer, 0, buffer.Length);
                                 // TODO: only send x not ACKed Bytes ahead / (nobody wants this anyway)
                                 break;
                             case DccSpeed.RfcSendAhead:
-                                Connection.GetStream().Read(_Buffer, 0, _Buffer.Length);
+                                Connection.GetStream().Read(buffer, 0, buffer.Length);
                                 break;
                             case DccSpeed.Turbo: // Available > 0 should not happen
                                 break;
                         }
                     }
 
-                    bytes = _File.Read(_Buffer, 0, _Buffer.Length);
+                    bytes = file.Read(buffer, 0, buffer.Length);
                     try
                     {
-                        Connection.GetStream().Write(_Buffer, 0, bytes);
+                        Connection.GetStream().Write(buffer, 0, bytes);
                     }
                     catch (IOException)
                     {
                         bytes = 0; // Connection Lost
                     }
 
-                    _SentBytes += bytes;
+                    sentBytes += bytes;
 
                     if (bytes > 0)
                     {
-                        DccSendSentBlockEvent(new DccSendEventArgs(this, _Buffer, bytes));
+                        DccSendSentBlockEvent(new DccSendEventArgs(this, buffer, bytes));
                         Console.Write(".");
                     }
                 } while (bytes > 0);
             }
             else
             {
-                while ((bytes = Connection.GetStream().Read(_Buffer, 0, _Buffer.Length)) > 0)
+                while ((bytes = Connection.GetStream().Read(buffer, 0, buffer.Length)) > 0)
                 {
-                    _File.Write(_Buffer, 0, bytes);
-                    _SentBytes += bytes;
-                    if (_Speed != DccSpeed.Turbo)
-                        Connection.GetStream().Write(getAck(_SentBytes), 0, 4);
+                    file.Write(buffer, 0, bytes);
+                    sentBytes += bytes;
+                    if (speed != DccSpeed.Turbo)
+                    {
+                        Connection.GetStream().Write(GetAck(sentBytes), 0, 4);
+                    }
 
-                    DccSendReceiveBlockEvent(new DccSendEventArgs(this, _Buffer, bytes));
+                    DccSendReceiveBlockEvent(new DccSendEventArgs(this, buffer, bytes));
                 }
             }
 
 
-            isValid = false;
-            isConnected = false;
-            Console.WriteLine("--> Filetrangsfer Endet / Bytes sent: " + _SentBytes + " of " + _Filesize);
+            IsValid = false;
+            IsConnected = false;
+            Console.WriteLine("--> Filetrangsfer Endet / Bytes sent: " + sentBytes + " of " + filesize);
             DccSendStopEvent(new DccEventArgs(this));
         }
 
@@ -212,20 +205,18 @@ namespace Meebey.SmartIrc4net
         /// <returns></returns>
         public bool AcceptRequest(Stream file, long offset)
         {
-            if (isConnected)
+            if (IsConnected)
                 return false;
             try
             {
                 if (file != null)
-                    _File = file;
+                    this.file = file;
                 if (RemoteEndPoint.Port == 0)
                 {
                     DccServer = new TcpListener(new IPEndPoint(IPAddress.Any, 0));
                     DccServer.Start();
-                    LocalEndPoint = (IPEndPoint) DccServer.LocalEndpoint;
-                    Irc.SendMessage(SendType.CtcpRequest, User,
-                                    "DCC SEND \"" + _Filename + "\" " + HostToDccInt(ExternalIPAdress) + " " +
-                                    LocalEndPoint.Port + " " + _Filesize);
+                    LocalEndPoint = (IPEndPoint)DccServer.LocalEndpoint;
+                    Irc.SendMessage(SendType.CtcpRequest, User, "DCC SEND \"" + filename + "\" " + HostToDccInt(ExternalIPAdress) + " " + LocalEndPoint.Port + " " + filesize);
                 }
                 else
                 {
@@ -233,23 +224,21 @@ namespace Meebey.SmartIrc4net
                     {
                         Connection = new TcpClient();
                         Connection.Connect(RemoteEndPoint);
-                        isConnected = true;
+                        IsConnected = true;
                     }
                     else
                     {
-                        if (_File.CanSeek)
+                        if (this.file.CanSeek)
                         {
-                            _File.Seek(offset, SeekOrigin.Begin);
-                            _SentBytes = offset;
-                            Irc.SendMessage(SendType.CtcpRequest, User,
-                                            "DCC RESUME \"" + _Filename + "\" " + RemoteEndPoint.Port + " " + offset);
+                            this.file.Seek(offset, SeekOrigin.Begin);
+                            sentBytes = offset;
+                            Irc.SendMessage(SendType.CtcpRequest, User, "DCC RESUME \"" + filename + "\" " + RemoteEndPoint.Port + " " + offset);
                         }
                         else
                         {
                             /* Resume of a file which is not seekable : I dont care, its your filestream! */
-                            _SentBytes = offset;
-                            Irc.SendMessage(SendType.CtcpRequest, User,
-                                            "DCC RESUME \"" + _Filename + "\" " + RemoteEndPoint.Port + " " + offset);
+                            sentBytes = offset;
+                            Irc.SendMessage(SendType.CtcpRequest, User, "DCC RESUME \"" + filename + "\" " + RemoteEndPoint.Port + " " + offset);
                         }
                     }
                 }
@@ -257,8 +246,8 @@ namespace Meebey.SmartIrc4net
             }
             catch (Exception)
             {
-                isValid = false;
-                isConnected = false;
+                IsValid = false;
+                IsConnected = false;
                 return false;
             }
         }
@@ -271,33 +260,26 @@ namespace Meebey.SmartIrc4net
         {
             if (User == e.Data.Nick)
             {
-                if ((e.Data.MessageArray.Length > 4) && (_Filename == e.Data.MessageArray[2].Trim(new[] {'\"'})))
+                if ((e.Data.MessageArray.Length > 4) && (filename == e.Data.MessageArray[2].Trim(new[] { '\"' })))
                 {
-                    long offset = 0;
+                    long offset;
                     long.TryParse(FilterMarker(e.Data.MessageArray[4]), out offset);
-                    if (_File.CanSeek)
+                    if (file.CanSeek)
                     {
                         if (e.Data.MessageArray.Length > 5)
                         {
-                            Irc.SendMessage(SendType.CtcpRequest, e.Data.Nick,
-                                            "DCC ACCEPT " + e.Data.MessageArray[2] + " " + e.Data.MessageArray[3] + " " +
-                                            e.Data.MessageArray[4] + " " + FilterMarker(e.Data.MessageArray[5]));
+                            Irc.SendMessage(SendType.CtcpRequest, e.Data.Nick, "DCC ACCEPT " + e.Data.MessageArray[2] + " " + e.Data.MessageArray[3] + " " + e.Data.MessageArray[4] + " " + FilterMarker(e.Data.MessageArray[5]));
                         }
                         else
                         {
-                            Irc.SendMessage(SendType.CtcpRequest, e.Data.Nick,
-                                            "DCC ACCEPT " + e.Data.MessageArray[2] + " " + e.Data.MessageArray[3] + " " +
-                                            FilterMarker(e.Data.MessageArray[4]));
+                            Irc.SendMessage(SendType.CtcpRequest, e.Data.Nick, "DCC ACCEPT " + e.Data.MessageArray[2] + " " + e.Data.MessageArray[3] + " " + FilterMarker(e.Data.MessageArray[4]));
                         }
 
-                        _File.Seek(offset, SeekOrigin.Begin);
-                        _SentBytes = offset;
+                        file.Seek(offset, SeekOrigin.Begin);
+                        sentBytes = offset;
                         return true;
                     }
-                    else
-                    {
-                        Irc.SendMessage(SendType.CtcpRequest, e.Data.Nick, "ERRMSG DCC File not seekable");
-                    }
+                    Irc.SendMessage(SendType.CtcpRequest, e.Data.Nick, "ERRMSG DCC File not seekable");
                 }
             }
             return false;
@@ -307,7 +289,7 @@ namespace Meebey.SmartIrc4net
         {
             if (User == e.Data.Nick)
             {
-                if ((e.Data.MessageArray.Length > 4) && (_Filename == e.Data.MessageArray[2].Trim(new[] {'\"'})))
+                if ((e.Data.MessageArray.Length > 4) && (filename == e.Data.MessageArray[2].Trim(new[] { '\"' })))
                 {
                     return AcceptRequest(null, 0);
                 }
@@ -318,7 +300,7 @@ namespace Meebey.SmartIrc4net
         internal bool SetRemote(CtcpEventArgs e)
         {
             long ip;
-            int port = 0;
+            int port;
             bool okIP = long.TryParse(e.Data.MessageArray[3], out ip);
             bool okPo = int.TryParse(e.Data.MessageArray[4], out port); // port 0 = passive
             if (okIP && okPo)

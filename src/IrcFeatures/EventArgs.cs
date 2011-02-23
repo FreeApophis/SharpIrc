@@ -30,22 +30,16 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class DccEventArgs : EventArgs
     {
-        private readonly DccConnection _dcc;
-
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="dccClient"></param>
-        /// <param name="stream">If there are multiple streams on a DCC (a channel DCC) this identifies the stream</param>
+        /// <param name="dcc">If there are multiple streams on a DCC (a channel DCC) this identifies the stream</param>
         internal DccEventArgs(DccConnection dcc)
         {
-            _dcc = dcc;
+            Dcc = dcc;
         }
 
-        public DccConnection dcc
-        {
-            get { return _dcc; }
-        }
+        public DccConnection Dcc { get; private set; }
     }
 
     /// <summary>
@@ -53,26 +47,15 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class DccChatEventArgs : DccEventArgs
     {
-        private readonly string _Message;
-
-        private readonly string[] _MessageArray;
-
-        internal DccChatEventArgs(DccConnection dcc, string messageLine) : base(dcc)
+        internal DccChatEventArgs(DccConnection dcc, string messageLine)
+            : base(dcc)
         {
-            char[] whiteSpace = {' '};
-            _Message = messageLine;
-            _MessageArray = messageLine.Split(new[] {' '});
+            Message = messageLine;
+            MessageArray = messageLine.Split(new[] { ' ' });
         }
 
-        public string Message
-        {
-            get { return _Message; }
-        }
-
-        public string[] MessageArray
-        {
-            get { return _MessageArray; }
-        }
+        public string Message { get; private set; }
+        public string[] MessageArray { get; private set; }
     }
 
     /// <summary>
@@ -80,25 +63,16 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class DccSendEventArgs : DccEventArgs
     {
-        private readonly byte[] _Package;
-
-        private readonly int _PackageSize;
-
-        internal DccSendEventArgs(DccConnection dcc, byte[] package, int packageSize) : base(dcc)
+        internal DccSendEventArgs(DccConnection dcc, byte[] package, int packageSize)
+            : base(dcc)
         {
-            _Package = package;
-            _PackageSize = packageSize;
+            Package = package;
+            PackageSize = packageSize;
         }
 
-        public byte[] Package
-        {
-            get { return _Package; }
-        }
+        public byte[] Package { get; private set; }
 
-        public int PackageSize
-        {
-            get { return _PackageSize; }
-        }
+        public int PackageSize { get; private set; }
     }
 
     /// <summary>
@@ -106,24 +80,15 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class DccSendRequestEventArgs : DccEventArgs
     {
-        private readonly string _Filename;
-
-        private readonly long _Filesize;
-
-        internal DccSendRequestEventArgs(DccConnection dcc, string filename, long filesize) : base(dcc)
+        internal DccSendRequestEventArgs(DccConnection dcc, string filename, long filesize)
+            : base(dcc)
         {
-            _Filename = filename;
-            _Filesize = filesize;
+            Filename = filename;
+            Filesize = filesize;
         }
 
-        public string Filename
-        {
-            get { return _Filename; }
-        }
+        public string Filename { get; private set; }
 
-        public long Filesize
-        {
-            get { return _Filesize; }
-        }
+        public long Filesize { get; private set; }
     }
 }

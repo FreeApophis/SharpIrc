@@ -26,6 +26,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+using System;
 using System.Collections;
 
 namespace Meebey.SmartIrc4net
@@ -36,8 +37,7 @@ namespace Meebey.SmartIrc4net
     /// <threadsafety static="true" instance="true" />
     public class NonRfcChannel : Channel
     {
-        private readonly Hashtable _Halfops =
-            Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
+        private readonly Hashtable halfops = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
 
         /// <summary>
         /// 
@@ -60,7 +60,7 @@ namespace Meebey.SmartIrc4net
         /// <value> </value>
         public Hashtable Halfops
         {
-            get { return (Hashtable) _Halfops.Clone(); }
+            get { return (Hashtable) halfops.Clone(); }
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace Meebey.SmartIrc4net
         /// <value> </value>
         internal Hashtable UnsafeHalfops
         {
-            get { return _Halfops; }
+            get { return halfops; }
         }
     }
 }

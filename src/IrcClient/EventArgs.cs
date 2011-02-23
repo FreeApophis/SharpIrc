@@ -35,17 +35,13 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class ActionEventArgs : CtcpEventArgs
     {
-        private readonly string _ActionMessage;
-
-        internal ActionEventArgs(IrcMessageData data, string actionmsg) : base(data, "ACTION", actionmsg)
+        internal ActionEventArgs(IrcMessageData data, string actionmsg)
+            : base(data, "ACTION", actionmsg)
         {
-            _ActionMessage = actionmsg;
+            ActionMessage = actionmsg;
         }
 
-        public string ActionMessage
-        {
-            get { return _ActionMessage; }
-        }
+        public string ActionMessage { get; private set; }
     }
 
     /// <summary>
@@ -53,24 +49,16 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class CtcpEventArgs : IrcEventArgs
     {
-        private readonly string _CtcpCommand;
-        private readonly string _CtcpParameter;
-
-        internal CtcpEventArgs(IrcMessageData data, string ctcpcmd, string ctcpparam) : base(data)
+        internal CtcpEventArgs(IrcMessageData data, string ctcpcmd, string ctcpparam)
+            : base(data)
         {
-            _CtcpCommand = ctcpcmd;
-            _CtcpParameter = ctcpparam;
+            CtcpCommand = ctcpcmd;
+            CtcpParameter = ctcpparam;
         }
 
-        public string CtcpCommand
-        {
-            get { return _CtcpCommand; }
-        }
+        public string CtcpCommand { get; private set; }
 
-        public string CtcpParameter
-        {
-            get { return _CtcpParameter; }
-        }
+        public string CtcpParameter { get; private set; }
     }
 
     /// <summary>
@@ -78,17 +66,13 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class ErrorEventArgs : IrcEventArgs
     {
-        private readonly string _ErrorMessage;
-
-        internal ErrorEventArgs(IrcMessageData data, string errormsg) : base(data)
+        internal ErrorEventArgs(IrcMessageData data, string errormsg)
+            : base(data)
         {
-            _ErrorMessage = errormsg;
+            ErrorMessage = errormsg;
         }
 
-        public string ErrorMessage
-        {
-            get { return _ErrorMessage; }
-        }
+        public string ErrorMessage { get; private set; }
     }
 
     /// <summary>
@@ -96,17 +80,13 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class MotdEventArgs : IrcEventArgs
     {
-        private readonly string _MotdMessage;
-
-        internal MotdEventArgs(IrcMessageData data, string motdmsg) : base(data)
+        internal MotdEventArgs(IrcMessageData data, string motdmsg)
+            : base(data)
         {
-            _MotdMessage = motdmsg;
+            MotdMessage = motdmsg;
         }
 
-        public string MotdMessage
-        {
-            get { return _MotdMessage; }
-        }
+        public string MotdMessage { get; private set; }
     }
 
     /// <summary>
@@ -114,17 +94,13 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class PingEventArgs : IrcEventArgs
     {
-        private readonly string _PingData;
-
-        internal PingEventArgs(IrcMessageData data, string pingdata) : base(data)
+        internal PingEventArgs(IrcMessageData data, string pingdata)
+            : base(data)
         {
-            _PingData = pingdata;
+            PingData = pingdata;
         }
 
-        public string PingData
-        {
-            get { return _PingData; }
-        }
+        public string PingData { get; private set; }
     }
 
     /// <summary>
@@ -132,17 +108,13 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class PongEventArgs : IrcEventArgs
     {
-        private readonly TimeSpan _Lag;
-
-        internal PongEventArgs(IrcMessageData data, TimeSpan lag) : base(data)
+        internal PongEventArgs(IrcMessageData data, TimeSpan lag)
+            : base(data)
         {
-            _Lag = lag;
+            Lag = lag;
         }
 
-        public TimeSpan Lag
-        {
-            get { return _Lag; }
-        }
+        public TimeSpan Lag { get; private set; }
     }
 
     /// <summary>
@@ -150,39 +122,22 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class KickEventArgs : IrcEventArgs
     {
-        private readonly string _Channel;
-        private readonly string _KickReason;
-        private readonly string _Who;
-        private readonly string _Whom;
-
         internal KickEventArgs(IrcMessageData data, string channel, string who, string whom, string kickreason)
             : base(data)
         {
-            _Channel = channel;
-            _Who = who;
-            _Whom = whom;
-            _KickReason = kickreason;
+            Channel = channel;
+            Who = who;
+            Whom = whom;
+            KickReason = kickreason;
         }
 
-        public string Channel
-        {
-            get { return _Channel; }
-        }
+        public string Channel { get; private set; }
 
-        public string Who
-        {
-            get { return _Who; }
-        }
+        public string Who { get; private set; }
 
-        public string Whom
-        {
-            get { return _Whom; }
-        }
+        public string Whom { get; private set; }
 
-        public string KickReason
-        {
-            get { return _KickReason; }
-        }
+        public string KickReason { get; private set; }
     }
 
     /// <summary>
@@ -190,24 +145,16 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class JoinEventArgs : IrcEventArgs
     {
-        private readonly string _Channel;
-        private readonly string _Who;
-
-        internal JoinEventArgs(IrcMessageData data, string channel, string who) : base(data)
+        internal JoinEventArgs(IrcMessageData data, string channel, string who)
+            : base(data)
         {
-            _Channel = channel;
-            _Who = who;
+            Channel = channel;
+            Who = who;
         }
 
-        public string Channel
-        {
-            get { return _Channel; }
-        }
+        public string Channel { get; private set; }
 
-        public string Who
-        {
-            get { return _Who; }
-        }
+        public string Who { get; private set; }
     }
 
     /// <summary>
@@ -215,23 +162,20 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class NamesEventArgs : IrcEventArgs
     {
-        private readonly string _Channel;
-        private readonly string[] _UserList;
+        private readonly string[] userList;
 
-        internal NamesEventArgs(IrcMessageData data, string channel, string[] userlist) : base(data)
+        internal NamesEventArgs(IrcMessageData data, string channel, string[] userlist)
+            : base(data)
         {
-            _Channel = channel;
-            _UserList = userlist;
+            Channel = channel;
+            userList = userlist;
         }
 
-        public string Channel
-        {
-            get { return _Channel; }
-        }
+        public string Channel { get; private set; }
 
         public string[] UserList
         {
-            get { return _UserList; }
+            get { return userList; }
         }
     }
 
@@ -240,17 +184,13 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class ListEventArgs : IrcEventArgs
     {
-        private readonly ChannelInfo f_ListInfo;
-
-        internal ListEventArgs(IrcMessageData data, ChannelInfo listInfo) : base(data)
+        internal ListEventArgs(IrcMessageData data, ChannelInfo listInfo)
+            : base(data)
         {
-            f_ListInfo = listInfo;
+            ListInfo = listInfo;
         }
 
-        public ChannelInfo ListInfo
-        {
-            get { return f_ListInfo; }
-        }
+        public ChannelInfo ListInfo { get; private set; }
     }
 
     /// <summary>
@@ -258,24 +198,16 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class InviteEventArgs : IrcEventArgs
     {
-        private readonly string _Channel;
-        private readonly string _Who;
-
-        internal InviteEventArgs(IrcMessageData data, string channel, string who) : base(data)
+        internal InviteEventArgs(IrcMessageData data, string channel, string who)
+            : base(data)
         {
-            _Channel = channel;
-            _Who = who;
+            Channel = channel;
+            Who = who;
         }
 
-        public string Channel
-        {
-            get { return _Channel; }
-        }
+        public string Channel { get; private set; }
 
-        public string Who
-        {
-            get { return _Who; }
-        }
+        public string Who { get; private set; }
     }
 
     /// <summary>
@@ -283,31 +215,19 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class PartEventArgs : IrcEventArgs
     {
-        private readonly string _Channel;
-        private readonly string _PartMessage;
-        private readonly string _Who;
-
-        internal PartEventArgs(IrcMessageData data, string channel, string who, string partmessage) : base(data)
+        internal PartEventArgs(IrcMessageData data, string channel, string who, string partmessage)
+            : base(data)
         {
-            _Channel = channel;
-            _Who = who;
-            _PartMessage = partmessage;
+            Channel = channel;
+            Who = who;
+            PartMessage = partmessage;
         }
 
-        public string Channel
-        {
-            get { return _Channel; }
-        }
+        public string Channel { get; private set; }
 
-        public string Who
-        {
-            get { return _Who; }
-        }
+        public string Who { get; private set; }
 
-        public string PartMessage
-        {
-            get { return _PartMessage; }
-        }
+        public string PartMessage { get; private set; }
     }
 
     /// <summary>
@@ -315,82 +235,83 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class WhoEventArgs : IrcEventArgs
     {
-        private readonly WhoInfo f_WhoInfo;
+        private readonly WhoInfo whoInfo;
 
-        internal WhoEventArgs(IrcMessageData data, WhoInfo whoInfo) : base(data)
+        internal WhoEventArgs(IrcMessageData data, WhoInfo whoInfo)
+            : base(data)
         {
-            f_WhoInfo = whoInfo;
+            this.whoInfo = whoInfo;
         }
 
         [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public string Channel
         {
-            get { return f_WhoInfo.Channel; }
+            get { return whoInfo.Channel; }
         }
 
         [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public string Nick
         {
-            get { return f_WhoInfo.Nick; }
+            get { return whoInfo.Nick; }
         }
 
         [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public string Ident
         {
-            get { return f_WhoInfo.Ident; }
+            get { return whoInfo.Ident; }
         }
 
         [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public string Host
         {
-            get { return f_WhoInfo.Host; }
+            get { return whoInfo.Host; }
         }
 
         [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public string Realname
         {
-            get { return f_WhoInfo.Realname; }
+            get { return whoInfo.Realname; }
         }
 
         [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public bool IsAway
         {
-            get { return f_WhoInfo.IsAway; }
+            get { return whoInfo.IsAway; }
         }
 
         [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public bool IsOp
         {
-            get { return f_WhoInfo.IsOp; }
+            get { return whoInfo.IsOp; }
         }
 
         [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public bool IsVoice
         {
-            get { return f_WhoInfo.IsVoice; }
+            get { return whoInfo.IsVoice; }
         }
 
         [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public bool IsIrcOp
         {
-            get { return f_WhoInfo.IsIrcOp; }
+            get { return whoInfo.IsIrcOp; }
         }
 
         [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public string Server
         {
-            get { return f_WhoInfo.Server; }
+            get { return whoInfo.Server; }
         }
 
         [Obsolete("Use WhoEventArgs.WhoInfo instead.")]
         public int HopCount
         {
-            get { return f_WhoInfo.HopCount; }
+            get { return whoInfo.HopCount; }
         }
 
         public WhoInfo WhoInfo
         {
-            get { return f_WhoInfo; }
+            get { return whoInfo; }
         }
     }
 
@@ -399,24 +320,16 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class QuitEventArgs : IrcEventArgs
     {
-        private readonly string _QuitMessage;
-        private readonly string _Who;
-
-        internal QuitEventArgs(IrcMessageData data, string who, string quitmessage) : base(data)
+        internal QuitEventArgs(IrcMessageData data, string who, string quitmessage)
+            : base(data)
         {
-            _Who = who;
-            _QuitMessage = quitmessage;
+            Who = who;
+            QuitMessage = quitmessage;
         }
 
-        public string Who
-        {
-            get { return _Who; }
-        }
+        public string Who { get; private set; }
 
-        public string QuitMessage
-        {
-            get { return _QuitMessage; }
-        }
+        public string QuitMessage { get; private set; }
     }
 
 
@@ -425,24 +338,16 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class AwayEventArgs : IrcEventArgs
     {
-        private readonly string _AwayMessage;
-        private readonly string _Who;
-
-        internal AwayEventArgs(IrcMessageData data, string who, string awaymessage) : base(data)
+        internal AwayEventArgs(IrcMessageData data, string who, string awaymessage)
+            : base(data)
         {
-            _Who = who;
-            _AwayMessage = awaymessage;
+            Who = who;
+            AwayMessage = awaymessage;
         }
 
-        public string Who
-        {
-            get { return _Who; }
-        }
+        public string Who { get; private set; }
 
-        public string AwayMessage
-        {
-            get { return _AwayMessage; }
-        }
+        public string AwayMessage { get; private set; }
     }
 
     /// <summary>
@@ -450,24 +355,16 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class NickChangeEventArgs : IrcEventArgs
     {
-        private readonly string _NewNickname;
-        private readonly string _OldNickname;
-
-        internal NickChangeEventArgs(IrcMessageData data, string oldnick, string newnick) : base(data)
+        internal NickChangeEventArgs(IrcMessageData data, string oldnick, string newnick)
+            : base(data)
         {
-            _OldNickname = oldnick;
-            _NewNickname = newnick;
+            OldNickname = oldnick;
+            NewNickname = newnick;
         }
 
-        public string OldNickname
-        {
-            get { return _OldNickname; }
-        }
+        public string OldNickname { get; private set; }
 
-        public string NewNickname
-        {
-            get { return _NewNickname; }
-        }
+        public string NewNickname { get; private set; }
     }
 
     /// <summary>
@@ -475,24 +372,16 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class TopicEventArgs : IrcEventArgs
     {
-        private readonly string _Channel;
-        private readonly string _Topic;
-
-        internal TopicEventArgs(IrcMessageData data, string channel, string topic) : base(data)
+        internal TopicEventArgs(IrcMessageData data, string channel, string topic)
+            : base(data)
         {
-            _Channel = channel;
-            _Topic = topic;
+            Channel = channel;
+            Topic = topic;
         }
 
-        public string Channel
-        {
-            get { return _Channel; }
-        }
+        public string Channel { get; private set; }
 
-        public string Topic
-        {
-            get { return _Topic; }
-        }
+        public string Topic { get; private set; }
     }
 
     /// <summary>
@@ -500,31 +389,19 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class TopicChangeEventArgs : IrcEventArgs
     {
-        private readonly string _Channel;
-        private readonly string _NewTopic;
-        private readonly string _Who;
-
-        internal TopicChangeEventArgs(IrcMessageData data, string channel, string who, string newtopic) : base(data)
+        internal TopicChangeEventArgs(IrcMessageData data, string channel, string who, string newtopic)
+            : base(data)
         {
-            _Channel = channel;
-            _Who = who;
-            _NewTopic = newtopic;
+            Channel = channel;
+            Who = who;
+            NewTopic = newtopic;
         }
 
-        public string Channel
-        {
-            get { return _Channel; }
-        }
+        public string Channel { get; private set; }
 
-        public string Who
-        {
-            get { return _Who; }
-        }
+        public string Who { get; private set; }
 
-        public string NewTopic
-        {
-            get { return _NewTopic; }
-        }
+        public string NewTopic { get; private set; }
     }
 
     /// <summary>
@@ -532,31 +409,19 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class BanEventArgs : IrcEventArgs
     {
-        private readonly string _Channel;
-        private readonly string _Hostmask;
-        private readonly string _Who;
-
-        internal BanEventArgs(IrcMessageData data, string channel, string who, string hostmask) : base(data)
+        internal BanEventArgs(IrcMessageData data, string channel, string who, string hostmask)
+            : base(data)
         {
-            _Channel = channel;
-            _Who = who;
-            _Hostmask = hostmask;
+            Channel = channel;
+            Who = who;
+            Hostmask = hostmask;
         }
 
-        public string Channel
-        {
-            get { return _Channel; }
-        }
+        public string Channel { get; private set; }
 
-        public string Who
-        {
-            get { return _Who; }
-        }
+        public string Who { get; private set; }
 
-        public string Hostmask
-        {
-            get { return _Hostmask; }
-        }
+        public string Hostmask { get; private set; }
     }
 
     /// <summary>
@@ -564,31 +429,19 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class UnbanEventArgs : IrcEventArgs
     {
-        private readonly string _Channel;
-        private readonly string _Hostmask;
-        private readonly string _Who;
-
-        internal UnbanEventArgs(IrcMessageData data, string channel, string who, string hostmask) : base(data)
+        internal UnbanEventArgs(IrcMessageData data, string channel, string who, string hostmask)
+            : base(data)
         {
-            _Channel = channel;
-            _Who = who;
-            _Hostmask = hostmask;
+            Channel = channel;
+            Who = who;
+            Hostmask = hostmask;
         }
 
-        public string Channel
-        {
-            get { return _Channel; }
-        }
+        public string Channel { get; private set; }
 
-        public string Who
-        {
-            get { return _Who; }
-        }
+        public string Who { get; private set; }
 
-        public string Hostmask
-        {
-            get { return _Hostmask; }
-        }
+        public string Hostmask { get; private set; }
     }
 
     /// <summary>
@@ -596,31 +449,19 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class OpEventArgs : IrcEventArgs
     {
-        private readonly string _Channel;
-        private readonly string _Who;
-        private readonly string _Whom;
-
-        internal OpEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data)
+        internal OpEventArgs(IrcMessageData data, string channel, string who, string whom)
+            : base(data)
         {
-            _Channel = channel;
-            _Who = who;
-            _Whom = whom;
+            Channel = channel;
+            Who = who;
+            Whom = whom;
         }
 
-        public string Channel
-        {
-            get { return _Channel; }
-        }
+        public string Channel { get; private set; }
 
-        public string Who
-        {
-            get { return _Who; }
-        }
+        public string Who { get; private set; }
 
-        public string Whom
-        {
-            get { return _Whom; }
-        }
+        public string Whom { get; private set; }
     }
 
     /// <summary>
@@ -628,31 +469,19 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class DeopEventArgs : IrcEventArgs
     {
-        private readonly string _Channel;
-        private readonly string _Who;
-        private readonly string _Whom;
-
-        internal DeopEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data)
+        internal DeopEventArgs(IrcMessageData data, string channel, string who, string whom)
+            : base(data)
         {
-            _Channel = channel;
-            _Who = who;
-            _Whom = whom;
+            Channel = channel;
+            Who = who;
+            Whom = whom;
         }
 
-        public string Channel
-        {
-            get { return _Channel; }
-        }
+        public string Channel { get; private set; }
 
-        public string Who
-        {
-            get { return _Who; }
-        }
+        public string Who { get; private set; }
 
-        public string Whom
-        {
-            get { return _Whom; }
-        }
+        public string Whom { get; private set; }
     }
 
     /// <summary>
@@ -660,31 +489,19 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class HalfopEventArgs : IrcEventArgs
     {
-        private readonly string _Channel;
-        private readonly string _Who;
-        private readonly string _Whom;
-
-        internal HalfopEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data)
+        internal HalfopEventArgs(IrcMessageData data, string channel, string who, string whom)
+            : base(data)
         {
-            _Channel = channel;
-            _Who = who;
-            _Whom = whom;
+            Channel = channel;
+            Who = who;
+            Whom = whom;
         }
 
-        public string Channel
-        {
-            get { return _Channel; }
-        }
+        public string Channel { get; private set; }
 
-        public string Who
-        {
-            get { return _Who; }
-        }
+        public string Who { get; private set; }
 
-        public string Whom
-        {
-            get { return _Whom; }
-        }
+        public string Whom { get; private set; }
     }
 
     /// <summary>
@@ -692,31 +509,19 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class DehalfopEventArgs : IrcEventArgs
     {
-        private readonly string _Channel;
-        private readonly string _Who;
-        private readonly string _Whom;
-
-        internal DehalfopEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data)
+        internal DehalfopEventArgs(IrcMessageData data, string channel, string who, string whom)
+            : base(data)
         {
-            _Channel = channel;
-            _Who = who;
-            _Whom = whom;
+            Channel = channel;
+            Who = who;
+            Whom = whom;
         }
 
-        public string Channel
-        {
-            get { return _Channel; }
-        }
+        public string Channel { get; private set; }
 
-        public string Who
-        {
-            get { return _Who; }
-        }
+        public string Who { get; private set; }
 
-        public string Whom
-        {
-            get { return _Whom; }
-        }
+        public string Whom { get; private set; }
     }
 
     /// <summary>
@@ -724,31 +529,19 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class VoiceEventArgs : IrcEventArgs
     {
-        private readonly string _Channel;
-        private readonly string _Who;
-        private readonly string _Whom;
-
-        internal VoiceEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data)
+        internal VoiceEventArgs(IrcMessageData data, string channel, string who, string whom)
+            : base(data)
         {
-            _Channel = channel;
-            _Who = who;
-            _Whom = whom;
+            Channel = channel;
+            Who = who;
+            Whom = whom;
         }
 
-        public string Channel
-        {
-            get { return _Channel; }
-        }
+        public string Channel { get; private set; }
 
-        public string Who
-        {
-            get { return _Who; }
-        }
+        public string Who { get; private set; }
 
-        public string Whom
-        {
-            get { return _Whom; }
-        }
+        public string Whom { get; private set; }
     }
 
     /// <summary>
@@ -756,30 +549,18 @@ namespace Meebey.SmartIrc4net
     /// </summary>
     public class DevoiceEventArgs : IrcEventArgs
     {
-        private readonly string _Channel;
-        private readonly string _Who;
-        private readonly string _Whom;
-
-        internal DevoiceEventArgs(IrcMessageData data, string channel, string who, string whom) : base(data)
+        internal DevoiceEventArgs(IrcMessageData data, string channel, string who, string whom)
+            : base(data)
         {
-            _Channel = channel;
-            _Who = who;
-            _Whom = whom;
+            Channel = channel;
+            Who = who;
+            Whom = whom;
         }
 
-        public string Channel
-        {
-            get { return _Channel; }
-        }
+        public string Channel { get; private set; }
 
-        public string Who
-        {
-            get { return _Who; }
-        }
+        public string Who { get; private set; }
 
-        public string Whom
-        {
-            get { return _Whom; }
-        }
+        public string Whom { get; private set; }
     }
 }

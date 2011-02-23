@@ -389,9 +389,9 @@ namespace Starksoft.Net.Proxy
 
                 var credentials = new byte[_proxyUserName.Length + _proxyPassword.Length + 3];
                 credentials[0] = SOCKS5_VERSION_NUMBER;
-                credentials[1] = (byte) _proxyUserName.Length;
+                credentials[1] = (byte)_proxyUserName.Length;
                 Array.Copy(Encoding.ASCII.GetBytes(_proxyUserName), 0, credentials, 2, _proxyUserName.Length);
-                credentials[_proxyUserName.Length + 2] = (byte) _proxyPassword.Length;
+                credentials[_proxyUserName.Length + 2] = (byte)_proxyPassword.Length;
                 Array.Copy(Encoding.ASCII.GetBytes(_proxyPassword), 0, credentials, _proxyUserName.Length + 3,
                            _proxyPassword.Length);
 
@@ -430,7 +430,7 @@ namespace Starksoft.Net.Proxy
                     throw new ProxyException(String.Format(CultureInfo.InvariantCulture,
                                                            "The host addess {0} of type '{1}' is not a supported address type.  The supported types are InterNetwork and InterNetworkV6.",
                                                            host,
-                                                           Enum.GetName(typeof (AddressFamily), ipAddr.AddressFamily)));
+                                                           Enum.GetName(typeof(AddressFamily), ipAddr.AddressFamily)));
             }
         }
 
@@ -458,8 +458,8 @@ namespace Starksoft.Net.Proxy
         private byte[] GetDestPortBytes(int value)
         {
             var array = new byte[2];
-            array[0] = Convert.ToByte(value/256);
-            array[1] = Convert.ToByte(value%256);
+            array[0] = Convert.ToByte(value / 256);
+            array[1] = Convert.ToByte(value % 256);
             return array;
         }
 
@@ -714,8 +714,8 @@ namespace Starksoft.Net.Proxy
         {
             try
             {
-                var args = (Object[]) e.Argument;
-                e.Result = CreateConnection((string) args[0], (int) args[1]);
+                var args = (Object[])e.Argument;
+                e.Result = CreateConnection((string)args[0], (int)args[1]);
             }
             catch (Exception ex)
             {
@@ -729,7 +729,7 @@ namespace Starksoft.Net.Proxy
                 CreateConnectionAsyncCompleted(this,
                                                new CreateConnectionAsyncCompletedEventArgs(_asyncException,
                                                                                            _asyncCancelled,
-                                                                                           (TcpClient) e.Result));
+                                                                                           (TcpClient)e.Result));
         }
 
         #endregion
