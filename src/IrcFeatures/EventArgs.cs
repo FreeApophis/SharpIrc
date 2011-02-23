@@ -20,27 +20,18 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
- 
+
 using System;
-using System.Collections.Generic;
 
 namespace Meebey.SmartIrc4net
 {
- 
     /// <summary>
     /// Base DCC Event Arguments
     /// </summary>
     public class DccEventArgs : EventArgs
     {
-    
-        private DccConnection _dcc;
+        private readonly DccConnection _dcc;
 
-        public DccConnection dcc {
-            get {
-                return _dcc;
-            }
-        }
-    
         /// <summary>
         /// 
         /// </summary>
@@ -48,90 +39,91 @@ namespace Meebey.SmartIrc4net
         /// <param name="stream">If there are multiple streams on a DCC (a channel DCC) this identifies the stream</param>
         internal DccEventArgs(DccConnection dcc)
         {
-            this._dcc = dcc;
+            _dcc = dcc;
+        }
+
+        public DccConnection dcc
+        {
+            get { return _dcc; }
         }
     }
-    
+
     /// <summary>
     /// Dcc Event Args Involving Lines of Text
     /// </summary>
     public class DccChatEventArgs : DccEventArgs
     {
-        private string _Message;
+        private readonly string _Message;
 
-        public string Message {
-            get {
-                return _Message;
-            }
-        }
-        
-        private string[] _MessageArray;
-
-        public string[] MessageArray {
-            get {
-                return _MessageArray;
-            }
-        }
+        private readonly string[] _MessageArray;
 
         internal DccChatEventArgs(DccConnection dcc, string messageLine) : base(dcc)
         {
             char[] whiteSpace = {' '};
-            this._Message = messageLine;
-            this._MessageArray = messageLine.Split(new char[] {' '});
-        }        
+            _Message = messageLine;
+            _MessageArray = messageLine.Split(new[] {' '});
+        }
+
+        public string Message
+        {
+            get { return _Message; }
+        }
+
+        public string[] MessageArray
+        {
+            get { return _MessageArray; }
+        }
     }
-    
+
     /// <summary>
     /// Dcc Event Args involving Packets of Bytes
     /// </summary>
     public class DccSendEventArgs : DccEventArgs
     {
-        private byte[] _Package;
-        
-        public byte[] Package {
-            get {
-                return _Package;
-            }
-        }
-        
-        private int _PackageSize;
-        
-        public int PackageSize {
-            get {
-                return _PackageSize;
-            }
-        }
-        
-        internal DccSendEventArgs(DccConnection dcc,  byte[] package, int packageSize) : base(dcc)
+        private readonly byte[] _Package;
+
+        private readonly int _PackageSize;
+
+        internal DccSendEventArgs(DccConnection dcc, byte[] package, int packageSize) : base(dcc)
         {
-            this._Package = package;
-            this._PackageSize = packageSize;
-        }        
+            _Package = package;
+            _PackageSize = packageSize;
+        }
+
+        public byte[] Package
+        {
+            get { return _Package; }
+        }
+
+        public int PackageSize
+        {
+            get { return _PackageSize; }
+        }
     }
-    
+
     /// <summary>
     /// Special DCC Event Arg for Receiving File Requests
     /// </summary>
     public class DccSendRequestEventArgs : DccEventArgs
     {
-        private string _Filename;
-        public string Filename {
-            get {
-                return _Filename;
-            }
-        }
-        
-        private long _Filesize;
-        public long Filesize {
-            get {
-                return _Filesize;
-            }
-        }
-        
+        private readonly string _Filename;
+
+        private readonly long _Filesize;
+
         internal DccSendRequestEventArgs(DccConnection dcc, string filename, long filesize) : base(dcc)
         {
-            this._Filename = filename;
-            this._Filesize = filesize;
+            _Filename = filename;
+            _Filesize = filesize;
+        }
+
+        public string Filename
+        {
+            get { return _Filename; }
+        }
+
+        public long Filesize
+        {
+            get { return _Filesize; }
         }
     }
 }

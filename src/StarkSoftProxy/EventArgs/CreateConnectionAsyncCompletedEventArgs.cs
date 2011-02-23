@@ -24,8 +24,8 @@
  */
 
 using System;
-using System.Net.Sockets;
 using System.ComponentModel;
+using System.Net.Sockets;
 
 namespace Starksoft.Net.Proxy
 {
@@ -34,8 +34,8 @@ namespace Starksoft.Net.Proxy
     /// </summary>
     public class CreateConnectionAsyncCompletedEventArgs : AsyncCompletedEventArgs
     {
-        private TcpClient _proxyConnection;
-        
+        private readonly TcpClient _proxyConnection;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -56,5 +56,4 @@ namespace Starksoft.Net.Proxy
             get { return _proxyConnection; }
         }
     }
-
-} 
+}

@@ -33,112 +33,103 @@ namespace Meebey.SmartIrc4net
 {
     public class WhoInfo
     {
-        private string   f_Channel;
-        private string   f_Ident;
-        private string   f_Host;
-        private string   f_Server;
-        private string   f_Nick;
-        private int      f_HopCount;
-        private string   f_Realname;
-        private bool     f_IsAway;
-        private bool     f_IsOp;
-        private bool     f_IsVoice;
-        private bool     f_IsIrcOp;
-        private bool     f_IsRegistered;
-        
-        public string Channel {
-            get {
-                return f_Channel;
-            }
-        }
+        private string f_Channel;
+        private int f_HopCount;
+        private string f_Host;
+        private string f_Ident;
+        private bool f_IsAway;
+        private bool f_IsIrcOp;
+        private bool f_IsOp;
+        private bool f_IsRegistered;
+        private bool f_IsVoice;
+        private string f_Nick;
+        private string f_Realname;
+        private string f_Server;
 
-        public string Ident {
-            get {
-                return f_Ident;
-            }
-        }
-        
-        public string Host {
-            get {
-                return f_Host;
-            }
-        }
-        
-        public string Server {
-            get {
-                return f_Server;
-            }
-        }
-        
-        public string Nick {
-            get {
-                return f_Nick;
-            }
-        }
-        
-        public int HopCount {
-            get {
-                return f_HopCount;
-            }
-        }
-        
-        public string Realname {
-            get {
-                return f_Realname;
-            }
-        }
-
-        public bool IsAway {
-            get {
-                return f_IsAway;
-            }
-        }
-
-        public bool IsOp {
-            get {
-                return f_IsOp;
-            }
-        }
-
-        public bool IsVoice {
-            get {
-                return f_IsVoice;
-            }
-        }
-
-        public bool IsIrcOp {
-            get {
-                return f_IsIrcOp;
-            }
-        }
-
-        public bool IsRegistered {
-            get {
-                return f_IsRegistered;
-            }
-        }
-        
         private WhoInfo()
         {
         }
-        
+
+        public string Channel
+        {
+            get { return f_Channel; }
+        }
+
+        public string Ident
+        {
+            get { return f_Ident; }
+        }
+
+        public string Host
+        {
+            get { return f_Host; }
+        }
+
+        public string Server
+        {
+            get { return f_Server; }
+        }
+
+        public string Nick
+        {
+            get { return f_Nick; }
+        }
+
+        public int HopCount
+        {
+            get { return f_HopCount; }
+        }
+
+        public string Realname
+        {
+            get { return f_Realname; }
+        }
+
+        public bool IsAway
+        {
+            get { return f_IsAway; }
+        }
+
+        public bool IsOp
+        {
+            get { return f_IsOp; }
+        }
+
+        public bool IsVoice
+        {
+            get { return f_IsVoice; }
+        }
+
+        public bool IsIrcOp
+        {
+            get { return f_IsIrcOp; }
+        }
+
+        public bool IsRegistered
+        {
+            get { return f_IsRegistered; }
+        }
+
         public static WhoInfo Parse(IrcMessageData data)
         {
-            WhoInfo whoInfo = new WhoInfo();
+            var whoInfo = new WhoInfo();
             // :fu-berlin.de 352 meebey_ * ~meebey e176002059.adsl.alicedsl.de fu-berlin.de meebey_ H :0 Mirco Bauer..
-            whoInfo.f_Channel  = data.RawMessageArray[3];
-            whoInfo.f_Ident    = data.RawMessageArray[4];
-            whoInfo.f_Host     = data.RawMessageArray[5];
-            whoInfo.f_Server   = data.RawMessageArray[6];
-            whoInfo.f_Nick     = data.RawMessageArray[7];
+            whoInfo.f_Channel = data.RawMessageArray[3];
+            whoInfo.f_Ident = data.RawMessageArray[4];
+            whoInfo.f_Host = data.RawMessageArray[5];
+            whoInfo.f_Server = data.RawMessageArray[6];
+            whoInfo.f_Nick = data.RawMessageArray[7];
             // skip hop count
             whoInfo.f_Realname = String.Join(" ", data.MessageArray, 1, data.MessageArray.Length - 1);
-            
-            int    hopcount = 0;
+
+            int hopcount = 0;
             string hopcountStr = data.MessageArray[0];
-            try {
+            try
+            {
                 hopcount = int.Parse(hopcountStr);
-            } catch (FormatException ex) {
+            }
+            catch (FormatException ex)
+            {
 #if LOG4NET
                 Logger.MessageParser.Warn("Parse(): couldn't parse (as int): '" + hopcountStr + "'", ex);
 #endif
@@ -151,26 +142,28 @@ namespace Meebey.SmartIrc4net
             bool away = false;
             bool registered = false;
             int usermodelength = usermode.Length;
-            for (int i = 0; i < usermodelength; i++) {
-                switch (usermode[i]) {
+            for (int i = 0; i < usermodelength; i++)
+            {
+                switch (usermode[i])
+                {
                     case 'H':
                         away = false;
-                    break;
+                        break;
                     case 'G':
                         away = true;
-                    break;
+                        break;
                     case '@':
                         op = true;
-                    break;
+                        break;
                     case '+':
                         voice = true;
-                    break;
+                        break;
                     case '*':
                         ircop = true;
-                    break;
+                        break;
                     case 'r':
                         registered = true;
-                    break;
+                        break;
                 }
             }
             whoInfo.f_IsAway = away;
@@ -179,7 +172,7 @@ namespace Meebey.SmartIrc4net
             whoInfo.f_IsIrcOp = ircop;
 
             whoInfo.f_IsRegistered = registered;
-            
+
             return whoInfo;
         }
     }

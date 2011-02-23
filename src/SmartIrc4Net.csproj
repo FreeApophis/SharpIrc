@@ -79,10 +79,6 @@
     <Compile Include="StarkSoftProxy\Socks5ProxyClient.cs" />
     <Compile Include="StarkSoftProxy\Utils.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="AssemblyInfo.cs.in" />
-    <None Include="Makefile.am" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>
     <VisualStudio AllowExistingFolder="true" />

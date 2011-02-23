@@ -28,7 +28,6 @@
 
 using System;
 using System.Text;
-using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Meebey.SmartIrc4net
@@ -44,12 +43,13 @@ namespace Meebey.SmartIrc4net
         // digit      =  %x30-39                 ; 0-9
         // special    =  %x5B-60 / %x7B-7D
         //                  ; "[", "]", "\", "`", "_", "^", "{", "|", "}"
-        private static Regex _NicknameRegex = new Regex(@"^[A-Za-z\[\]\\`_^{|}][A-Za-z0-9\[\]\\`_\-^{|}]+$", RegexOptions.Compiled);
-        
+        private static readonly Regex _NicknameRegex = new Regex(@"^[A-Za-z\[\]\\`_^{|}][A-Za-z0-9\[\]\\`_\-^{|}]+$",
+                                                                 RegexOptions.Compiled);
+
         private Rfc2812()
         {
         }
-        
+
         /// <summary>
         /// Checks if the passed nickname is valid according to the RFC
         ///
@@ -59,136 +59,137 @@ namespace Meebey.SmartIrc4net
         {
             if ((nickname != null) &&
                 (nickname.Length > 0) &&
-                (_NicknameRegex.Match(nickname).Success)) {
+                (_NicknameRegex.Match(nickname).Success))
+            {
                 return true;
             }
-            
+
             return false;
         }
-        
+
         public static string Pass(string password)
         {
-            return "PASS "+password;
+            return "PASS " + password;
         }
-        
+
         public static string Nick(string nickname)
         {
-            return "NICK "+nickname;
+            return "NICK " + nickname;
         }
-        
+
         public static string User(string username, int usermode, string realname)
         {
-            return "USER "+username+" "+usermode.ToString()+" * :"+realname;
+            return "USER " + username + " " + usermode + " * :" + realname;
         }
 
         public static string Oper(string name, string password)
         {
-            return "OPER "+name+" "+password;
+            return "OPER " + name + " " + password;
         }
-        
+
         public static string Privmsg(string destination, string message)
         {
-            return "PRIVMSG "+destination+" :"+message;
+            return "PRIVMSG " + destination + " :" + message;
         }
 
         public static string Notice(string destination, string message)
         {
-            return "NOTICE "+destination+" :"+message;
+            return "NOTICE " + destination + " :" + message;
         }
 
         public static string Join(string channel)
         {
-            return "JOIN "+channel;
+            return "JOIN " + channel;
         }
-        
+
         public static string Join(string[] channels)
         {
             string channellist = String.Join(",", channels);
-            return "JOIN "+channellist;
+            return "JOIN " + channellist;
         }
-        
+
         public static string Join(string channel, string key)
         {
-            return "JOIN "+channel+" "+key;
+            return "JOIN " + channel + " " + key;
         }
 
         public static string Join(string[] channels, string[] keys)
         {
             string channellist = String.Join(",", channels);
             string keylist = String.Join(",", keys);
-            return "JOIN "+channellist+" "+keylist;
+            return "JOIN " + channellist + " " + keylist;
         }
-        
+
         public static string Part(string channel)
         {
-            return "PART "+channel;
+            return "PART " + channel;
         }
 
         public static string Part(string[] channels)
         {
             string channellist = String.Join(",", channels);
-            return "PART "+channellist;
+            return "PART " + channellist;
         }
-        
+
         public static string Part(string channel, string partmessage)
         {
-            return "PART "+channel+" :"+partmessage;
+            return "PART " + channel + " :" + partmessage;
         }
 
         public static string Part(string[] channels, string partmessage)
         {
             string channellist = String.Join(",", channels);
-            return "PART "+channellist+" :"+partmessage;
+            return "PART " + channellist + " :" + partmessage;
         }
 
         public static string Kick(string channel, string nickname)
         {
-            return "KICK "+channel+" "+nickname;
+            return "KICK " + channel + " " + nickname;
         }
 
         public static string Kick(string channel, string nickname, string comment)
         {
-            return "KICK "+channel+" "+nickname+" :"+comment;
+            return "KICK " + channel + " " + nickname + " :" + comment;
         }
-        
+
         public static string Kick(string[] channels, string nickname)
         {
             string channellist = String.Join(",", channels);
-            return "KICK "+channellist+" "+nickname;
+            return "KICK " + channellist + " " + nickname;
         }
 
         public static string Kick(string[] channels, string nickname, string comment)
         {
             string channellist = String.Join(",", channels);
-            return "KICK "+channellist+" "+nickname+" :"+comment;
+            return "KICK " + channellist + " " + nickname + " :" + comment;
         }
 
         public static string Kick(string channel, string[] nicknames)
         {
             string nicknamelist = String.Join(",", nicknames);
-            return "KICK "+channel+" "+nicknamelist;
+            return "KICK " + channel + " " + nicknamelist;
         }
 
         public static string Kick(string channel, string[] nicknames, string comment)
         {
             string nicknamelist = String.Join(",", nicknames);
-            return "KICK "+channel+" "+nicknamelist+" :"+comment;
+            return "KICK " + channel + " " + nicknamelist + " :" + comment;
         }
 
         public static string Kick(string[] channels, string[] nicknames)
         {
             string channellist = String.Join(",", channels);
             string nicknamelist = String.Join(",", nicknames);
-            return "KICK "+channellist+" "+nicknamelist;
+            return "KICK " + channellist + " " + nicknamelist;
         }
 
         public static string Kick(string[] channels, string[] nicknames, string comment)
         {
             string channellist = String.Join(",", channels);
             string nicknamelist = String.Join(",", nicknames);
-            return "KICK "+channellist+" "+nicknamelist+" :"+comment;
+            return "KICK " + channellist + " " + nicknamelist + " :" + comment;
         }
-        
+
         public static string Motd()
         {
             return "MOTD";
@@ -196,7 +197,7 @@ namespace Meebey.SmartIrc4net
 
         public static string Motd(string target)
         {
-            return "MOTD "+target;
+            return "MOTD " + target;
         }
 
         [Obsolete("use Lusers() method instead")]
@@ -209,7 +210,7 @@ namespace Meebey.SmartIrc4net
         {
             return "LUSERS";
         }
-        
+
         [Obsolete("use Lusers(string) method instead")]
         public static string Luser(string mask)
         {
@@ -218,7 +219,7 @@ namespace Meebey.SmartIrc4net
 
         public static string Lusers(string mask)
         {
-            return "LUSER "+mask;
+            return "LUSER " + mask;
         }
 
         [Obsolete("use Lusers(string, string) method instead")]
@@ -226,10 +227,10 @@ namespace Meebey.SmartIrc4net
         {
             return Lusers(mask, target);
         }
-        
+
         public static string Lusers(string mask, string target)
         {
-            return "LUSER "+mask+" "+target;
+            return "LUSER " + mask + " " + target;
         }
 
         public static string Version()
@@ -239,7 +240,7 @@ namespace Meebey.SmartIrc4net
 
         public static string Version(string target)
         {
-            return "VERSION "+target;
+            return "VERSION " + target;
         }
 
         public static string Stats()
@@ -249,99 +250,99 @@ namespace Meebey.SmartIrc4net
 
         public static string Stats(string query)
         {
-            return "STATS "+query;
+            return "STATS " + query;
         }
 
         public static string Stats(string query, string target)
         {
-            return "STATS "+query+" "+target;
+            return "STATS " + query + " " + target;
         }
 
         public static string Links()
         {
             return "LINKS";
         }
-        
+
         public static string Links(string servermask)
         {
-            return "LINKS "+servermask;
+            return "LINKS " + servermask;
         }
-        
+
         public static string Links(string remoteserver, string servermask)
         {
-            return "LINKS "+remoteserver+" "+servermask;
+            return "LINKS " + remoteserver + " " + servermask;
         }
-        
+
         public static string Time()
         {
             return "TIME";
         }
-        
+
         public static string Time(string target)
         {
-            return "TIME "+target;
+            return "TIME " + target;
         }
-        
+
         public static string Connect(string targetserver, string port)
         {
-            return "CONNECT "+targetserver+" "+port;
+            return "CONNECT " + targetserver + " " + port;
         }
-        
+
         public static string Connect(string targetserver, string port, string remoteserver)
         {
-            return "CONNECT "+targetserver+" "+port+" "+remoteserver;
+            return "CONNECT " + targetserver + " " + port + " " + remoteserver;
         }
-        
+
         public static string Trace()
         {
             return "TRACE";
         }
-        
+
         public static string Trace(string target)
         {
-            return "TRACE "+target;
+            return "TRACE " + target;
         }
-        
+
         public static string Admin()
         {
             return "ADMIN";
         }
-        
+
         public static string Admin(string target)
         {
-            return "ADMIN "+target;
+            return "ADMIN " + target;
         }
-        
+
         public static string Info()
         {
             return "INFO";
         }
-        
+
         public static string Info(string target)
         {
-            return "INFO "+target;
+            return "INFO " + target;
         }
-        
+
         public static string Servlist()
         {
             return "SERVLIST";
         }
-        
+
         public static string Servlist(string mask)
         {
-            return "SERVLIST "+mask;
+            return "SERVLIST " + mask;
         }
-        
+
         public static string Servlist(string mask, string type)
         {
-            return "SERVLIST "+mask+" "+type;
+            return "SERVLIST " + mask + " " + type;
         }
-        
+
         public static string Squery(string servicename, string servicetext)
         {
-            return "SQUERY "+servicename+" :"+servicetext;
+            return "SQUERY " + servicename + " :" + servicetext;
         }
-        
+
         public static string List()
         {
             return "LIST";
@@ -349,26 +350,26 @@ namespace Meebey.SmartIrc4net
 
         public static string List(string channel)
         {
-            return "LIST "+channel;
+            return "LIST " + channel;
         }
 
         public static string List(string[] channels)
         {
             string channellist = String.Join(",", channels);
-            return "LIST "+channellist;
+            return "LIST " + channellist;
         }
-        
+
         public static string List(string channel, string target)
         {
-            return "LIST "+channel+" "+target;
+            return "LIST " + channel + " " + target;
         }
 
         public static string List(string[] channels, string target)
         {
             string channellist = String.Join(",", channels);
-            return "LIST "+channellist+" "+target;
+            return "LIST " + channellist + " " + target;
         }
-        
+
         public static string Names()
         {
             return "NAMES";
@@ -376,87 +377,97 @@ namespace Meebey.SmartIrc4net
 
         public static string Names(string channel)
         {
-            return "NAMES "+channel;
+            return "NAMES " + channel;
         }
 
         public static string Names(string[] channels)
         {
             string channellist = String.Join(",", channels);
-            return "NAMES "+channellist;
+            return "NAMES " + channellist;
         }
-        
+
         public static string Names(string channel, string target)
         {
-            return "NAMES "+channel+" "+target;
+            return "NAMES " + channel + " " + target;
         }
-        
+
         public static string Names(string[] channels, string target)
         {
             string channellist = String.Join(",", channels);
-            return "NAMES "+channellist+" "+target;
+            return "NAMES " + channellist + " " + target;
         }
-        
+
         public static string Topic(string channel)
         {
-            return "TOPIC "+channel;
+            return "TOPIC " + channel;
         }
 
         public static string Topic(string channel, string newtopic)
         {
-            return "TOPIC "+channel+" :"+newtopic;
+            return "TOPIC " + channel + " :" + newtopic;
         }
 
         public static string Mode(string target)
         {
-            return "MODE "+target;
+            return "MODE " + target;
         }
 
         public static string Mode(string target, string newmode)
         {
-            return "MODE "+target+" "+newmode;
+            return "MODE " + target + " " + newmode;
         }
 
         public static string Mode(string target, string[] newModes, string[] newModeParameters)
         {
-            if (newModes == null) {
+            if (newModes == null)
+            {
                 throw new ArgumentNullException("newModes");
             }
-            if (newModeParameters == null) {
+            if (newModeParameters == null)
+            {
                 throw new ArgumentNullException("newModeParameters");
             }
-            if (newModes.Length != newModeParameters.Length) {
+            if (newModes.Length != newModeParameters.Length)
+            {
                 throw new ArgumentException("newModes and newModeParameters must have the same size.");
             }
-            
-            StringBuilder newMode = new StringBuilder(newModes.Length);
-            StringBuilder newModeParameter = new StringBuilder();
+
+            var newMode = new StringBuilder(newModes.Length);
+            var newModeParameter = new StringBuilder();
             // as per RFC 3.2.3, maximum is 3 modes changes at once
             int maxModeChanges = 3;
-            if (newModes.Length > maxModeChanges) {
+            if (newModes.Length > maxModeChanges)
+            {
                 throw new ArgumentOutOfRangeException(
                     "newModes.Length",
                     newModes.Length,
                     String.Format("Mode change list is too large (> {0}).", maxModeChanges)
-                );
+                    );
             }
-            
-            for (int i = 0; i <= newModes.Length; i += maxModeChanges) {
-                for (int j = 0; j < maxModeChanges; j++) {
-                    if (i + j >= newModes.Length) {
+
+            for (int i = 0; i <= newModes.Length; i += maxModeChanges)
+            {
+                for (int j = 0; j < maxModeChanges; j++)
+                {
+                    if (i + j >= newModes.Length)
+                    {
                         break;
                     }
                     newMode.Append(newModes[i + j]);
                 }
-                
-                for (int j = 0; j < maxModeChanges; j++) {
-                    if (i + j >= newModeParameters.Length) {
+
+                for (int j = 0; j < maxModeChanges; j++)
+                {
+                    if (i + j >= newModeParameters.Length)
+                    {
                         break;
                     }
                     newModeParameter.Append(newModeParameters[i + j]);
                     newModeParameter.Append(" ");
                 }
             }
-            if (newModeParameter.Length > 0) {
+            if (newModeParameter.Length > 0)
+            {
                 // remove trailing space
                 newModeParameter.Length--;
                 newMode.Append(" ");
@@ -468,208 +479,211 @@ namespace Meebey.SmartIrc4net
 
         public static string Service(string nickname, string distribution, string info)
         {
-            return "SERVICE "+nickname+" * "+distribution+" * * :"+info;
+            return "SERVICE " + nickname + " * " + distribution + " * * :" + info;
         }
-        
+
         public static string Invite(string nickname, string channel)
         {
-            return "INVITE "+nickname+" "+channel;
+            return "INVITE " + nickname + " " + channel;
         }
 
         public static string Who()
         {
             return "WHO";
         }
-        
+
         public static string Who(string mask)
         {
-            return "WHO "+mask;
+            return "WHO " + mask;
         }
-        
+
         public static string Who(string mask, bool ircop)
         {
-            if (ircop) {
-                return "WHO "+mask+" o";
-            } else {
-                return "WHO "+mask;
+            if (ircop)
+            {
+                return "WHO " + mask + " o";
+            }
+            else
+            {
+                return "WHO " + mask;
             }
         }
-        
+
         public static string Whois(string mask)
         {
-            return "WHOIS "+mask;
+            return "WHOIS " + mask;
         }
-        
+
         public static string Whois(string[] masks)
         {
             string masklist = String.Join(",", masks);
-            return "WHOIS "+masklist;
+            return "WHOIS " + masklist;
         }
-        
+
         public static string Whois(string target, string mask)
         {
-            return "WHOIS "+target+" "+mask;
+            return "WHOIS " + target + " " + mask;
         }
-        
+
         public static string Whois(string target, string[] masks)
         {
             string masklist = String.Join(",", masks);
-            return "WHOIS "+target+" "+masklist;
+            return "WHOIS " + target + " " + masklist;
         }
-        
+
         public static string Whowas(string nickname)
         {
-            return "WHOWAS "+nickname;
+            return "WHOWAS " + nickname;
         }
-        
+
         public static string Whowas(string[] nicknames)
         {
             string nicknamelist = String.Join(",", nicknames);
-            return "WHOWAS "+nicknamelist;
+            return "WHOWAS " + nicknamelist;
         }
 
         public static string Whowas(string nickname, string count)
         {
-            return "WHOWAS "+nickname+" "+count+" ";
+            return "WHOWAS " + nickname + " " + count + " ";
         }
-        
+
         public static string Whowas(string[] nicknames, string count)
         {
             string nicknamelist = String.Join(",", nicknames);
-            return "WHOWAS "+nicknamelist+" "+count+" ";
+            return "WHOWAS " + nicknamelist + " " + count + " ";
         }
-        
+
         public static string Whowas(string nickname, string count, string target)
         {
-            return "WHOWAS "+nickname+" "+count+" "+target;
+            return "WHOWAS " + nickname + " " + count + " " + target;
         }
-        
+
         public static string Whowas(string[] nicknames, string count, string target)
         {
             string nicknamelist = String.Join(",", nicknames);
-            return "WHOWAS "+nicknamelist+" "+count+" "+target;
+            return "WHOWAS " + nicknamelist + " " + count + " " + target;
         }
-        
+
         public static string Kill(string nickname, string comment)
         {
-            return "KILL "+nickname+" :"+comment;
+            return "KILL " + nickname + " :" + comment;
         }
-        
+
         public static string Ping(string server)
         {
-            return "PING "+server;
+            return "PING " + server;
         }
-        
+
         public static string Ping(string server, string server2)
         {
-            return "PING "+server+" "+server2;
+            return "PING " + server + " " + server2;
         }
-        
+
         public static string Pong(string server)
         {
-            return "PONG "+server;
+            return "PONG " + server;
         }
-        
+
         public static string Pong(string server, string server2)
         {
-            return "PONG "+server+" "+server2;
+            return "PONG " + server + " " + server2;
         }
 
         public static string Error(string errormessage)
         {
-            return "ERROR :"+errormessage;
+            return "ERROR :" + errormessage;
         }
-        
+
         public static string Away()
         {
             return "AWAY";
         }
-        
+
         public static string Away(string awaytext)
         {
-            return "AWAY :"+awaytext;
+            return "AWAY :" + awaytext;
         }
-        
+
         public static string Rehash()
         {
             return "REHASH";
         }
-        
+
         public static string Die()
         {
             return "DIE";
         }
-        
+
         public static string Restart()
         {
             return "RESTART";
         }
-        
+
         public static string Summon(string user)
         {
-            return "SUMMON "+user;
+            return "SUMMON " + user;
         }
-        
+
         public static string Summon(string user, string target)
         {
-            return "SUMMON "+user+" "+target;
+            return "SUMMON " + user + " " + target;
         }
-        
+
         public static string Summon(string user, string target, string channel)
         {
-            return "SUMMON "+user+" "+target+" "+channel;
+            return "SUMMON " + user + " " + target + " " + channel;
         }
-        
+
         public static string Users()
         {
             return "USERS";
         }
-        
+
         public static string Users(string target)
         {
-            return "USERS "+target;
+            return "USERS " + target;
         }
-        
+
         public static string Wallops(string wallopstext)
         {
-            return "WALLOPS :"+wallopstext;
+            return "WALLOPS :" + wallopstext;
         }
-        
+
         public static string Userhost(string nickname)
         {
-            return "USERHOST "+nickname;
+            return "USERHOST " + nickname;
         }
-        
+
         public static string Userhost(string[] nicknames)
         {
             string nicknamelist = String.Join(" ", nicknames);
-            return "USERHOST "+nicknamelist;
+            return "USERHOST " + nicknamelist;
         }
-        
+
         public static string Ison(string nickname)
         {
-            return "ISON "+nickname;
+            return "ISON " + nickname;
         }
-        
+
         public static string Ison(string[] nicknames)
         {
             string nicknamelist = String.Join(" ", nicknames);
-            return "ISON "+nicknamelist;
+            return "ISON " + nicknamelist;
         }
-        
+
         public static string Quit()
         {
             return "QUIT";
         }
-        
+
         public static string Quit(string quitmessage)
         {
-            return "QUIT :"+quitmessage;
+            return "QUIT :" + quitmessage;
         }
-        
+
         public static string Squit(string server, string comment)
         {
-            return "SQUIT "+server+" :"+comment;
+            return "SQUIT " + server + " :" + comment;
         }
     }
 }

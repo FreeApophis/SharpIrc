@@ -24,11 +24,11 @@
  */
 
 using System;
-using System.Text;
-using System.Net.Sockets;
-using System.Threading;
-using System.Globalization;
 using System.ComponentModel;
+using System.Globalization;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
 
 namespace Starksoft.Net.Proxy
 {
@@ -46,66 +46,23 @@ namespace Starksoft.Net.Proxy
     /// </summary>
     public class HttpProxyClient : IProxyClient
     {
+        private const int HTTP_PROXY_DEFAULT_PORT = 8080;
+        private const string HTTP_PROXY_CONNECT_CMD = "CONNECT {0}:{1} HTTP/1.0\r\nHOST {0}:{1}\r\n\r\n";
+        private const int WAIT_FOR_DATA_INTERVAL = 50; // 50 ms
+        private const int WAIT_FOR_DATA_TIMEOUT = 15000; // 15 seconds
+        private const string PROXY_NAME = "HTTP";
         private string _proxyHost;
         private int _proxyPort;
         private HttpResponseCodes _respCode;
         private string _respText;
         private TcpClient _tcpClient;
 
-        private const int HTTP_PROXY_DEFAULT_PORT = 8080;
-        private const string HTTP_PROXY_CONNECT_CMD = "CONNECT {0}:{1} HTTP/1.0\r\nHOST {0}:{1}\r\n\r\n";
-        private const int WAIT_FOR_DATA_INTERVAL = 50; // 50 ms
-        private const int WAIT_FOR_DATA_TIMEOUT = 15000; // 15 seconds
-        private const string PROXY_NAME = "HTTP";
-
-        private enum HttpResponseCodes
-        {
-            None = 0,
-            Continue = 100,
-            SwitchingProtocols = 101,
-            OK = 200,
-            Created = 201,
-            Accepted = 202,
-            NonAuthoritiveInformation = 203,
-            NoContent = 204,
-            ResetContent = 205,
-            PartialContent = 206,
-            MultipleChoices = 300,
-            MovedPermanetly = 301,
-            Found = 302,
-            SeeOther = 303,
-            NotModified = 304,
-            UserProxy = 305,
-            TemporaryRedirect = 307,
-            BadRequest = 400,
-            Unauthorized = 401,
-            PaymentRequired = 402,
-            Forbidden = 403,
-            NotFound = 404,
-            MethodNotAllowed = 405,
-            NotAcceptable = 406,
-            ProxyAuthenticantionRequired = 407,
-            RequestTimeout = 408,
-            Conflict = 409,
-            Gone = 410,
-            PreconditionFailed = 411,
-            RequestEntityTooLarge = 413,
-            RequestURITooLong = 414,
-            UnsupportedMediaType = 415,
-            RequestedRangeNotSatisfied = 416,
-            ExpectationFailed = 417,
-            InternalServerError = 500,
-            NotImplemented = 501,
-            BadGateway = 502,
-            ServiceUnavailable = 503,
-            GatewayTimeout = 504,
-            HTTPVersionNotSupported = 505
-        }
-
         /// <summary>
         /// Constructor.
         /// </summary>
-        public HttpProxyClient() { }
+        public HttpProxyClient()
+        {
+        }
 
         /// <summary>
         /// Creates a HTTP proxy client object using the supplied TcpClient object connection.
@@ -149,6 +106,8 @@ namespace Starksoft.Net.Proxy
             _proxyHost = proxyHost;
             _proxyPort = proxyPort;
         }
+
+        #region IProxyClient Members
 
         /// <summary>
         /// Gets or sets host name or IP address of the proxy server.
@@ -230,14 +189,17 @@ namespace Starksoft.Net.Proxy
             }
             catch (SocketException ex)
             {
-                throw new ProxyException(String.Format(CultureInfo.InvariantCulture, "Connection to proxy host {0} on port {1} failed.", Utils.GetHost(_tcpClient), Utils.GetPort(_tcpClient)), ex);
+                throw new ProxyException(
+                    String.Format(CultureInfo.InvariantCulture, "Connection to proxy host {0} on port {1} failed.",
+                                  Utils.GetHost(_tcpClient), Utils.GetPort(_tcpClient)), ex);
             }
         }
 
+        #endregion
 
         private void SendConnectionCommand(string host, int port)
         {
-            NetworkStream stream = _tcpClient.GetStream(); 
+            NetworkStream stream = _tcpClient.GetStream();
 
             // PROXY SERVER REQUEST
             // =======================================================================
@@ -246,8 +208,9 @@ namespace Starksoft.Net.Proxy
             //[... other HTTP header lines ending with <CR><LF> if required]>
             //<CR><LF>    // Last Empty Line
 
-            string connectCmd = String.Format(CultureInfo.InvariantCulture, HTTP_PROXY_CONNECT_CMD, host, port.ToString(CultureInfo.InvariantCulture));
-            byte[] request = ASCIIEncoding.ASCII.GetBytes(connectCmd);
+            string connectCmd = String.Format(CultureInfo.InvariantCulture, HTTP_PROXY_CONNECT_CMD, host,
+                                              port.ToString(CultureInfo.InvariantCulture));
+            byte[] request = Encoding.ASCII.GetBytes(connectCmd);
 
             // send the connect request
             stream.Write(request, 0, request.Length);
@@ -263,8 +226,8 @@ namespace Starksoft.Net.Proxy
             //<CR><LF>    // Last Empty Line
 
             // create an byte response array  
-            byte[] response = new byte[_tcpClient.ReceiveBufferSize];
-            StringBuilder sbuilder = new StringBuilder();
+            var response = new byte[_tcpClient.ReceiveBufferSize];
+            var sbuilder = new StringBuilder();
             int bytes = 0;
             long total = 0;
 
@@ -272,16 +235,16 @@ namespace Starksoft.Net.Proxy
             {
                 bytes = stream.Read(response, 0, _tcpClient.ReceiveBufferSize);
                 total += bytes;
-                sbuilder.Append(System.Text.ASCIIEncoding.UTF8.GetString(response, 0, bytes));
+                sbuilder.Append(Encoding.UTF8.GetString(response, 0, bytes));
             } while (stream.DataAvailable);
 
             ParseResponse(sbuilder.ToString());
-            
+
             //  evaluate the reply code for an error condition
             if (_respCode != HttpResponseCodes.OK)
                 HandleProxyCommandError(host, port);
         }
-        
+
         private void HandleProxyCommandError(string host, int port)
         {
             string msg;
@@ -289,16 +252,23 @@ namespace Starksoft.Net.Proxy
             switch (_respCode)
             {
                 case HttpResponseCodes.None:
-                    msg = String.Format(CultureInfo.InvariantCulture, "Proxy destination {0} on port {1} failed to return a recognized HTTP response code.  Server response: {2}", Utils.GetHost(_tcpClient), Utils.GetPort(_tcpClient), _respText);
-                    break;                   
+                    msg = String.Format(CultureInfo.InvariantCulture,
+                                        "Proxy destination {0} on port {1} failed to return a recognized HTTP response code.  Server response: {2}",
+                                        Utils.GetHost(_tcpClient), Utils.GetPort(_tcpClient), _respText);
+                    break;
 
                 case HttpResponseCodes.BadGateway:
                     //HTTP/1.1 502 Proxy Error (The specified Secure Sockets Layer (SSL) port is not allowed. ISA Server is not configured to allow SSL requests from this port. Most Web browsers use port 443 for SSL requests.)
-                    msg = String.Format(CultureInfo.InvariantCulture, "Proxy destination {0} on port {1} responded with a 502 code - Bad Gateway.  If you are connecting to a Microsoft ISA destination please refer to knowledge based article Q283284 for more information.  Server response: {2}", Utils.GetHost(_tcpClient), Utils.GetPort(_tcpClient), _respText);
+                    msg = String.Format(CultureInfo.InvariantCulture,
+                                        "Proxy destination {0} on port {1} responded with a 502 code - Bad Gateway.  If you are connecting to a Microsoft ISA destination please refer to knowledge based article Q283284 for more information.  Server response: {2}",
+                                        Utils.GetHost(_tcpClient), Utils.GetPort(_tcpClient), _respText);
                     break;
 
                 default:
-                    msg = String.Format(CultureInfo.InvariantCulture, "Proxy destination {0} on port {1} responded with a {2} code - {3}", Utils.GetHost(_tcpClient), Utils.GetPort(_tcpClient), ((int)_respCode).ToString(CultureInfo.InvariantCulture), _respText);
+                    msg = String.Format(CultureInfo.InvariantCulture,
+                                        "Proxy destination {0} on port {1} responded with a {2} code - {3}",
+                                        Utils.GetHost(_tcpClient), Utils.GetPort(_tcpClient),
+                                        ((int) _respCode).ToString(CultureInfo.InvariantCulture), _respText);
                     break;
             }
 
@@ -314,7 +284,9 @@ namespace Starksoft.Net.Proxy
                 Thread.Sleep(WAIT_FOR_DATA_INTERVAL);
                 sleepTime += WAIT_FOR_DATA_INTERVAL;
                 if (sleepTime > WAIT_FOR_DATA_TIMEOUT)
-                    throw new ProxyException(String.Format("A timeout while waiting for the proxy server at {0} on port {1} to respond.", Utils.GetHost(_tcpClient), Utils.GetPort(_tcpClient) ));
+                    throw new ProxyException(
+                        String.Format("A timeout while waiting for the proxy server at {0} on port {1} to respond.",
+                                      Utils.GetHost(_tcpClient), Utils.GetPort(_tcpClient)));
             }
         }
 
@@ -324,7 +296,7 @@ namespace Starksoft.Net.Proxy
 
             //  get rid of the LF character if it exists and then split the string on all CR
             data = response.Replace('\n', ' ').Split('\r');
-            
+
             ParseCodeAndText(data[0]);
         }
 
@@ -335,7 +307,8 @@ namespace Starksoft.Net.Proxy
             string val = null;
 
             if (line.IndexOf("HTTP") == -1)
-                throw new ProxyException(String.Format("No HTTP response received from proxy destination.  Server response: {0}.", line));
+                throw new ProxyException(
+                    String.Format("No HTTP response received from proxy destination.  Server response: {0}.", line));
 
             begin = line.IndexOf(" ") + 1;
             end = line.IndexOf(" ", begin);
@@ -344,19 +317,19 @@ namespace Starksoft.Net.Proxy
             Int32 code = 0;
 
             if (!Int32.TryParse(val, out code))
-                throw new ProxyException(String.Format("An invalid response code was received from proxy destination.  Server response: {0}.", line));
+                throw new ProxyException(
+                    String.Format(
+                        "An invalid response code was received from proxy destination.  Server response: {0}.", line));
 
-            _respCode = (HttpResponseCodes)code;
+            _respCode = (HttpResponseCodes) code;
             _respText = line.Substring(end + 1).Trim();
         }
 
+        #region "Async Methods"
 
-
-#region "Async Methods"
-
-        private BackgroundWorker _asyncWorker;
+        private bool _asyncCancelled;
         private Exception _asyncException;
-        bool _asyncCancelled;
+        private BackgroundWorker _asyncWorker;
 
         /// <summary>
         /// Gets a value indicating whether an asynchronous operation is running.
@@ -376,28 +349,6 @@ namespace Starksoft.Net.Proxy
         public bool IsAsyncCancelled
         {
             get { return _asyncCancelled; }
-        }
-
-        /// <summary>
-        /// Cancels any asychronous operation that is currently active.
-        /// </summary>
-        public void CancelAsync()
-        {
-            if (_asyncWorker != null && !_asyncWorker.CancellationPending && _asyncWorker.IsBusy)
-            {
-                _asyncCancelled = true;
-                _asyncWorker.CancelAsync();
-            }
-        }
-
-        private void CreateAsyncWorker()
-        {
-            if (_asyncWorker != null)
-                _asyncWorker.Dispose();
-            _asyncException = null;
-            _asyncWorker = null;
-            _asyncCancelled = false;
-            _asyncWorker = new BackgroundWorker();
         }
 
         /// <summary>
@@ -422,24 +373,47 @@ namespace Starksoft.Net.Proxy
         public void CreateConnectionAsync(string destinationHost, int destinationPort)
         {
             if (_asyncWorker != null && _asyncWorker.IsBusy)
-                throw new InvalidOperationException("The HttpProxy object is already busy executing another asynchronous operation.  You can only execute one asychronous method at a time.");
+                throw new InvalidOperationException(
+                    "The HttpProxy object is already busy executing another asynchronous operation.  You can only execute one asychronous method at a time.");
 
             CreateAsyncWorker();
             _asyncWorker.WorkerSupportsCancellation = true;
-            _asyncWorker.DoWork += new DoWorkEventHandler(CreateConnectionAsync_DoWork);
-            _asyncWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(CreateConnectionAsync_RunWorkerCompleted);
-            Object[] args = new Object[2];
+            _asyncWorker.DoWork += CreateConnectionAsync_DoWork;
+            _asyncWorker.RunWorkerCompleted += CreateConnectionAsync_RunWorkerCompleted;
+            var args = new Object[2];
             args[0] = destinationHost;
             args[1] = destinationPort;
             _asyncWorker.RunWorkerAsync(args);
+        }
+
+        /// <summary>
+        /// Cancels any asychronous operation that is currently active.
+        /// </summary>
+        public void CancelAsync()
+        {
+            if (_asyncWorker != null && !_asyncWorker.CancellationPending && _asyncWorker.IsBusy)
+            {
+                _asyncCancelled = true;
+                _asyncWorker.CancelAsync();
+            }
+        }
+
+        private void CreateAsyncWorker()
+        {
+            if (_asyncWorker != null)
+                _asyncWorker.Dispose();
+            _asyncException = null;
+            _asyncWorker = null;
+            _asyncCancelled = false;
+            _asyncWorker = new BackgroundWorker();
         }
 
         private void CreateConnectionAsync_DoWork(object sender, DoWorkEventArgs e)
         {
             try
             {
-                Object[] args = (Object[])e.Argument;
-                e.Result = CreateConnection((string)args[0], (int)args[1]);
+                var args = (Object[]) e.Argument;
+                e.Result = CreateConnection((string) args[0], (int) args[1]);
             }
             catch (Exception ex)
             {
@@ -450,12 +424,60 @@ namespace Starksoft.Net.Proxy
         private void CreateConnectionAsync_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             if (CreateConnectionAsyncCompleted != null)
-                CreateConnectionAsyncCompleted(this, new CreateConnectionAsyncCompletedEventArgs(_asyncException, _asyncCancelled, (TcpClient)e.Result));
+                CreateConnectionAsyncCompleted(this,
+                                               new CreateConnectionAsyncCompletedEventArgs(_asyncException,
+                                                                                           _asyncCancelled,
+                                                                                           (TcpClient) e.Result));
         }
 
+        #endregion
 
+        #region Nested type: HttpResponseCodes
 
-#endregion
+        private enum HttpResponseCodes
+        {
+            None = 0,
+            Continue = 100,
+            SwitchingProtocols = 101,
+            OK = 200,
+            Created = 201,
+            Accepted = 202,
+            NonAuthoritiveInformation = 203,
+            NoContent = 204,
+            ResetContent = 205,
+            PartialContent = 206,
+            MultipleChoices = 300,
+            MovedPermanetly = 301,
+            Found = 302,
+            SeeOther = 303,
+            NotModified = 304,
+            UserProxy = 305,
+            TemporaryRedirect = 307,
+            BadRequest = 400,
+            Unauthorized = 401,
+            PaymentRequired = 402,
+            Forbidden = 403,
+            NotFound = 404,
+            MethodNotAllowed = 405,
+            NotAcceptable = 406,
+            ProxyAuthenticantionRequired = 407,
+            RequestTimeout = 408,
+            Conflict = 409,
+            Gone = 410,
+            PreconditionFailed = 411,
+            RequestEntityTooLarge = 413,
+            RequestURITooLong = 414,
+            UnsupportedMediaType = 415,
+            RequestedRangeNotSatisfied = 416,
+            ExpectationFailed = 417,
+            InternalServerError = 500,
+            NotImplemented = 501,
+            BadGateway = 502,
+            ServiceUnavailable = 503,
+            GatewayTimeout = 504,
+            HTTPVersionNotSupported = 505
+        }
 
+        #endregion
     }
 }

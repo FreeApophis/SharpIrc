@@ -1,6 +1,6 @@
 using System;
-using System.Text;
 using System.Globalization;
+using System.Net;
 using System.Net.Sockets;
 
 namespace Starksoft.Net.Proxy
@@ -15,10 +15,12 @@ namespace Starksoft.Net.Proxy
             string host = "";
             try
             {
-                host = ((System.Net.IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
+                host = ((IPEndPoint) client.Client.RemoteEndPoint).Address.ToString();
             }
             catch
-            {   };
+            {
+            }
+            ;
 
             return host;
         }
@@ -31,13 +33,14 @@ namespace Starksoft.Net.Proxy
             string port = "";
             try
             {
-                port = ((System.Net.IPEndPoint)client.Client.RemoteEndPoint).Port.ToString(CultureInfo.InvariantCulture);
+                port = ((IPEndPoint) client.Client.RemoteEndPoint).Port.ToString(CultureInfo.InvariantCulture);
             }
             catch
-            { };
+            {
+            }
+            ;
 
             return port;
         }
-
     }
 }

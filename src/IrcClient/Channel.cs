@@ -38,20 +38,25 @@ namespace Meebey.SmartIrc4net
     /// <threadsafety static="true" instance="true" />
     public class Channel
     {
-        private string           _Name;
-        private string           _Key       = String.Empty;
-        private Hashtable        _Users     = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
-        private Hashtable        _Ops       = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
-        private Hashtable        _Voices    = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
-        private StringCollection _Bans      = new StringCollection();
-        private string           _Topic     = String.Empty;
-        private int              _UserLimit;
-        private string           _Mode      = String.Empty;
-        private DateTime         _ActiveSyncStart;
-        private DateTime         _ActiveSyncStop;
-        private TimeSpan         _ActiveSyncTime;
-        private bool             _IsSycned;
-        
+        private readonly string _Name;
+        private string _Key = String.Empty;
+
+        private readonly Hashtable _Users =
+            Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
+
+        private readonly Hashtable _Ops =
+            Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
+
+        private readonly Hashtable _Voices =
+            Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
+
+        private readonly StringCollection _Bans = new StringCollection();
+        private string _Topic = String.Empty;
+        private string _Mode = String.Empty;
+        private readonly DateTime _ActiveSyncStart;
+        private DateTime _ActiveSyncStop;
+        private TimeSpan _ActiveSyncTime;
+
         /// <summary>
         /// 
         /// </summary>
@@ -73,153 +78,128 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public string Name {
-            get {
-                return _Name;
-            }
+        public string Name
+        {
+            get { return _Name; }
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        public string Key {
-            get {
-                return _Key;
-            }
-            set {
-                _Key = value;
-            }
+        public string Key
+        {
+            get { return _Key; }
+            set { _Key = value; }
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        public Hashtable Users {
-            get {
-                return (Hashtable)_Users.Clone();
-            }
+        public Hashtable Users
+        {
+            get { return (Hashtable) _Users.Clone(); }
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeUsers {
-            get {
-                return _Users;
-            }
+        internal Hashtable UnsafeUsers
+        {
+            get { return _Users; }
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        public Hashtable Ops {
-            get {
-                return (Hashtable)_Ops.Clone();
-            }
+        public Hashtable Ops
+        {
+            get { return (Hashtable) _Ops.Clone(); }
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeOps {
-            get {
-                return _Ops;
-            }
+        internal Hashtable UnsafeOps
+        {
+            get { return _Ops; }
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        public Hashtable Voices {
-            get {
-                return (Hashtable)_Voices.Clone();
-            }
+        public Hashtable Voices
+        {
+            get { return (Hashtable) _Voices.Clone(); }
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeVoices {
-            get {
-                return _Voices;
-            }
+        internal Hashtable UnsafeVoices
+        {
+            get { return _Voices; }
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        public StringCollection Bans {
-            get {
-                return _Bans;
-            }
+        public StringCollection Bans
+        {
+            get { return _Bans; }
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        public string Topic {
-            get {
-                return _Topic;
-            }
-            set {
-                _Topic = value;
-            }
+        public string Topic
+        {
+            get { return _Topic; }
+            set { _Topic = value; }
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        public int UserLimit {
-            get {
-                return _UserLimit;
-            }
-            set {
-                _UserLimit = value;
-            }
+        public int UserLimit { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        public string Mode
+        {
+            get { return _Mode; }
+            set { _Mode = value; }
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        public string Mode {
-            get {
-                return _Mode;
-            }
-            set {
-                _Mode = value;
-            }
+        public DateTime ActiveSyncStart
+        {
+            get { return _ActiveSyncStart; }
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        public DateTime ActiveSyncStart {
-            get {
-                return _ActiveSyncStart;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <value> </value>
-        public DateTime ActiveSyncStop {
-            get {
-                return _ActiveSyncStop;
-            }
-            set {
+        public DateTime ActiveSyncStop
+        {
+            get { return _ActiveSyncStop; }
+            set
+            {
                 _ActiveSyncStop = value;
                 _ActiveSyncTime = _ActiveSyncStop.Subtract(_ActiveSyncStart);
             }
@@ -229,19 +209,11 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public TimeSpan ActiveSyncTime {
-            get {
-                return _ActiveSyncTime;
-            }
+        public TimeSpan ActiveSyncTime
+        {
+            get { return _ActiveSyncTime; }
         }
 
-        public bool IsSycned {
-            get {
-                return _IsSycned;
-            }
-            set {
-                _IsSycned = value;
-            }
-        }
+        public bool IsSycned { get; set; }
     }
 }

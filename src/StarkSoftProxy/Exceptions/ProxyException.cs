@@ -28,11 +28,10 @@ using System.Runtime.Serialization;
 
 namespace Starksoft.Net.Proxy
 {
-
     /// <summary>
     /// This exception is thrown when a general, unexpected proxy error.   
     /// </summary>
-    [Serializable()]
+    [Serializable]
     public class ProxyException : Exception
     {
         /// <summary>
@@ -58,7 +57,7 @@ namespace Starksoft.Net.Proxy
         /// <param name="innerException">The inner exception object.</param>
         public ProxyException(string message, Exception innerException)
             :
-           base(message, innerException)
+                base(message, innerException)
         {
         }
 
@@ -68,10 +67,9 @@ namespace Starksoft.Net.Proxy
         /// <param name="info">Serialization information.</param>
         /// <param name="context">Stream context information.</param>
         protected ProxyException(SerializationInfo info,
-           StreamingContext context)
+                                 StreamingContext context)
             : base(info, context)
         {
         }
     }
-
 }

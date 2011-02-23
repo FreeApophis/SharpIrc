@@ -24,8 +24,6 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Net.Sockets;
 
 namespace Starksoft.Net.Proxy
@@ -35,17 +33,11 @@ namespace Starksoft.Net.Proxy
     /// </summary>
     public interface IProxyClient
     {
-
-        /// <summary>
-        /// Event handler for CreateConnectionAsync method completed.
-        /// </summary>
-        event EventHandler<CreateConnectionAsyncCompletedEventArgs> CreateConnectionAsyncCompleted;
-        
         /// <summary>
         /// Gets or sets proxy host name or IP address.
         /// </summary>
         string ProxyHost { get; set; }
-        
+
         /// <summary>
         /// Gets or sets proxy port number.
         /// </summary>
@@ -60,6 +52,11 @@ namespace Starksoft.Net.Proxy
         /// Gets or set the TcpClient object if one was specified in the constructor.
         /// </summary>
         TcpClient TcpClient { get; set; }
+
+        /// <summary>
+        /// Event handler for CreateConnectionAsync method completed.
+        /// </summary>
+        event EventHandler<CreateConnectionAsyncCompletedEventArgs> CreateConnectionAsyncCompleted;
 
         /// <summary>
         /// Creates a remote TCP connection through a proxy server to the destination host on the destination port.
@@ -92,6 +89,5 @@ namespace Starksoft.Net.Proxy
         /// port.  
         /// </remarks>
         void CreateConnectionAsync(string destinationHost, int destinationPort);
-
     }
 }

@@ -21,14 +21,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-using System;
-
 namespace Meebey.SmartIrc4net
 {
     /// <summary>
     /// Special IRC Charakters
     /// </summary>
-    public class IrcConstants {
+    public class IrcConstants
+    {
         public const char CtcpChar = '\x1';
         public const char IrcBold = '\x2';
         public const char IrcColor = '\x3';
@@ -36,9 +35,8 @@ namespace Meebey.SmartIrc4net
         public const char IrcNormal = '\xf';
         public const char IrcUnderline = '\x1f';
         public const char CtcpQuoteChar = '\x20';
-        
     }
-        
+
     public enum DccSpeed
     {
         /// <summary>
@@ -54,27 +52,28 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         Turbo
     }
-    
+
     /// <summary>
     /// Mirc Compatible Colors
     /// </summary>
-    public enum IrcColors {
-        White         = 0,
-        Black         = 1,
-        Blue          = 2,
-        Green         = 3,
-        LightRed      = 4,
-        Brown         = 5,
-        Purple        = 6,
-        Orange        = 7,
-        Yellow        = 8,
-        LightGreen    = 9,
-        Cyan          = 10,
-        LightCyan     = 11,
-        LightBlue     = 12,
-        Pink          = 13,
-        Grey          = 14,
-        LightGrey     = 15,
-        Transparent   = 99
-    }        
+    public enum IrcColors
+    {
+        White = 0,
+        Black = 1,
+        Blue = 2,
+        Green = 3,
+        LightRed = 4,
+        Brown = 5,
+        Purple = 6,
+        Orange = 7,
+        Yellow = 8,
+        LightGreen = 9,
+        Cyan = 10,
+        LightCyan = 11,
+        LightBlue = 12,
+        Pink = 13,
+        Grey = 14,
+        LightGrey = 15,
+        Transparent = 99
+    }
 }

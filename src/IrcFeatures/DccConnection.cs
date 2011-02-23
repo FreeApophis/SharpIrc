@@ -20,11 +20,9 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
- 
+
 using System;
-using System.IO;
 using System.Net;
-using System.Threading;
 using System.Net.Sockets;
 
 namespace Meebey.SmartIrc4net
@@ -35,123 +33,176 @@ namespace Meebey.SmartIrc4net
     public class DccConnection
     {
         #region Private Variables
-        protected IrcFeatures Irc;
-        protected TcpListener DccServer;
+
         protected TcpClient Connection;
+        protected TcpListener DccServer;
+        protected IPAddress ExternalIPAdress;
+        protected IrcFeatures Irc;
         protected IPEndPoint LocalEndPoint;
         protected IPEndPoint RemoteEndPoint;
-        protected IPAddress ExternalIPAdress;
         protected DateTime Timeout;
         protected string User;
 
-        protected bool isConnected = false;
+        protected bool isConnected;
         protected bool isValid = true;
 
-        protected bool reject = false;
+        protected bool reject;
         protected long session;
+
         private class Session
         {
             private static long next;
-            internal static long Next {
-                get {
-                    return ++next;
-                }
+
+            internal static long Next
+            {
+                get { return ++next; }
             }
         }
+
         #endregion
 
         #region Public Fields
+
         /// <summary>
         /// Returns false when the Connections is not Valid (before or after Connection)
         /// </summary>
-        public bool Connected{
-            get {
-                return isConnected;
-            }
+        public bool Connected
+        {
+            get { return isConnected; }
         }
 
         /// <summary>
         /// Returns false when the Connections is not Valid anymore (only at the end)
         /// </summary>
-        public bool Valid{
-            get {
-                return isValid && (isConnected || (DateTime.Now < Timeout));
-            }
+        public bool Valid
+        {
+            get { return isValid && (isConnected || (DateTime.Now < Timeout)); }
         }
-        
+
         /// <summary>
         /// Returns the Nick of the User we have a DCC with
         /// </summary>
-        public string Nick {
-            get  {
-                return User;
-            }
+        public string Nick
+        {
+            get { return User; }
         }
 
-        #endregion        
-        
+        #endregion
+
         #region Public DCC Events
+
         public event EventHandler<DccEventArgs> OnDccChatRequestEvent;
-        protected virtual void DccChatRequestEvent(DccEventArgs e) {
-            if (OnDccChatRequestEvent!=null) {OnDccChatRequestEvent(this, e); }
-              Irc.DccChatRequestEvent(e);
+
+        protected virtual void DccChatRequestEvent(DccEventArgs e)
+        {
+            if (OnDccChatRequestEvent != null)
+            {
+                OnDccChatRequestEvent(this, e);
+            }
+            Irc.DccChatRequestEvent(e);
         }
 
         public event EventHandler<DccSendRequestEventArgs> OnDccSendRequestEvent;
-        protected virtual void DccSendRequestEvent(DccSendRequestEventArgs e) {
-            if (OnDccSendRequestEvent!=null) {OnDccSendRequestEvent(this, e); }
-              Irc.DccSendRequestEvent(e);
+
+        protected virtual void DccSendRequestEvent(DccSendRequestEventArgs e)
+        {
+            if (OnDccSendRequestEvent != null)
+            {
+                OnDccSendRequestEvent(this, e);
+            }
+            Irc.DccSendRequestEvent(e);
         }
-        
+
         public event EventHandler<DccEventArgs> OnDccChatStartEvent;
-        protected virtual void DccChatStartEvent(DccEventArgs e) {
-            if (OnDccChatStartEvent!=null) {OnDccChatStartEvent(this, e); }
-              Irc.DccChatStartEvent(e);
+
+        protected virtual void DccChatStartEvent(DccEventArgs e)
+        {
+            if (OnDccChatStartEvent != null)
+            {
+                OnDccChatStartEvent(this, e);
+            }
+            Irc.DccChatStartEvent(e);
         }
 
         public event EventHandler<DccEventArgs> OnDccSendStartEvent;
-        protected virtual void DccSendStartEvent(DccEventArgs e) {
-            if (OnDccSendStartEvent!=null) {OnDccSendStartEvent(this, e); }
+
+        protected virtual void DccSendStartEvent(DccEventArgs e)
+        {
+            if (OnDccSendStartEvent != null)
+            {
+                OnDccSendStartEvent(this, e);
+            }
             Irc.DccSendStartEvent(e);
         }
-        
+
         public event EventHandler<DccChatEventArgs> OnDccChatReceiveLineEvent;
-        protected virtual void DccChatReceiveLineEvent(DccChatEventArgs e) {
-            if (OnDccChatReceiveLineEvent!=null) {OnDccChatReceiveLineEvent(this, e); }
+
+        protected virtual void DccChatReceiveLineEvent(DccChatEventArgs e)
+        {
+            if (OnDccChatReceiveLineEvent != null)
+            {
+                OnDccChatReceiveLineEvent(this, e);
+            }
             Irc.DccChatReceiveLineEvent(e);
         }
 
         public event EventHandler<DccSendEventArgs> OnDccSendReceiveBlockEvent;
-        protected virtual void DccSendReceiveBlockEvent(DccSendEventArgs e) {
-            if (OnDccSendReceiveBlockEvent!=null) {OnDccSendReceiveBlockEvent(this, e); }
-            Irc.DccSendReceiveBlockEvent(e); 
+
+        protected virtual void DccSendReceiveBlockEvent(DccSendEventArgs e)
+        {
+            if (OnDccSendReceiveBlockEvent != null)
+            {
+                OnDccSendReceiveBlockEvent(this, e);
+            }
+            Irc.DccSendReceiveBlockEvent(e);
         }
 
         public event EventHandler<DccChatEventArgs> OnDccChatSentLineEvent;
-        protected virtual void DccChatSentLineEvent(DccChatEventArgs e) {
-            if (OnDccChatSentLineEvent!=null) {OnDccChatSentLineEvent(this, e); }
-            Irc.DccChatSentLineEvent(e); 
+
+        protected virtual void DccChatSentLineEvent(DccChatEventArgs e)
+        {
+            if (OnDccChatSentLineEvent != null)
+            {
+                OnDccChatSentLineEvent(this, e);
+            }
+            Irc.DccChatSentLineEvent(e);
         }
 
         public event EventHandler<DccSendEventArgs> OnDccSendSentBlockEvent;
-        protected virtual void DccSendSentBlockEvent(DccSendEventArgs e) {
-            if (OnDccSendSentBlockEvent!=null) {OnDccSendSentBlockEvent(this, e); }
-            Irc.DccSendSentBlockEvent(e); 
+
+        protected virtual void DccSendSentBlockEvent(DccSendEventArgs e)
+        {
+            if (OnDccSendSentBlockEvent != null)
+            {
+                OnDccSendSentBlockEvent(this, e);
+            }
+            Irc.DccSendSentBlockEvent(e);
         }
 
         public event EventHandler<DccEventArgs> OnDccChatStopEvent;
-        protected virtual void DccChatStopEvent(DccEventArgs e) {
-            if (OnDccChatStopEvent!=null) {OnDccChatStopEvent(this, e); }
-            Irc.DccChatStopEvent(e); 
+
+        protected virtual void DccChatStopEvent(DccEventArgs e)
+        {
+            if (OnDccChatStopEvent != null)
+            {
+                OnDccChatStopEvent(this, e);
+            }
+            Irc.DccChatStopEvent(e);
         }
 
         public event EventHandler<DccEventArgs> OnDccSendStopEvent;
-        protected virtual void DccSendStopEvent(DccEventArgs e) {
-            if (OnDccSendStopEvent!=null) {OnDccSendStopEvent(this, e); }
-            Irc.DccSendStopEvent(e); 
+
+        protected virtual void DccSendStopEvent(DccEventArgs e)
+        {
+            if (OnDccSendStopEvent != null)
+            {
+                OnDccSendStopEvent(this, e);
+            }
+            Irc.DccSendStopEvent(e);
         }
+
         #endregion
-        
+
         internal DccConnection()
         {
             //Each DccConnection gets a Unique Identifier (just used internally until we have a TcpClient connected)
@@ -164,13 +215,14 @@ namespace Meebey.SmartIrc4net
         {
             throw new NotSupportedException();
         }
-    
+
         internal bool isSession(long session)
         {
             return (session == this.session);
         }
-        
+
         #region Public Methods
+
         public void RejectRequest()
         {
             Irc.SendMessage(SendType.CtcpReply, User, "ERRMSG DCC Rejected");
@@ -178,57 +230,61 @@ namespace Meebey.SmartIrc4net
             isValid = false;
         }
 
-        
+
         public void Disconnect()
         {
             isConnected = false;
             isValid = false;
         }
-        
+
         public override string ToString()
         {
-            return "DCC Session " + session + " of " + this.GetType().ToString() + " is " + ((isConnected)?"connected to "+RemoteEndPoint.Address.ToString():"not connected") + "[" + this.User + "]";
+            return "DCC Session " + session + " of " + GetType() + " is " +
+                   ((isConnected) ? "connected to " + RemoteEndPoint.Address : "not connected") + "[" + User + "]";
         }
+
         #endregion
-        
+
         #region protected Helper Functions
+
         protected long HostToDccInt(IPAddress ip)
         {
             long temp = (ip.Address & 0xff) << 24;
-            temp |= (ip.Address & 0xff00)  << 8;
-            temp |= (ip.Address >> 8)  & 0xff00;
-            temp |= (ip.Address >> 24)  & 0xff;
+            temp |= (ip.Address & 0xff00) << 8;
+            temp |= (ip.Address >> 8) & 0xff00;
+            temp |= (ip.Address >> 24) & 0xff;
             return temp;
         }
-        
+
         protected string DccIntToHost(long ip)
         {
-            IPEndPoint ep = new IPEndPoint(ip, 80);
-            char[] sep = { '.' };
+            var ep = new IPEndPoint(ip, 80);
+            char[] sep = {'.'};
             string[] ipparts = ep.Address.ToString().Split(sep);
             return ipparts[3] + "." + ipparts[2] + "." + ipparts[1] + "." + ipparts[0];
         }
-        
+
         protected byte[] getAck(long SentBytes)
         {
-            byte[] acks = new byte[4];
-            acks[0] = (byte)((SentBytes >>24 ) % 256);
-            acks[1] = (byte)((SentBytes >>16 ) % 256);
-            acks[2] = (byte)((SentBytes >>8  ) % 256);
-            acks[3] = (byte)((SentBytes      ) % 256);
+            var acks = new byte[4];
+            acks[0] = (byte) ((SentBytes >> 24)%256);
+            acks[1] = (byte) ((SentBytes >> 16)%256);
+            acks[2] = (byte) ((SentBytes >> 8)%256);
+            acks[3] = (byte) ((SentBytes)%256);
             return acks;
         }
-        
+
         protected string FilterMarker(string msg)
         {
             string result = "";
-            foreach(char c in msg)
+            foreach (char c in msg)
             {
-                if (c!=IrcConstants.CtcpChar)
-                  result += c;
+                if (c != IrcConstants.CtcpChar)
+                    result += c;
             }
             return result;
         }
+
         #endregion
     }
 }

@@ -27,7 +27,6 @@
  */
 
 using System.Collections;
-using System.Collections.Specialized;
 
 namespace Meebey.SmartIrc4net
 {
@@ -37,8 +36,9 @@ namespace Meebey.SmartIrc4net
     /// <threadsafety static="true" instance="true" />
     public class NonRfcChannel : Channel
     {
-        private Hashtable _Halfops = Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
-        
+        private readonly Hashtable _Halfops =
+            Hashtable.Synchronized(new Hashtable(new CaseInsensitiveHashCodeProvider(), new CaseInsensitiveComparer()));
+
         /// <summary>
         /// 
         /// </summary>
@@ -58,20 +58,18 @@ namespace Meebey.SmartIrc4net
         /// 
         /// </summary>
         /// <value> </value>
-        public Hashtable Halfops {
-            get {
-                return (Hashtable) _Halfops.Clone();
-            }
+        public Hashtable Halfops
+        {
+            get { return (Hashtable) _Halfops.Clone(); }
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeHalfops {
-            get {
-                return _Halfops;
-            }
+        internal Hashtable UnsafeHalfops
+        {
+            get { return _Halfops; }
         }
     }
 }

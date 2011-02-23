@@ -26,39 +26,34 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-using System;
-
 namespace Meebey.SmartIrc4net
 {
     public class ChannelInfo
     {
-        private string   f_Channel;
-        private int      f_UserCount;
-        private string   f_Topic;
-        
-        public string Channel {
-            get {
-                return f_Channel;
-            }
-        }
+        private readonly string f_Channel;
+        private readonly string f_Topic;
+        private readonly int f_UserCount;
 
-        public int UserCount {
-            get {
-                return f_UserCount;
-            }
-        }
-        
-        public string Topic {
-            get {
-                return f_Topic;
-            }
-        }
-        
         internal ChannelInfo(string channel, int userCount, string topic)
         {
             f_Channel = channel;
             f_UserCount = userCount;
             f_Topic = topic;
+        }
+
+        public string Channel
+        {
+            get { return f_Channel; }
+        }
+
+        public int UserCount
+        {
+            get { return f_UserCount; }
+        }
+
+        public string Topic
+        {
+            get { return f_Topic; }
         }
     }
 }

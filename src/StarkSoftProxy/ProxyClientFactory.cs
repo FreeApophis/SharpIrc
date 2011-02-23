@@ -24,8 +24,6 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Net.Sockets;
 
 namespace Starksoft.Net.Proxy
@@ -65,17 +63,16 @@ namespace Starksoft.Net.Proxy
     /// // create an instance of the client proxy factory
     /// ProxyClientFactory factory = new ProxyClientFactory();
     ///        
-	/// // use the proxy client factory to generically specify the type of proxy to create
+    /// // use the proxy client factory to generically specify the type of proxy to create
     /// // the proxy factory method CreateProxyClient returns an IProxyClient object
     /// IProxyClient proxy = factory.CreateProxyClient(ProxyType.Http, "localhost", 6588);
     ///
-	/// // create a connection through the proxy to www.starksoft.com over port 80
+    /// // create a connection through the proxy to www.starksoft.com over port 80
     /// System.Net.Sockets.TcpClient tcpClient = proxy.CreateConnection("www.starksoft.com", 80);
     /// </code>
     /// </remarks>
     public class ProxyClientFactory
     {
-
         /// <summary>
         /// Factory method for creating new proxy client objects.
         /// </summary>
@@ -97,9 +94,9 @@ namespace Starksoft.Net.Proxy
                 case ProxyType.Socks5:
                     return new Socks5ProxyClient();
                 default:
-                    throw new ProxyException(String.Format("Unknown proxy type {0}.", type.ToString()));
+                    throw new ProxyException(String.Format("Unknown proxy type {0}.", type));
             }
-        }        
+        }
 
         /// <summary>
         /// Factory method for creating new proxy client objects using an existing TcpClient connection object.
@@ -111,7 +108,7 @@ namespace Starksoft.Net.Proxy
         {
             if (type == ProxyType.None)
                 throw new ArgumentOutOfRangeException("type");
-            
+
             switch (type)
             {
                 case ProxyType.Http:
@@ -123,10 +120,10 @@ namespace Starksoft.Net.Proxy
                 case ProxyType.Socks5:
                     return new Socks5ProxyClient(tcpClient);
                 default:
-                    throw new ProxyException(String.Format("Unknown proxy type {0}.", type.ToString()));
+                    throw new ProxyException(String.Format("Unknown proxy type {0}.", type));
             }
-        }        
-        
+        }
+
         /// <summary>
         /// Factory method for creating new proxy client objects.  
         /// </summary>
@@ -138,7 +135,7 @@ namespace Starksoft.Net.Proxy
         {
             if (type == ProxyType.None)
                 throw new ArgumentOutOfRangeException("type");
-            
+
             switch (type)
             {
                 case ProxyType.Http:
@@ -150,7 +147,7 @@ namespace Starksoft.Net.Proxy
                 case ProxyType.Socks5:
                     return new Socks5ProxyClient(proxyHost, proxyPort);
                 default:
-                    throw new ProxyException(String.Format("Unknown proxy type {0}.", type.ToString()));
+                    throw new ProxyException(String.Format("Unknown proxy type {0}.", type));
             }
         }
 
@@ -163,7 +160,8 @@ namespace Starksoft.Net.Proxy
         /// <param name="proxyUsername">The proxy username.  This parameter is only used by Socks4 and Socks5 proxy objects.</param>
         /// <param name="proxyPassword">The proxy user password.  This parameter is only used Socks5 proxy objects.</param>
         /// <returns>Proxy client object.</returns>
-        public IProxyClient CreateProxyClient(ProxyType type, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
+        public IProxyClient CreateProxyClient(ProxyType type, string proxyHost, int proxyPort, string proxyUsername,
+                                              string proxyPassword)
         {
             if (type == ProxyType.None)
                 throw new ArgumentOutOfRangeException("type");
@@ -179,7 +177,7 @@ namespace Starksoft.Net.Proxy
                 case ProxyType.Socks5:
                     return new Socks5ProxyClient(proxyHost, proxyPort, proxyUsername, proxyPassword);
                 default:
-                    throw new ProxyException(String.Format("Unknown proxy type {0}.", type.ToString()));
+                    throw new ProxyException(String.Format("Unknown proxy type {0}.", type));
             }
         }
 
@@ -193,16 +191,12 @@ namespace Starksoft.Net.Proxy
         /// <param name="proxyUsername">The proxy username.  This parameter is only used by Socks4 and Socks5 proxy objects.</param>
         /// <param name="proxyPassword">The proxy user password.  This parameter is only used Socks5 proxy objects.</param>
         /// <returns>Proxy client object.</returns>
-        public IProxyClient CreateProxyClient(ProxyType type, TcpClient tcpClient, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
+        public IProxyClient CreateProxyClient(ProxyType type, TcpClient tcpClient, string proxyHost, int proxyPort,
+                                              string proxyUsername, string proxyPassword)
         {
             IProxyClient c = CreateProxyClient(type, proxyHost, proxyPort, proxyUsername, proxyPassword);
             c.TcpClient = tcpClient;
             return c;
         }
-
-
     }
-
-
-
 }

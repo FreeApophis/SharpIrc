@@ -28,7 +28,6 @@
 
 using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // Information about this assembly is defined by the following
@@ -39,7 +38,6 @@ using System.Runtime.InteropServices;
 
 [assembly: CLSCompliant(true)]
 [assembly: ComVisible(false)]
-
 [assembly: AssemblyTitle("SmartIrc4net")]
 [assembly: AssemblyDescription("IRC library for CLI")]
 [assembly: AssemblyConfiguration("")]
@@ -65,6 +63,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDelaySign(true)]
 [assembly: AssemblyKeyFile("../SmartIrc4net-pub.snk")]
 #else
+
 [assembly: AssemblyDelaySign(false)]
 [assembly: AssemblyKeyFile("")]
 #endif

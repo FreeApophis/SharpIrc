@@ -24,11 +24,11 @@
  */
 
 using System;
-using System.Text;
+using System.ComponentModel;
+using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
-using System.Globalization;
-using System.ComponentModel;
+using System.Text;
 
 namespace Starksoft.Net.Proxy
 {
@@ -40,16 +40,9 @@ namespace Starksoft.Net.Proxy
     /// </remarks>
     public class Socks5ProxyClient : IProxyClient
     {
-        private string _proxyHost;
-        private int _proxyPort;
-        private string _proxyUserName;
-        private string _proxyPassword;
-        private SocksAuthentication _proxyAuthMethod;
-        private TcpClient _tcpClient;
-
-        private const string PROXY_NAME = "SOCKS5";        
+        private const string PROXY_NAME = "SOCKS5";
         private const int SOCKS5_DEFAULT_PORT = 1080;
-        
+
         private const byte SOCKS5_VERSION_NUMBER = 5;
         private const byte SOCKS5_RESERVED = 0x00;
         private const byte SOCKS5_AUTH_NUMBER_OF_AUTH_METHODS_SUPPORTED = 2;
@@ -76,26 +69,19 @@ namespace Starksoft.Net.Proxy
         private const byte SOCKS5_ADDRTYPE_IPV4 = 0x01;
         private const byte SOCKS5_ADDRTYPE_DOMAIN_NAME = 0x03;
         private const byte SOCKS5_ADDRTYPE_IPV6 = 0x04;
-
-        /// <summary>
-        /// Authentication itemType.
-        /// </summary>
-        private enum SocksAuthentication
-        {
-            /// <summary>
-            /// No authentication used.
-            /// </summary>
-            None,
-            /// <summary>
-            /// Username and password authentication.
-            /// </summary>
-            UsernamePassword
-        }
+        private SocksAuthentication _proxyAuthMethod;
+        private string _proxyHost;
+        private string _proxyPassword;
+        private int _proxyPort;
+        private string _proxyUserName;
+        private TcpClient _tcpClient;
 
         /// <summary>
         /// Create a Socks5 proxy client object. 
         /// </summary>
-        public Socks5ProxyClient() { }
+        public Socks5ProxyClient()
+        {
+        }
 
         /// <summary>
         /// Creates a Socks5 proxy client object using the supplied TcpClient object connection.
@@ -108,7 +94,7 @@ namespace Starksoft.Net.Proxy
 
             _tcpClient = tcpClient;
         }
-        
+
         /// <summary>
         /// Create a Socks5 proxy client object.  The default proxy port 1080 is used.
         /// </summary>
@@ -155,7 +141,7 @@ namespace Starksoft.Net.Proxy
 
             if (proxyPassword == null)
                 throw new ArgumentNullException("proxyPassword");
-            
+
             _proxyHost = proxyHost;
             _proxyPort = SOCKS5_DEFAULT_PORT;
             _proxyUserName = proxyUserName;
@@ -182,12 +168,32 @@ namespace Starksoft.Net.Proxy
 
             if (proxyPassword == null)
                 throw new ArgumentNullException("proxyPassword");
-            
+
             _proxyHost = proxyHost;
             _proxyPort = proxyPort;
             _proxyUserName = proxyUserName;
             _proxyPassword = proxyPassword;
         }
+
+        /// <summary>
+        /// Gets or sets proxy authentication user name.
+        /// </summary>
+        public string ProxyUserName
+        {
+            get { return _proxyUserName; }
+            set { _proxyUserName = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets proxy authentication password.
+        /// </summary>
+        public string ProxyPassword
+        {
+            get { return _proxyPassword; }
+            set { _proxyPassword = value; }
+        }
+
+        #region IProxyClient Members
 
         /// <summary>
         /// Gets or sets host name or IP address of the proxy server.
@@ -214,24 +220,6 @@ namespace Starksoft.Net.Proxy
         public string ProxyName
         {
             get { return PROXY_NAME; }
-        }
-        
-        /// <summary>
-        /// Gets or sets proxy authentication user name.
-        /// </summary>
-        public string ProxyUserName
-        {
-            get { return _proxyUserName; }
-            set { _proxyUserName = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets proxy authentication password.
-        /// </summary>
-        public string ProxyPassword
-        {
-            get { return _proxyPassword; }
-            set { _proxyPassword = value; }
         }
 
         /// <summary>
@@ -264,7 +252,8 @@ namespace Starksoft.Net.Proxy
                 throw new ArgumentNullException("destinationHost");
 
             if (destinationPort <= 0 || destinationPort > 65535)
-                throw new ArgumentOutOfRangeException("destinationPort", "port must be greater than zero and less than 65535");
+                throw new ArgumentOutOfRangeException("destinationPort",
+                                                      "port must be greater than zero and less than 65535");
 
             try
             {
@@ -298,10 +287,13 @@ namespace Starksoft.Net.Proxy
             }
             catch (Exception ex)
             {
-                throw new ProxyException(String.Format(CultureInfo.InvariantCulture, "Connection to proxy host {0} on port {1} failed.", Utils.GetHost(_tcpClient), Utils.GetPort(_tcpClient)), ex);
+                throw new ProxyException(
+                    String.Format(CultureInfo.InvariantCulture, "Connection to proxy host {0} on port {1} failed.",
+                                  Utils.GetHost(_tcpClient), Utils.GetPort(_tcpClient)), ex);
             }
         }
 
+        #endregion
 
         private void DetermineClientAuthMethod()
         {
@@ -311,7 +303,7 @@ namespace Starksoft.Net.Proxy
             else
                 _proxyAuthMethod = SocksAuthentication.None;
         }
-       
+
         private void NegotiateServerAuthMethod()
         {
             //  get a reference to the network stream
@@ -326,16 +318,16 @@ namespace Starksoft.Net.Proxy
             //      +----+----------+----------+
             //      | 1  |    1     | 1 to 255 |
             //      +----+----------+----------+
-            
-            byte[] authRequest = new byte[4];
+
+            var authRequest = new byte[4];
             authRequest[0] = SOCKS5_VERSION_NUMBER;
             authRequest[1] = SOCKS5_AUTH_NUMBER_OF_AUTH_METHODS_SUPPORTED;
-            authRequest[2] = SOCKS5_AUTH_METHOD_NO_AUTHENTICATION_REQUIRED; 
-            authRequest[3] = SOCKS5_AUTH_METHOD_USERNAME_PASSWORD; 
+            authRequest[2] = SOCKS5_AUTH_METHOD_NO_AUTHENTICATION_REQUIRED;
+            authRequest[3] = SOCKS5_AUTH_METHOD_USERNAME_PASSWORD;
 
             //  send the request to the server specifying authentication types supported by the client.
             stream.Write(authRequest, 0, authRequest.Length);
-            
+
             //  SERVER AUTHENTICATION RESPONSE
             //  The server selects from one of the methods given in METHODS, and
             //  sends a METHOD selection message:
@@ -358,22 +350,24 @@ namespace Starksoft.Net.Proxy
             //   * X'FF' NO ACCEPTABLE METHODS
 
             //  receive the server response 
-            byte[] response = new byte[2];
+            var response = new byte[2];
             stream.Read(response, 0, response.Length);
 
             //  the first byte contains the socks version number (e.g. 5)
             //  the second byte contains the auth method acceptable to the proxy server
             byte acceptedAuthMethod = response[1];
-            
+
             // if the server does not accept any of our supported authenication methods then throw an error
             if (acceptedAuthMethod == SOCKS5_AUTH_METHOD_REPLY_NO_ACCEPTABLE_METHODS)
             {
                 _tcpClient.Close();
-                throw new ProxyException("The proxy destination does not accept the supported proxy client authentication methods.");
+                throw new ProxyException(
+                    "The proxy destination does not accept the supported proxy client authentication methods.");
             }
 
             // if the server accepts a username and password authentication and none is provided by the user then throw an error
-            if (acceptedAuthMethod == SOCKS5_AUTH_METHOD_USERNAME_PASSWORD && _proxyAuthMethod == SocksAuthentication.None)
+            if (acceptedAuthMethod == SOCKS5_AUTH_METHOD_USERNAME_PASSWORD &&
+                _proxyAuthMethod == SocksAuthentication.None)
             {
                 _tcpClient.Close();
                 throw new ProxyException("The proxy destination requires a username and password for authentication.");
@@ -381,7 +375,6 @@ namespace Starksoft.Net.Proxy
 
             if (acceptedAuthMethod == SOCKS5_AUTH_METHOD_USERNAME_PASSWORD)
             {
-
                 // USERNAME / PASSWORD SERVER REQUEST
                 // Once the SOCKS V5 server has started, and the client has selected the
                 // Username/Password Authentication protocol, the Username/Password
@@ -394,12 +387,13 @@ namespace Starksoft.Net.Proxy
                 //       | 1  |  1   | 1 to 255 |  1   | 1 to 255 |
                 //       +----+------+----------+------+----------+
 
-                byte[] credentials = new byte[_proxyUserName.Length + _proxyPassword.Length + 3];
+                var credentials = new byte[_proxyUserName.Length + _proxyPassword.Length + 3];
                 credentials[0] = SOCKS5_VERSION_NUMBER;
-                credentials[1] = (byte)_proxyUserName.Length; 
-                Array.Copy(ASCIIEncoding.ASCII.GetBytes(_proxyUserName), 0, credentials, 2, _proxyUserName.Length); 
-                credentials[_proxyUserName.Length + 2] = (byte)_proxyPassword.Length;
-                Array.Copy(ASCIIEncoding.ASCII.GetBytes(_proxyPassword), 0, credentials, _proxyUserName.Length + 3, _proxyPassword.Length); 
+                credentials[1] = (byte) _proxyUserName.Length;
+                Array.Copy(Encoding.ASCII.GetBytes(_proxyUserName), 0, credentials, 2, _proxyUserName.Length);
+                credentials[_proxyUserName.Length + 2] = (byte) _proxyPassword.Length;
+                Array.Copy(Encoding.ASCII.GetBytes(_proxyPassword), 0, credentials, _proxyUserName.Length + 3,
+                           _proxyPassword.Length);
 
                 // USERNAME / PASSWORD SERVER RESPONSE
                 // The server verifies the supplied UNAME and PASSWD, and sends the
@@ -423,7 +417,7 @@ namespace Starksoft.Net.Proxy
 
             bool result = IPAddress.TryParse(host, out ipAddr);
 
-            if (!result) 
+            if (!result)
                 return SOCKS5_ADDRTYPE_DOMAIN_NAME;
 
             switch (ipAddr.AddressFamily)
@@ -433,9 +427,11 @@ namespace Starksoft.Net.Proxy
                 case AddressFamily.InterNetworkV6:
                     return SOCKS5_ADDRTYPE_IPV6;
                 default:
-                    throw new ProxyException(String.Format(CultureInfo.InvariantCulture, "The host addess {0} of type '{1}' is not a supported address type.  The supported types are InterNetwork and InterNetworkV6.", host, Enum.GetName(typeof(AddressFamily), ipAddr.AddressFamily)));
+                    throw new ProxyException(String.Format(CultureInfo.InvariantCulture,
+                                                           "The host addess {0} of type '{1}' is not a supported address type.  The supported types are InterNetwork and InterNetworkV6.",
+                                                           host,
+                                                           Enum.GetName(typeof (AddressFamily), ipAddr.AddressFamily)));
             }
-            
         }
 
         private byte[] GetDestAddressBytes(byte addressType, string host)
@@ -447,7 +443,7 @@ namespace Starksoft.Net.Proxy
                     return IPAddress.Parse(host).GetAddressBytes();
                 case SOCKS5_ADDRTYPE_DOMAIN_NAME:
                     //  create a byte array to hold the host name bytes plus one byte to store the length
-                    byte[] bytes = new byte[host.Length + 1]; 
+                    var bytes = new byte[host.Length + 1];
                     //  if the address field contains a fully-qualified domain name.  The first
                     //  octet of the address field contains the number of octets of name that
                     //  follow, there is no terminating NUL octet.
@@ -461,9 +457,9 @@ namespace Starksoft.Net.Proxy
 
         private byte[] GetDestPortBytes(int value)
         {
-            byte[] array = new byte[2];
-            array[0] = Convert.ToByte(value / 256);
-            array[1] = Convert.ToByte(value % 256);
+            var array = new byte[2];
+            array[0] = Convert.ToByte(value/256);
+            array[1] = Convert.ToByte(value%256);
             return array;
         }
 
@@ -497,17 +493,17 @@ namespace Starksoft.Net.Proxy
             // * DST.ADDR desired destination address
             // * DST.PORT desired destination port in network octet order            
 
-            byte[] request = new byte[4 + destAddr.Length + 2];
+            var request = new byte[4 + destAddr.Length + 2];
             request[0] = SOCKS5_VERSION_NUMBER;
             request[1] = command;
             request[2] = SOCKS5_RESERVED;
             request[3] = addressType;
             destAddr.CopyTo(request, 4);
             destPort.CopyTo(request, 4 + destAddr.Length);
-            
+
             // send connect request.
             stream.Write(request, 0, request.Length);
-        
+
             //  PROXY SERVER RESPONSE
             //  +----+-----+-------+------+----------+----------+
             //  |VER | REP |  RSV  | ATYP | BND.ADDR | BND.PORT |
@@ -530,16 +526,16 @@ namespace Starksoft.Net.Proxy
             //* RSV RESERVED
             //* ATYP address itemType of following address
 
-            byte[] response = new byte[255];
-            
+            var response = new byte[255];
+
             // read proxy server response
             stream.Read(response, 0, response.Length);
-            
+
             byte replyCode = response[1];
 
             //  evaluate the reply code for an error condition
             if (replyCode != SOCKS5_CMD_REPLY_SUCCEEDED)
-                HandleProxyCommandError(response, destinationHost, destinationPort );
+                HandleProxyCommandError(response, destinationHost, destinationPort);
         }
 
         private void HandleProxyCommandError(byte[] response, string destinationHost, int destinationPort)
@@ -554,38 +550,38 @@ namespace Starksoft.Net.Proxy
             {
                 case SOCKS5_ADDRTYPE_DOMAIN_NAME:
                     int addrLen = Convert.ToInt32(response[4]);
-                    byte[] addrBytes = new byte[addrLen];
+                    var addrBytes = new byte[addrLen];
                     for (int i = 0; i < addrLen; i++)
                         addrBytes[i] = response[i + 5];
-                    addr = System.Text.ASCIIEncoding.ASCII.GetString(addrBytes);
-                    byte[] portBytesDomain = new byte[2];
+                    addr = Encoding.ASCII.GetString(addrBytes);
+                    var portBytesDomain = new byte[2];
                     portBytesDomain[0] = response[6 + addrLen];
                     portBytesDomain[1] = response[5 + addrLen];
-                    port = BitConverter.ToInt16(portBytesDomain, 0); 
+                    port = BitConverter.ToInt16(portBytesDomain, 0);
                     break;
 
                 case SOCKS5_ADDRTYPE_IPV4:
-                    byte[] ipv4Bytes = new byte[4];
+                    var ipv4Bytes = new byte[4];
                     for (int i = 0; i < 4; i++)
                         ipv4Bytes[i] = response[i + 4];
-                    IPAddress ipv4 = new IPAddress(ipv4Bytes);
+                    var ipv4 = new IPAddress(ipv4Bytes);
                     addr = ipv4.ToString();
-                    byte[] portBytesIpv4 = new byte[2];
+                    var portBytesIpv4 = new byte[2];
                     portBytesIpv4[0] = response[9];
                     portBytesIpv4[1] = response[8];
-                    port = BitConverter.ToInt16(portBytesIpv4, 0); 
+                    port = BitConverter.ToInt16(portBytesIpv4, 0);
                     break;
 
                 case SOCKS5_ADDRTYPE_IPV6:
-                    byte[] ipv6Bytes = new byte[16];
+                    var ipv6Bytes = new byte[16];
                     for (int i = 0; i < 16; i++)
                         ipv6Bytes[i] = response[i + 4];
-                    IPAddress ipv6 = new IPAddress(ipv6Bytes);
+                    var ipv6 = new IPAddress(ipv6Bytes);
                     addr = ipv6.ToString();
-                    byte[] portBytesIpv6 = new byte[2];
+                    var portBytesIpv6 = new byte[2];
                     portBytesIpv6[0] = response[21];
                     portBytesIpv6[1] = response[20];
-                    port = BitConverter.ToInt16(portBytesIpv6, 0); 
+                    port = BitConverter.ToInt16(portBytesIpv6, 0);
                     break;
             }
 
@@ -617,21 +613,24 @@ namespace Starksoft.Net.Proxy
                     proxyErrorText = "the address type specified is not supported";
                     break;
                 default:
-                    proxyErrorText = String.Format(CultureInfo.InvariantCulture, "that an unknown reply with the code value '{0}' was received by the destination", replyCode.ToString(CultureInfo.InvariantCulture));
+                    proxyErrorText = String.Format(CultureInfo.InvariantCulture,
+                                                   "that an unknown reply with the code value '{0}' was received by the destination",
+                                                   replyCode.ToString(CultureInfo.InvariantCulture));
                     break;
             }
-            string exceptionMsg = String.Format(CultureInfo.InvariantCulture, "The {0} concerning destination host {1} port number {2}.  The destination reported the host as {3} port {4}.", proxyErrorText, destinationHost, destinationPort, addr, port.ToString(CultureInfo.InvariantCulture));
+            string exceptionMsg = String.Format(CultureInfo.InvariantCulture,
+                                                "The {0} concerning destination host {1} port number {2}.  The destination reported the host as {3} port {4}.",
+                                                proxyErrorText, destinationHost, destinationPort, addr,
+                                                port.ToString(CultureInfo.InvariantCulture));
 
             throw new ProxyException(exceptionMsg);
-
         }
 
+        #region "Async Methods"
 
-#region "Async Methods"
-
-        private BackgroundWorker _asyncWorker;
+        private bool _asyncCancelled;
         private Exception _asyncException;
-        bool _asyncCancelled;
+        private BackgroundWorker _asyncWorker;
 
         /// <summary>
         /// Gets a value indicating whether an asynchronous operation is running.
@@ -651,28 +650,6 @@ namespace Starksoft.Net.Proxy
         public bool IsAsyncCancelled
         {
             get { return _asyncCancelled; }
-        }
-
-        /// <summary>
-        /// Cancels any asychronous operation that is currently active.
-        /// </summary>
-        public void CancelAsync()
-        {
-            if (_asyncWorker != null && !_asyncWorker.CancellationPending && _asyncWorker.IsBusy)
-            {
-                _asyncCancelled = true;
-                _asyncWorker.CancelAsync();
-            }
-        }
-
-        private void CreateAsyncWorker()
-        {
-            if (_asyncWorker != null)
-                _asyncWorker.Dispose();
-            _asyncException = null;
-            _asyncWorker = null;
-            _asyncCancelled = false;
-            _asyncWorker = new BackgroundWorker();
         }
 
         /// <summary>
@@ -698,24 +675,47 @@ namespace Starksoft.Net.Proxy
         public void CreateConnectionAsync(string destinationHost, int destinationPort)
         {
             if (_asyncWorker != null && _asyncWorker.IsBusy)
-                throw new InvalidOperationException("The Socks4 object is already busy executing another asynchronous operation.  You can only execute one asychronous method at a time.");
+                throw new InvalidOperationException(
+                    "The Socks4 object is already busy executing another asynchronous operation.  You can only execute one asychronous method at a time.");
 
             CreateAsyncWorker();
             _asyncWorker.WorkerSupportsCancellation = true;
-            _asyncWorker.DoWork += new DoWorkEventHandler(CreateConnectionAsync_DoWork);
-            _asyncWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(CreateConnectionAsync_RunWorkerCompleted);
-            Object[] args = new Object[2];
+            _asyncWorker.DoWork += CreateConnectionAsync_DoWork;
+            _asyncWorker.RunWorkerCompleted += CreateConnectionAsync_RunWorkerCompleted;
+            var args = new Object[2];
             args[0] = destinationHost;
             args[1] = destinationPort;
             _asyncWorker.RunWorkerAsync(args);
+        }
+
+        /// <summary>
+        /// Cancels any asychronous operation that is currently active.
+        /// </summary>
+        public void CancelAsync()
+        {
+            if (_asyncWorker != null && !_asyncWorker.CancellationPending && _asyncWorker.IsBusy)
+            {
+                _asyncCancelled = true;
+                _asyncWorker.CancelAsync();
+            }
+        }
+
+        private void CreateAsyncWorker()
+        {
+            if (_asyncWorker != null)
+                _asyncWorker.Dispose();
+            _asyncException = null;
+            _asyncWorker = null;
+            _asyncCancelled = false;
+            _asyncWorker = new BackgroundWorker();
         }
 
         private void CreateConnectionAsync_DoWork(object sender, DoWorkEventArgs e)
         {
             try
             {
-                Object[] args = (Object[])e.Argument;
-                e.Result = CreateConnection((string)args[0], (int)args[1]);
+                var args = (Object[]) e.Argument;
+                e.Result = CreateConnection((string) args[0], (int) args[1]);
             }
             catch (Exception ex)
             {
@@ -726,11 +726,31 @@ namespace Starksoft.Net.Proxy
         private void CreateConnectionAsync_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             if (CreateConnectionAsyncCompleted != null)
-                CreateConnectionAsyncCompleted(this, new CreateConnectionAsyncCompletedEventArgs(_asyncException, _asyncCancelled, (TcpClient)e.Result));
+                CreateConnectionAsyncCompleted(this,
+                                               new CreateConnectionAsyncCompletedEventArgs(_asyncException,
+                                                                                           _asyncCancelled,
+                                                                                           (TcpClient) e.Result));
         }
 
+        #endregion
 
+        #region Nested type: SocksAuthentication
 
-#endregion
+        /// <summary>
+        /// Authentication itemType.
+        /// </summary>
+        private enum SocksAuthentication
+        {
+            /// <summary>
+            /// No authentication used.
+            /// </summary>
+            None,
+            /// <summary>
+            /// Username and password authentication.
+            /// </summary>
+            UsernamePassword
+        }
+
+        #endregion
     }
 }

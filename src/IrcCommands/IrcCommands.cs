@@ -39,14 +39,11 @@ namespace Meebey.SmartIrc4net
     public class IrcCommands : IrcConnection
     {
         private int _MaxModeChanges = 3;
-        
-        protected int MaxModeChanges {
-            get {
-                return _MaxModeChanges;
-            }
-            set {
-                _MaxModeChanges = value;
-            }
+
+        protected int MaxModeChanges
+        {
+            get { return _MaxModeChanges; }
+            set { _MaxModeChanges = value; }
         }
 
 #if LOG4NET
@@ -55,14 +52,14 @@ namespace Meebey.SmartIrc4net
             Logger.Main.Debug("IrcCommands created");
         }
 #endif
-        
+
 #if LOG4NET
         ~IrcCommands()
         {
             Logger.Main.Debug("IrcCommands destroyed");
         }
 #endif
-    
+
         // API commands
         /// <summary>
         /// 
@@ -73,22 +70,23 @@ namespace Meebey.SmartIrc4net
         /// <param name="priority"></param>
         public void SendMessage(SendType type, string destination, string message, Priority priority)
         {
-            switch(type) {
+            switch (type)
+            {
                 case SendType.Message:
                     RfcPrivmsg(destination, message, priority);
-                break;
+                    break;
                 case SendType.Action:
-                    RfcPrivmsg(destination, "\x1"+"ACTION "+message+"\x1", priority);
-                break;
+                    RfcPrivmsg(destination, "\x1" + "ACTION " + message + "\x1", priority);
+                    break;
                 case SendType.Notice:
                     RfcNotice(destination, message, priority);
-                break;
+                    break;
                 case SendType.CtcpRequest:
-                    RfcPrivmsg(destination, "\x1"+message+"\x1", priority);
-                break;
+                    RfcPrivmsg(destination, "\x1" + message + "\x1", priority);
+                    break;
                 case SendType.CtcpReply:
-                    RfcNotice(destination, "\x1"+message+"\x1", priority);
-                break;
+                    RfcNotice(destination, "\x1" + message + "\x1", priority);
+                    break;
             }
         }
 
@@ -111,19 +109,20 @@ namespace Meebey.SmartIrc4net
         /// <param name="priority"></param>
         public void SendReply(IrcMessageData data, string message, Priority priority)
         {
-            switch (data.Type) {
+            switch (data.Type)
+            {
                 case ReceiveType.ChannelMessage:
                     SendMessage(SendType.Message, data.Channel, message, priority);
-                break;
+                    break;
                 case ReceiveType.QueryMessage:
                     SendMessage(SendType.Message, data.Nick, message, priority);
-                break;
+                    break;
                 case ReceiveType.QueryNotice:
                     SendMessage(SendType.Notice, data.Nick, message, priority);
-                break;
+                    break;
             }
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -133,7 +132,7 @@ namespace Meebey.SmartIrc4net
         {
             SendReply(data, message, Priority.Medium);
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -142,7 +141,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="priority"></param>
         public void Op(string channel, string nickname, Priority priority)
         {
-            WriteLine(Rfc2812.Mode(channel, "+o "+nickname), priority);
+            WriteLine(Rfc2812.Mode(channel, "+o " + nickname), priority);
         }
 
         /// <summary>
@@ -152,12 +151,14 @@ namespace Meebey.SmartIrc4net
         /// <param name="nickname"></param>
         public void Op(string channel, string[] nicknames)
         {
-            if (nicknames == null) {
+            if (nicknames == null)
+            {
                 throw new ArgumentNullException("nicknames");
             }
-            
-            string[] modes = new string[nicknames.Length];
-            for (int i = 0; i < nicknames.Length; i++) {
+
+            var modes = new string[nicknames.Length];
+            for (int i = 0; i < nicknames.Length; i++)
+            {
                 modes[i] = "+o";
             }
             Mode(channel, modes, nicknames);
@@ -165,9 +166,9 @@ namespace Meebey.SmartIrc4net
 
         public void Op(string channel, string nickname)
         {
-            WriteLine(Rfc2812.Mode(channel, "+o "+nickname));
+            WriteLine(Rfc2812.Mode(channel, "+o " + nickname));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -176,7 +177,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="priority"></param>
         public void Deop(string channel, string nickname, Priority priority)
         {
-            WriteLine(Rfc2812.Mode(channel, "-o "+nickname), priority);
+            WriteLine(Rfc2812.Mode(channel, "-o " + nickname), priority);
         }
 
         /// <summary>
@@ -186,7 +187,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="nickname"></param>
         public void Deop(string channel, string nickname)
         {
-            WriteLine(Rfc2812.Mode(channel, "-o "+nickname));
+            WriteLine(Rfc2812.Mode(channel, "-o " + nickname));
         }
 
         /// <summary>
@@ -196,12 +197,14 @@ namespace Meebey.SmartIrc4net
         /// <param name="nickname"></param>
         public void Deop(string channel, string[] nicknames)
         {
-            if (nicknames == null) {
+            if (nicknames == null)
+            {
                 throw new ArgumentNullException("nicknames");
             }
 
-            string[] modes = new string[nicknames.Length];
-            for (int i = 0; i < nicknames.Length; i++) {
+            var modes = new string[nicknames.Length];
+            for (int i = 0; i < nicknames.Length; i++)
+            {
                 modes[i] = "-o";
             }
             Mode(channel, modes, nicknames);
@@ -215,7 +218,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="priority"></param>
         public void Voice(string channel, string nickname, Priority priority)
         {
-            WriteLine(Rfc2812.Mode(channel, "+v "+nickname), priority);
+            WriteLine(Rfc2812.Mode(channel, "+v " + nickname), priority);
         }
 
         /// <summary>
@@ -225,7 +228,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="nickname"></param>
         public void Voice(string channel, string nickname)
         {
-            WriteLine(Rfc2812.Mode(channel, "+v "+nickname));
+            WriteLine(Rfc2812.Mode(channel, "+v " + nickname));
         }
 
         /// <summary>
@@ -235,12 +238,14 @@ namespace Meebey.SmartIrc4net
         /// <param name="nickname"></param>
         public void Voice(string channel, string[] nicknames)
         {
-            if (nicknames == null) {
+            if (nicknames == null)
+            {
                 throw new ArgumentNullException("nicknames");
             }
 
-            string[] modes = new string[nicknames.Length];
-            for (int i = 0; i < nicknames.Length; i++) {
+            var modes = new string[nicknames.Length];
+            for (int i = 0; i < nicknames.Length; i++)
+            {
                 modes[i] = "+v";
             }
             Mode(channel, modes, nicknames);
@@ -254,7 +259,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="priority"></param>
         public void Devoice(string channel, string nickname, Priority priority)
         {
-            WriteLine(Rfc2812.Mode(channel, "-v "+nickname), priority);
+            WriteLine(Rfc2812.Mode(channel, "-v " + nickname), priority);
         }
 
         /// <summary>
@@ -264,7 +269,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="nickname"></param>
         public void Devoice(string channel, string nickname)
         {
-            WriteLine(Rfc2812.Mode(channel, "-v "+nickname));
+            WriteLine(Rfc2812.Mode(channel, "-v " + nickname));
         }
 
         /// <summary>
@@ -274,12 +279,14 @@ namespace Meebey.SmartIrc4net
         /// <param name="nicknames"></param>
         public void Devoice(string channel, string[] nicknames)
         {
-            if (nicknames == null) {
+            if (nicknames == null)
+            {
                 throw new ArgumentNullException("nicknames");
             }
 
-            string[] modes = new string[nicknames.Length];
-            for (int i = 0; i < nicknames.Length; i++) {
+            var modes = new string[nicknames.Length];
+            for (int i = 0; i < nicknames.Length; i++)
+            {
                 modes[i] = "-v";
             }
             Mode(channel, modes, nicknames);
@@ -312,7 +319,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="priority"></param>
         public void Ban(string channel, string hostmask, Priority priority)
         {
-            WriteLine(Rfc2812.Mode(channel, "+b "+hostmask), priority);
+            WriteLine(Rfc2812.Mode(channel, "+b " + hostmask), priority);
         }
 
         /// <summary>
@@ -322,7 +329,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="hostmask"></param>
         public void Ban(string channel, string hostmask)
         {
-            WriteLine(Rfc2812.Mode(channel, "+b "+hostmask));
+            WriteLine(Rfc2812.Mode(channel, "+b " + hostmask));
         }
 
         /// <summary>
@@ -332,12 +339,14 @@ namespace Meebey.SmartIrc4net
         /// <param name="hostmasks"></param>
         public void Ban(string channel, string[] hostmasks)
         {
-            if (hostmasks == null) {
+            if (hostmasks == null)
+            {
                 throw new ArgumentNullException("hostmasks");
             }
 
-            string[] modes = new string[hostmasks.Length];
-            for (int i = 0; i < hostmasks.Length; i++) {
+            var modes = new string[hostmasks.Length];
+            for (int i = 0; i < hostmasks.Length; i++)
+            {
                 modes[i] = "+b";
             }
             Mode(channel, modes, hostmasks);
@@ -351,7 +360,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="priority"></param>
         public void Unban(string channel, string hostmask, Priority priority)
         {
-            WriteLine(Rfc2812.Mode(channel, "-b "+hostmask), priority);
+            WriteLine(Rfc2812.Mode(channel, "-b " + hostmask), priority);
         }
 
         /// <summary>
@@ -361,9 +370,9 @@ namespace Meebey.SmartIrc4net
         /// <param name="hostmask"></param>
         public void Unban(string channel, string hostmask)
         {
-            WriteLine(Rfc2812.Mode(channel, "-b "+hostmask));
+            WriteLine(Rfc2812.Mode(channel, "-b " + hostmask));
         }
-        
+
         /// <summary>
         ///
         /// </summary>
@@ -371,12 +380,14 @@ namespace Meebey.SmartIrc4net
         /// <param name="hostmasks"></param>
         public void Unban(string channel, string[] hostmasks)
         {
-            if (hostmasks == null) {
+            if (hostmasks == null)
+            {
                 throw new ArgumentNullException("hostmasks");
             }
 
-            string[] modes = new string[hostmasks.Length];
-            for (int i = 0; i < hostmasks.Length; i++) {
+            var modes = new string[hostmasks.Length];
+            for (int i = 0; i < hostmasks.Length; i++)
+            {
                 modes[i] = "-b";
             }
             Mode(channel, modes, hostmasks);
@@ -391,7 +402,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="priority"></param>
         public void Halfop(string channel, string nickname)
         {
-            WriteLine(Rfc2812.Mode(channel, "+h "+nickname));
+            WriteLine(Rfc2812.Mode(channel, "+h " + nickname));
         }
 
         /// <summary>
@@ -401,12 +412,14 @@ namespace Meebey.SmartIrc4net
         /// <param name="nicknames"></param>
         public void Halfop(string channel, string[] nicknames)
         {
-            if (nicknames == null) {
+            if (nicknames == null)
+            {
                 throw new ArgumentNullException("nicknames");
             }
 
-            string[] modes = new string[nicknames.Length];
-            for (int i = 0; i < nicknames.Length; i++) {
+            var modes = new string[nicknames.Length];
+            for (int i = 0; i < nicknames.Length; i++)
+            {
                 modes[i] = "+h";
             }
             Mode(channel, modes, nicknames);
@@ -419,7 +432,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="nickname"></param>
         public void Dehalfop(string channel, string nickname)
         {
-            WriteLine(Rfc2812.Mode(channel, "-h "+nickname));
+            WriteLine(Rfc2812.Mode(channel, "-h " + nickname));
         }
 
         /// <summary>
@@ -429,17 +442,19 @@ namespace Meebey.SmartIrc4net
         /// <param name="nicknames"></param>
         public void Dehalfop(string channel, string[] nicknames)
         {
-            if (nicknames == null) {
+            if (nicknames == null)
+            {
                 throw new ArgumentNullException("nicknames");
             }
 
-            string[] modes = new string[nicknames.Length];
-            for (int i = 0; i < nicknames.Length; i++) {
+            var modes = new string[nicknames.Length];
+            for (int i = 0; i < nicknames.Length; i++)
+            {
                 modes[i] = "-h";
             }
             Mode(channel, modes, nicknames);
         }
-        
+
         /// <summary>
         ///
         /// </summary>
@@ -448,31 +463,40 @@ namespace Meebey.SmartIrc4net
         /// <param name="newModeParameters"></param>
         public void Mode(string target, string[] newModes, string[] newModeParameters)
         {
-            if (target == null) {
+            if (target == null)
+            {
                 throw new ArgumentNullException("target");
             }
-            if (newModes == null) {
+            if (newModes == null)
+            {
                 throw new ArgumentNullException("newModes");
             }
-            if (newModeParameters == null) {
+            if (newModeParameters == null)
+            {
                 throw new ArgumentNullException("newModeParameters");
             }
-            if (newModes.Length == 0) {
-                throw new ArgumentException("newModes must not be empty." , "newModes");
+            if (newModes.Length == 0)
+            {
+                throw new ArgumentException("newModes must not be empty.", "newModes");
             }
-            if (newModeParameters.Length == 0) {
-                throw new ArgumentException("newModeParameters must not be empty." , "newModeParameters");
+            if (newModeParameters.Length == 0)
+            {
+                throw new ArgumentException("newModeParameters must not be empty.", "newModeParameters");
             }
-            if (newModes.Length != newModeParameters.Length) {
+            if (newModes.Length != newModeParameters.Length)
+            {
                 throw new ArgumentException("newModes and newModeParameters must have the same size.", "newModes");
             }
 
             int maxModeChanges = _MaxModeChanges;
-            for (int i = 0; i < newModes.Length; i += maxModeChanges) {
+            for (int i = 0; i < newModes.Length; i += maxModeChanges)
+            {
                 var newModeChunks = new List<string>(maxModeChanges);
                 var newModeParameterChunks = new List<string>(maxModeChanges);
-                for (int j = 0; j < maxModeChanges; j++) {
-                    if (i + j >= newModes.Length) {
+                for (int j = 0; j < maxModeChanges; j++)
+                {
+                    if (i + j >= newModes.Length)
+                    {
                         break;
                     }
                     newModeChunks.Add(newModes[i + j]);
@@ -483,8 +507,8 @@ namespace Meebey.SmartIrc4net
             }
         }
 
-#region Client capability commands
-  
+        #region Client capability commands
+
         public enum CapabilitySubcommand
         {
             LS,
@@ -493,67 +517,68 @@ namespace Meebey.SmartIrc4net
             CLEAR,
             END
         }
-                    
-        public void Cap (CapabilitySubcommand subCmd, Priority priority)
+
+        public void Cap(CapabilitySubcommand subCmd, Priority priority)
         {
-            WriteLine ("CAP " + subCmd.ToString(), priority);
-        }
-        
-        public void CapReq (string[] caps, Priority priority)
-        {
-            if (caps.Length == 0)
-                throw new ArgumentException ("Capability list must not be empty");
-            
-            var sb = new StringBuilder ("CAP REQ ");
-            string ch = ":";
-            foreach (var cap in caps)
-            {
-                sb.Append (ch);
-                sb.Append (cap);
-                ch = " ";
-            }
-            WriteLine (sb.ToString(), priority);
+            WriteLine("CAP " + subCmd, priority);
         }
 
-#endregion
-  
+        public void CapReq(string[] caps, Priority priority)
+        {
+            if (caps.Length == 0)
+                throw new ArgumentException("Capability list must not be empty");
+
+            var sb = new StringBuilder("CAP REQ ");
+            string ch = ":";
+            foreach (string cap in caps)
+            {
+                sb.Append(ch);
+                sb.Append(cap);
+                ch = " ";
+            }
+            WriteLine(sb.ToString(), priority);
+        }
+
+        #endregion
+
         public enum SaslAuthMethod
         {
             Plain,
             DiffieHellmanBlowfish
         }
-                    
-        public void Authenticate (SaslAuthMethod method, Priority priority)
+
+        public void Authenticate(SaslAuthMethod method, Priority priority)
         {
             switch (method)
             {
                 case SaslAuthMethod.Plain:
-                    WriteLine ("AUTHENTICATE PLAIN", priority);
+                    WriteLine("AUTHENTICATE PLAIN", priority);
                     break;
 
-//                case SaslAuthMethod.DiffieHellmanBlowfish:
-//                    WriteLine ("AUTHENTICATE DH-BLOWFISH", priority);
-//                    break;
-                
+                //                case SaslAuthMethod.DiffieHellmanBlowfish:
+                //                    WriteLine ("AUTHENTICATE DH-BLOWFISH", priority);
+                //                    break;
+
                 default:
-                    throw new ArgumentException ("Unsupported SASL authentication method");
+                    throw new ArgumentException("Unsupported SASL authentication method");
             }
         }
-        
-        public void Authenticate (string authData, Priority priority)
+
+        public void Authenticate(string authData, Priority priority)
         {
             int len = authData.Length;
-            
-            for (int i = 0; i < len/400; i++)
+
+            for (int i = 0; i < len / 400; i++)
             {
-                WriteLine ("AUTHENTICATE " + authData.Substring (400 * i, 400));
+                WriteLine("AUTHENTICATE " + authData.Substring(400 * i, 400));
             }
-            
+
             if (len % 400 > 0)
-                WriteLine ("AUTHENTICATE " + authData.Substring (len - len%400), priority);
+                WriteLine("AUTHENTICATE " + authData.Substring(len - len % 400), priority);
         }
-                                                                        
-#region RFC commands
+
+        #region RFC commands
+
         /// <summary>
         /// 
         /// </summary>
@@ -584,7 +609,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.User(username, usermode, realname), priority);
         }
-    
+
         /// <summary>
         /// 
         /// </summary>
@@ -687,7 +712,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Join(channels), priority);
         }
-  
+
         /// <summary>
         /// 
         /// </summary>
@@ -696,7 +721,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Join(channels));
         }
-  
+
         /// <summary>
         /// 
         /// </summary>
@@ -860,7 +885,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Kick(channels, nickname));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -881,7 +906,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Kick(channel, nicknames));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -902,7 +927,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Kick(channels, nicknames));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -925,7 +950,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Kick(channel, nickname, comment));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1045,7 +1070,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Lusers(), priority);
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1090,7 +1115,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Lusers(mask));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1123,7 +1148,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Lusers(mask, target));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1195,7 +1220,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Stats(query));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1216,7 +1241,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Stats(query, target));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1243,7 +1268,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Links(servermask));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1264,7 +1289,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Links(remoteserver, servermask));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1281,7 +1306,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Time());
         }
-       
+
         /// <summary>
         /// 
         /// </summary>
@@ -1300,7 +1325,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Time(target));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1321,7 +1346,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Connect(targetserver, port));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1344,7 +1369,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Connect(targetserver, port, remoteserver));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1361,7 +1386,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Trace());
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1380,7 +1405,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Trace(target));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1397,7 +1422,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Admin());
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1416,7 +1441,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Admin(target));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1433,7 +1458,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Info());
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1452,7 +1477,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Info(target));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1469,7 +1494,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Servlist());
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1488,7 +1513,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Servlist(mask));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1509,7 +1534,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Servlist(mask, type));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1530,7 +1555,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Squery(servicename, servicetext));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1770,7 +1795,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Mode(target, newmode));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -1958,7 +1983,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="priority"></param>
         public void RfcWhois(string target, string[] masks, Priority priority)
         {
-            WriteLine(Rfc2812.Whois(target ,masks), priority);
+            WriteLine(Rfc2812.Whois(target, masks), priority);
         }
 
         /// <summary>
@@ -2117,7 +2142,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Kill(nickname, comment));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -2136,7 +2161,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Ping(server));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -2157,7 +2182,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Ping(server, server2));
         }
-       
+
         /// <summary>
         /// 
         /// </summary>
@@ -2176,7 +2201,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Pong(server));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -2197,7 +2222,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Pong(server, server2));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -2214,7 +2239,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Away());
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -2233,7 +2258,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Away(awaytext));
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -2241,7 +2266,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Rehash());
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -2249,7 +2274,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Die());
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -2257,7 +2282,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Restart());
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -2503,6 +2528,7 @@ namespace Meebey.SmartIrc4net
         {
             WriteLine(Rfc2812.Squit(server, comment));
         }
-#endregion
+
+        #endregion
     }
 }
