@@ -939,7 +939,7 @@ namespace Meebey.SmartIrc4net
             /// </summary>
             public void Start()
             {
-                thread = new Thread(_Worker)
+                thread = new Thread(Worker)
                 {
                     Name = "ReadThread (" + connection.Address + ":" + connection.Port + ")",
                     IsBackground = true
@@ -979,7 +979,7 @@ namespace Meebey.SmartIrc4net
                 }
             }
 
-            private void _Worker()
+            private void Worker()
             {
 #if LOG4NET
                 Logger.Socket.Debug("ReadThread started");

@@ -71,7 +71,7 @@ namespace Meebey.SmartIrc4net
         private List<BanInfo> banList;
         private AutoResetEvent banListReceivedEvent;
 
-        public event EventHandler OnRegistered;
+        public event EventHandler<EventArgs> OnRegistered;
         public event EventHandler<PingEventArgs> OnPing;
         public event EventHandler<PongEventArgs> OnPong;
         public event EventHandler<IrcEventArgs> OnRawMessage;
@@ -113,6 +113,14 @@ namespace Meebey.SmartIrc4net
         public event EventHandler<IrcEventArgs> OnQueryNotice;
         public event EventHandler<CtcpEventArgs> OnCtcpRequest;
         public event EventHandler<CtcpEventArgs> OnCtcpReply;
+
+        protected void DispatchEvent<T>(object sender, EventHandler<T> handler, T eventArgs) where T : EventArgs
+        {
+            if (handler == null) return;
+
+            ThreadPool.QueueUserWorkItem(state => handler.Invoke(sender, eventArgs));
+        }
+
 
         private readonly ServerProperties properties = new ServerProperties();
         public ServerProperties Properties
@@ -325,8 +333,8 @@ namespace Meebey.SmartIrc4net
             Logger.Main.Debug("IrcClient created");
 #endif
             OnReadLine += Worker;
-            OnDisconnected += _OnDisconnected;
-            OnConnectionError += _OnConnectionError;
+            OnDisconnected += Disconnected;
+            OnConnectionError += ConnectionError;
         }
 
 #if LOG4NET
@@ -730,7 +738,7 @@ namespace Meebey.SmartIrc4net
             HandleEvents(msg);
         }
 
-        private void _OnDisconnected(object sender, EventArgs e)
+        private void Disconnected(object sender, EventArgs e)
         {
             if (AutoRejoin)
             {
@@ -739,11 +747,11 @@ namespace Meebey.SmartIrc4net
             SyncingCleanup();
         }
 
-        private void _OnConnectionError(object sender, EventArgs e)
+        private void ConnectionError(object sender, EventArgs e)
         {
             try
             {
-                // AutoReconnect is handled in IrcConnection._OnConnectionError
+                // AutoReconnect is handled in IrcConnection.ConnectionError
                 if (AutoReconnect && AutoRelogin)
                 {
                     Login(nicknameList, Realname, IUsermode, Username, Password);
@@ -833,10 +841,7 @@ namespace Meebey.SmartIrc4net
 
         private void HandleEvents(IrcMessageData ircdata)
         {
-            if (OnRawMessage != null)
-            {
-                OnRawMessage(this, new IrcEventArgs(ircdata));
-            }
+            DispatchEvent(this, OnRawMessage, new IrcEventArgs(ircdata));
 
             switch (ircdata.Command)
             {
@@ -1017,6 +1022,7 @@ namespace Meebey.SmartIrc4net
             {
                 channel = GetChannel(ircdata.Channel);
             }
+
             IEnumerator parametersEnumerator = parameters.GetEnumerator();
             // bring the enumerator to the 1. element
             parametersEnumerator.MoveNext();
@@ -1074,10 +1080,7 @@ namespace Meebey.SmartIrc4net
                                 }
                             }
 
-                            if (OnOp != null)
-                            {
-                                OnOp(this, new OpEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                            }
+                            DispatchEvent(this, OnOp, new OpEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                         }
                         if (remove)
                         {
@@ -1106,10 +1109,7 @@ namespace Meebey.SmartIrc4net
                                 }
                             }
 
-                            if (OnDeop != null)
-                            {
-                                OnDeop(this, new DeopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                            }
+                            DispatchEvent(this, OnDeop, new DeopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                         }
                         break;
                     case 'h':
@@ -1155,10 +1155,7 @@ namespace Meebey.SmartIrc4net
                                     }
                                 }
 
-                                if (OnHalfop != null)
-                                {
-                                    OnHalfop(this, new HalfopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                                }
+                                DispatchEvent(this, OnHalfop, new HalfopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                             }
                             if (remove)
                             {
@@ -1187,10 +1184,7 @@ namespace Meebey.SmartIrc4net
                                     }
                                 }
 
-                                if (OnDehalfop != null)
-                                {
-                                    OnDehalfop(this, new DehalfopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                                }
+                                DispatchEvent(this, OnDehalfop, new DehalfopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                             }
                         }
                         break;
@@ -1235,10 +1229,7 @@ namespace Meebey.SmartIrc4net
                                 }
                             }
 
-                            if (OnVoice != null)
-                            {
-                                OnVoice(this, new VoiceEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                            }
+                            DispatchEvent(this, OnVoice, new VoiceEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                         }
                         if (remove)
                         {
@@ -1267,10 +1258,7 @@ namespace Meebey.SmartIrc4net
                                 }
                             }
 
-                            if (OnDevoice != null)
-                            {
-                                OnDevoice(this, new DevoiceEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                            }
+                            DispatchEvent(this, OnDevoice, new DevoiceEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                         }
                         break;
                     case 'b':
@@ -1294,10 +1282,7 @@ namespace Meebey.SmartIrc4net
 #endif
                                 }
                             }
-                            if (OnBan != null)
-                            {
-                                OnBan(this, new BanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                            }
+                            DispatchEvent(this, OnBan, new BanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                         }
                         if (remove)
                         {
@@ -1308,10 +1293,7 @@ namespace Meebey.SmartIrc4net
                                 Logger.ChannelSyncing.Debug("removed ban: " + temp + " from: " + ircdata.Channel);
 #endif
                             }
-                            if (OnUnban != null)
-                            {
-                                OnUnban(this, new UnbanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                            }
+                            DispatchEvent(this, OnUnban, new UnbanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                         }
                         break;
                     case 'l':
@@ -1414,10 +1396,7 @@ namespace Meebey.SmartIrc4net
 #endif
             RfcPong(server, Priority.Critical);
 
-            if (OnPing != null)
-            {
-                OnPing(this, new PingEventArgs(ircdata, server));
-            }
+            DispatchEvent(this, OnPing, new PingEventArgs(ircdata, server));
         }
 
         /// <summary>
@@ -1426,10 +1405,7 @@ namespace Meebey.SmartIrc4net
         /// <param name="ircdata">Message data containing pong information</param>
         private void EventPong(IrcMessageData ircdata)
         {
-            if (OnPong != null)
-            {
-                OnPong(this, new PongEventArgs(ircdata, ircdata.Irc.Lag));
-            }
+            DispatchEvent(this, OnPong, new PongEventArgs(ircdata, ircdata.Irc.Lag));
         }
 
         /// <summary>
@@ -1442,11 +1418,7 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
             Logger.Connection.Info("received ERROR from IRC server");
 #endif
-
-            if (OnError != null)
-            {
-                OnError(this, new ErrorEventArgs(ircdata, message));
-            }
+            DispatchEvent(this, OnError, new ErrorEventArgs(ircdata, message));
         }
 
         /// <summary>
@@ -1504,10 +1476,7 @@ namespace Meebey.SmartIrc4net
                 // channnel sync here as they use the same nick for ALL channel
                 // users!
                 // Example: :anonymous!anonymous@anonymous. JOIN :$channel
-                if (who == "anonymous" &&
-                    ircdata.Ident == "anonymous" &&
-                    ircdata.Host == "anonymous." &&
-                    IsJoined(channelname, who))
+                if (who == "anonymous" && ircdata.Ident == "anonymous" && ircdata.Host == "anonymous." && IsJoined(channelname, who))
                 {
                     // ignore
                 }
@@ -1518,10 +1487,7 @@ namespace Meebey.SmartIrc4net
                 }
             }
 
-            if (OnJoin != null)
-            {
-                OnJoin(this, new JoinEventArgs(ircdata, channelname, who));
-            }
+            DispatchEvent(this, OnJoin, new JoinEventArgs(ircdata, channelname, who));
         }
 
         /// <summary>
@@ -1572,10 +1538,7 @@ namespace Meebey.SmartIrc4net
                 }
             }
 
-            if (OnPart != null)
-            {
-                OnPart(this, new PartEventArgs(ircdata, channel, who, partmessage));
-            }
+            DispatchEvent(this, OnPart, new PartEventArgs(ircdata, channel, who, partmessage));
         }
 
         /// <summary>
@@ -1620,10 +1583,7 @@ namespace Meebey.SmartIrc4net
                 }
             }
 
-            if (OnKick != null)
-            {
-                OnKick(this, new KickEventArgs(ircdata, channelname, who, whom, reason));
-            }
+            DispatchEvent(this, OnKick, new KickEventArgs(ircdata, channelname, who, whom, reason));
         }
 
         /// <summary>
@@ -1667,10 +1627,7 @@ namespace Meebey.SmartIrc4net
                 }
             }
 
-            if (OnQuit != null)
-            {
-                OnQuit(this, new QuitEventArgs(ircdata, who, reason));
-            }
+            DispatchEvent(this, OnQuit, new QuitEventArgs(ircdata, who, reason));
         }
 
         /// <summary>
@@ -1682,49 +1639,31 @@ namespace Meebey.SmartIrc4net
             switch (ircdata.Type)
             {
                 case ReceiveType.ChannelMessage:
-                    if (OnChannelMessage != null)
-                    {
-                        OnChannelMessage(this, new IrcEventArgs(ircdata));
-                    }
+                    DispatchEvent(this, OnChannelMessage, new IrcEventArgs(ircdata));
                     break;
                 case ReceiveType.ChannelAction:
-                    if (OnChannelAction != null)
-                    {
-                        string action = ircdata.Message.Substring(8, ircdata.Message.Length - 9);
-                        OnChannelAction(this, new ActionEventArgs(ircdata, action));
-                    }
+                    DispatchEvent(this, OnChannelAction, new ActionEventArgs(ircdata, ircdata.Message.Substring(8, ircdata.Message.Length - 9)));
                     break;
                 case ReceiveType.QueryMessage:
-                    if (OnQueryMessage != null)
-                    {
-                        OnQueryMessage(this, new IrcEventArgs(ircdata));
-                    }
+                    DispatchEvent(this, OnQueryMessage, new IrcEventArgs(ircdata));
                     break;
                 case ReceiveType.QueryAction:
-                    if (OnQueryAction != null)
-                    {
-                        string action = ircdata.Message.Substring(8, ircdata.Message.Length - 9);
-                        OnQueryAction(this, new ActionEventArgs(ircdata, action));
-                    }
+                    DispatchEvent(this, OnQueryAction, new ActionEventArgs(ircdata, ircdata.Message.Substring(8, ircdata.Message.Length - 9)));
                     break;
                 case ReceiveType.CtcpRequest:
-                    if (OnCtcpRequest != null)
+                    int spacePos = ircdata.Message.IndexOf(' ');
+                    string cmd;
+                    string param = "";
+                    if (spacePos != -1)
                     {
-                        int spacePos = ircdata.Message.IndexOf(' ');
-                        string cmd;
-                        string param = "";
-                        if (spacePos != -1)
-                        {
-                            cmd = ircdata.Message.Substring(1, spacePos - 1);
-                            param = ircdata.Message.Substring(spacePos + 1,
-                                                              ircdata.Message.Length - spacePos - 2);
-                        }
-                        else
-                        {
-                            cmd = ircdata.Message.Substring(1, ircdata.Message.Length - 2);
-                        }
-                        OnCtcpRequest(this, new CtcpEventArgs(ircdata, cmd, param));
+                        cmd = ircdata.Message.Substring(1, spacePos - 1);
+                        param = ircdata.Message.Substring(spacePos + 1, ircdata.Message.Length - spacePos - 2);
                     }
+                    else
+                    {
+                        cmd = ircdata.Message.Substring(1, ircdata.Message.Length - 2);
+                    }
+                    DispatchEvent(this, OnCtcpRequest, new CtcpEventArgs(ircdata, cmd, param));
                     break;
             }
         }
@@ -1738,35 +1677,25 @@ namespace Meebey.SmartIrc4net
             switch (ircdata.Type)
             {
                 case ReceiveType.ChannelNotice:
-                    if (OnChannelNotice != null)
-                    {
-                        OnChannelNotice(this, new IrcEventArgs(ircdata));
-                    }
+                    DispatchEvent(this, OnChannelNotice, new IrcEventArgs(ircdata));
                     break;
                 case ReceiveType.QueryNotice:
-                    if (OnQueryNotice != null)
-                    {
-                        OnQueryNotice(this, new IrcEventArgs(ircdata));
-                    }
+                    DispatchEvent(this, OnQueryNotice, new IrcEventArgs(ircdata));
                     break;
                 case ReceiveType.CtcpReply:
-                    if (OnCtcpReply != null)
+                    int spacePos = ircdata.Message.IndexOf(' ');
+                    string cmd;
+                    string param = "";
+                    if (spacePos != -1)
                     {
-                        int spacePos = ircdata.Message.IndexOf(' ');
-                        string cmd;
-                        string param = "";
-                        if (spacePos != -1)
-                        {
-                            cmd = ircdata.Message.Substring(1, spacePos - 1);
-                            param = ircdata.Message.Substring(spacePos + 1,
-                                                              ircdata.Message.Length - spacePos - 2);
-                        }
-                        else
-                        {
-                            cmd = ircdata.Message.Substring(1, ircdata.Message.Length - 2);
-                        }
-                        OnCtcpReply(this, new CtcpEventArgs(ircdata, cmd, param));
+                        cmd = ircdata.Message.Substring(1, spacePos - 1);
+                        param = ircdata.Message.Substring(spacePos + 1, ircdata.Message.Length - spacePos - 2);
                     }
+                    else
+                    {
+                        cmd = ircdata.Message.Substring(1, ircdata.Message.Length - 2);
+                    }
+                    DispatchEvent(this, OnCtcpReply, new CtcpEventArgs(ircdata, cmd, param));
                     break;
             }
         }
@@ -1790,10 +1719,7 @@ namespace Meebey.SmartIrc4net
 #endif
             }
 
-            if (OnTopicChange != null)
-            {
-                OnTopicChange(this, new TopicChangeEventArgs(ircdata, channel, who, newtopic));
-            }
+            DispatchEvent(this, OnTopicChange, new TopicChangeEventArgs(ircdata, channel, who, newtopic));
         }
 
         /// <summary>
@@ -1869,10 +1795,7 @@ namespace Meebey.SmartIrc4net
                 }
             }
 
-            if (OnNickChange != null)
-            {
-                OnNickChange(this, new NickChangeEventArgs(ircdata, oldnickname, newnickname));
-            }
+            DispatchEvent(this, OnNickChange, new NickChangeEventArgs(ircdata, oldnickname, newnickname));
         }
 
         /// <summary>
@@ -1892,10 +1815,7 @@ namespace Meebey.SmartIrc4net
                 }
             }
 
-            if (OnInvite != null)
-            {
-                OnInvite(this, new InviteEventArgs(ircdata, channel, inviter));
-            }
+            DispatchEvent(this, OnInvite, new InviteEventArgs(ircdata, channel, inviter));
         }
 
         /// <summary>
@@ -1917,22 +1837,17 @@ namespace Meebey.SmartIrc4net
                 InterpretChannelMode(ircdata, mode, parameter);
             }
 
-            if ((ircdata.Type == ReceiveType.UserModeChange) &&
-                (OnUserModeChange != null))
+            switch (ircdata.Type)
             {
-                OnUserModeChange(this, new IrcEventArgs(ircdata));
+                case ReceiveType.UserModeChange:
+                    DispatchEvent(this, OnUserModeChange, new IrcEventArgs(ircdata));
+                    break;
+                case ReceiveType.ChannelModeChange:
+                    DispatchEvent(this, OnChannelModeChange, new IrcEventArgs(ircdata));
+                    break;
             }
 
-            if ((ircdata.Type == ReceiveType.ChannelModeChange) &&
-                (OnChannelModeChange != null))
-            {
-                OnChannelModeChange(this, new IrcEventArgs(ircdata));
-            }
-
-            if (OnModeChange != null)
-            {
-                OnModeChange(this, new IrcEventArgs(ircdata));
-            }
+            DispatchEvent(this, OnModeChange, new IrcEventArgs(ircdata));
         }
 
         /// <summary>
@@ -2019,10 +1934,7 @@ namespace Meebey.SmartIrc4net
             // updating our nickname, that we got (maybe cutted...)
             nickname = ircdata.RawMessageArray[2];
 
-            if (OnRegistered != null)
-            {
-                OnRegistered(this, EventArgs.Empty);
-            }
+            DispatchEvent(this, OnRegistered, EventArgs.Empty);
         }
 
         private void EventRplTopic(IrcMessageData ircdata)
@@ -2039,10 +1951,7 @@ namespace Meebey.SmartIrc4net
 #endif
             }
 
-            if (OnTopic != null)
-            {
-                OnTopic(this, new TopicEventArgs(ircdata, channel, topic));
-            }
+            DispatchEvent(this, OnTopic, new TopicEventArgs(ircdata, channel, topic));
         }
 
         private void EventRplNoTopic(IrcMessageData ircdata)
@@ -2057,10 +1966,7 @@ namespace Meebey.SmartIrc4net
 #endif
             }
 
-            if (OnTopic != null)
-            {
-                OnTopic(this, new TopicEventArgs(ircdata, channel, ""));
-            }
+            DispatchEvent(this, OnTopic, new TopicEventArgs(ircdata, channel, string.Empty));
         }
 
         private void EventRplNamreply(IrcMessageData ircdata)
@@ -2191,11 +2097,7 @@ namespace Meebey.SmartIrc4net
                 }
             }
 
-            if (OnNames != null)
-            {
-                OnNames(this, new NamesEventArgs(ircdata, channelname,
-                                                 filteredUserlist.ToArray()));
-            }
+            DispatchEvent(this, OnNames, new NamesEventArgs(ircdata, channelname, filteredUserlist.ToArray()));
         }
 
         private void EventRplList(IrcMessageData ircdata)
@@ -2215,10 +2117,7 @@ namespace Meebey.SmartIrc4net
                 channelList.Add(info);
             }
 
-            if (OnList != null)
-            {
-                OnList(this, new ListEventArgs(ircdata, info));
-            }
+            DispatchEvent(this, OnList, new ListEventArgs(ircdata, info));
         }
 
         private void EventRplListEnd(IrcMessageData ircdata)
@@ -2242,8 +2141,9 @@ namespace Meebey.SmartIrc4net
         // is not defined :(
         private void _Event_ERR_TOOMANYMATCHES(IrcMessageData ircdata)
         {
-            if (_ListInfosReceivedEvent != null) {
-                _ListInfosReceivedEvent.Set();
+            if (ListInfosReceivedEvent != null) 
+            {
+                ListInfosReceivedEvent.Set();
             }
         }
         */
@@ -2257,10 +2157,7 @@ namespace Meebey.SmartIrc4net
 #if LOG4NET
                 Logger.ChannelSyncing.Debug("passive synced: " + channelname);
 #endif
-                if (OnChannelPassiveSynced != null)
-                {
-                    OnChannelPassiveSynced(this, new IrcEventArgs(ircdata));
-                }
+                DispatchEvent(this, OnChannelPassiveSynced, new IrcEventArgs(ircdata));
             }
         }
 
@@ -2281,30 +2178,21 @@ namespace Meebey.SmartIrc4net
                 }
             }
 
-            if (OnAway != null)
-            {
-                OnAway(this, new AwayEventArgs(ircdata, who, awaymessage));
-            }
+            DispatchEvent(this, OnAway, new AwayEventArgs(ircdata, who, awaymessage));
         }
 
         private void EventRplUnaway(IrcMessageData ircdata)
         {
             IsAway = false;
 
-            if (OnUnAway != null)
-            {
-                OnUnAway(this, new IrcEventArgs(ircdata));
-            }
+            DispatchEvent(this, OnUnAway, new IrcEventArgs(ircdata));
         }
 
         private void EventRplNowAway(IrcMessageData ircdata)
         {
             IsAway = true;
 
-            if (OnNowAway != null)
-            {
-                OnNowAway(this, new IrcEventArgs(ircdata));
-            }
+            DispatchEvent(this, OnNowAway, new IrcEventArgs(ircdata));
         }
 
         private void EventRplWhoreply(IrcMessageData ircdata)
@@ -2375,10 +2263,7 @@ namespace Meebey.SmartIrc4net
                 }
             }
 
-            if (OnWho != null)
-            {
-                OnWho(this, new WhoEventArgs(ircdata, info));
-            }
+            DispatchEvent(this, OnWho, new WhoEventArgs(ircdata, info));
         }
 
         private void EventRplEndofwho(IrcMessageData ircdata)
@@ -2396,10 +2281,7 @@ namespace Meebey.SmartIrc4net
                 Motd.Add(ircdata.Message);
             }
 
-            if (OnMotd != null)
-            {
-                OnMotd(this, new MotdEventArgs(ircdata, ircdata.Message));
-            }
+            DispatchEvent(this, OnMotd, new MotdEventArgs(ircdata, ircdata.Message));
         }
 
         private void EventRplEndOfMotd(IrcMessageData ircdata)
@@ -2454,10 +2336,7 @@ namespace Meebey.SmartIrc4net
                 Logger.ChannelSyncing.Debug("active synced: " + channelname +
                     " (in " + channel.ActiveSyncTime.TotalSeconds + " sec)");
 #endif
-                if (OnChannelActiveSynced != null)
-                {
-                    OnChannelActiveSynced(this, new IrcEventArgs(ircdata));
-                }
+                DispatchEvent(this, OnChannelActiveSynced, new IrcEventArgs(ircdata));
             }
         }
 
@@ -2480,19 +2359,13 @@ namespace Meebey.SmartIrc4net
                 Logger.ChannelSyncing.Debug("active synced: " + channelname +
                     " (in " + channel.ActiveSyncTime.TotalSeconds + " sec)");
 #endif
-                if (OnChannelActiveSynced != null)
-                {
-                    OnChannelActiveSynced(this, new IrcEventArgs(ircdata));
-                }
+                DispatchEvent(this, OnChannelActiveSynced, new IrcEventArgs(ircdata));
             }
         }
 
         private void EventErr(IrcMessageData ircdata)
         {
-            if (OnErrorMessage != null)
-            {
-                OnErrorMessage(this, new IrcEventArgs(ircdata));
-            }
+            DispatchEvent(this, OnErrorMessage, new IrcEventArgs(ircdata));
         }
 
         private void EventErrNickNameInUse(IrcMessageData ircdata)

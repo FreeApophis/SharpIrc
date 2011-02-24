@@ -39,13 +39,18 @@ using System.Runtime.InteropServices;
 [assembly: CLSCompliant(true)]
 [assembly: ComVisible(false)]
 [assembly: AssemblyTitle("SmartIrc4net")]
-[assembly: AssemblyDescription("IRC library for CLI")]
-[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyDescription("IRC library")]
 [assembly: AssemblyCompany("qNETp")]
 [assembly: AssemblyProduct("SmartIrc4net")]
-[assembly: AssemblyCopyright("2003-2008 (C) Mirco Bauer <meebey@meebey.net>")]
+[assembly: AssemblyCopyright("2003-2010 (C) Mirco Bauer <meebey@meebey.net> \n2008-2010 (C) Thomas Bruderer <apophis@apophis.ch>")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+
+#if DEBUG
+[assembly: AssemblyConfiguration("Debug")]
+#else
+[assembly: AssemblyConfiguration("Release")]
+#endif
 
 // The assembly version has following format :
 //
@@ -53,17 +58,10 @@ using System.Runtime.InteropServices;
 //
 // You can specify all values by your own or you can build default build and revision
 // numbers with the '*' character (the default):
-
-[assembly: AssemblyVersion("0.4.5.0")]
+[assembly: AssemblyVersion("0.4.6.0")]
 
 // The following attributes specify the key for the sign of your assembly. See the
 // .NET Framework documentation for more information about signing.
 // This is not required, if you don't want signing let these attributes like they're.
-#if DELAY_SIGN
-[assembly: AssemblyDelaySign(true)]
-[assembly: AssemblyKeyFile("../SmartIrc4net-pub.snk")]
-#else
-
 [assembly: AssemblyDelaySign(false)]
 [assembly: AssemblyKeyFile("")]
-#endif
