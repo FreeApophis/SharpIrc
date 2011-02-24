@@ -114,6 +114,16 @@ namespace Meebey.SmartIrc4net
         public event EventHandler<CtcpEventArgs> OnCtcpRequest;
         public event EventHandler<CtcpEventArgs> OnCtcpReply;
 
+        private readonly ServerProperties properties = new ServerProperties();
+        public ServerProperties Properties
+        {
+            get
+            {
+                return properties;
+            }
+        }
+
+
         /// <summary>
         /// Enables/disables the active channel sync feature.
         /// Default: false
@@ -403,7 +413,7 @@ namespace Meebey.SmartIrc4net
 
             if (!string.IsNullOrEmpty(password))
             {
-                this.Password = password;
+                Password = password;
                 RfcPass(Password, Priority.Critical);
             }
 
@@ -1002,7 +1012,6 @@ namespace Meebey.SmartIrc4net
             bool add = false;
             bool remove = false;
             int modelength = mode.Length;
-            string temp;
             Channel channel = null;
             if (ActiveChannelSyncing)
             {
@@ -1013,6 +1022,7 @@ namespace Meebey.SmartIrc4net
             parametersEnumerator.MoveNext();
             for (int i = 0; i < modelength; i++)
             {
+                string temp;
                 switch (mode[i])
                 {
                     case '-':
@@ -1486,9 +1496,7 @@ namespace Meebey.SmartIrc4net
 
                 if (ircuser == null)
                 {
-                    ircuser = new IrcUser(who, this);
-                    ircuser.Ident = ircdata.Ident;
-                    ircuser.Host = ircdata.Host;
+                    ircuser = new IrcUser(who, this) { Ident = ircdata.Ident, Host = ircdata.Host };
                     ircUsers.Add(who, ircuser);
                 }
 

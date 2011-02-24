@@ -57,6 +57,7 @@
     <Compile Include="IrcClient\IrcUser.cs" />
     <Compile Include="IrcClient\NonRfcChannel.cs" />
     <Compile Include="IrcClient\NonRfcChannelUser.cs" />
+    <Compile Include="IrcClient\ServerProperties.cs" />
     <Compile Include="IrcClient\WhoInfo.cs" />
     <Compile Include="IrcCommands\IrcCommands.cs" />
     <Compile Include="IrcCommands\Rfc2812.cs" />
