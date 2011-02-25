@@ -7,8 +7,8 @@
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
- * Copyright (c) 2003-2008 Mirco Bauer <meebey@meebey.net>
- * Copyright (c) 2008-2009 Thomas Bruderer <apophis@apophis.ch>
+ * Copyright (c) 2003-2011 Mirco Bauer <meebey@meebey.net>
+ * Copyright (c) 2008-2011 Thomas Bruderer <apophis@apophis.ch>
  *
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  *
@@ -91,8 +91,12 @@ namespace Meebey.SmartIrc4net
         public event EventHandler<UnbanEventArgs> OnUnban;
         public event EventHandler<OpEventArgs> OnOp;
         public event EventHandler<DeopEventArgs> OnDeop;
+        public event EventHandler<AdminEventArgs> OnAdmin;
+        public event EventHandler<DeadminEventArgs> OnDeadmin;
         public event EventHandler<HalfopEventArgs> OnHalfop;
         public event EventHandler<DehalfopEventArgs> OnDehalfop;
+        public event EventHandler<OwnerEventArgs> OnOwner;
+        public event EventHandler<DeownerEventArgs> OnDeowner;
         public event EventHandler<VoiceEventArgs> OnVoice;
         public event EventHandler<DevoiceEventArgs> OnDevoice;
         public event EventHandler<WhoEventArgs> OnWho;
@@ -113,6 +117,8 @@ namespace Meebey.SmartIrc4net
         public event EventHandler<IrcEventArgs> OnQueryNotice;
         public event EventHandler<CtcpEventArgs> OnCtcpRequest;
         public event EventHandler<CtcpEventArgs> OnCtcpReply;
+
+        public event EventHandler<EventArgs> SupportNonRfcChanged;
 
         protected void DispatchEvent<T>(object sender, EventHandler<T> handler, T eventArgs) where T : EventArgs
         {
@@ -231,6 +237,8 @@ namespace Meebey.SmartIrc4net
                 Logger.ChannelSyncing.Info(value ? "SupportNonRfc enabled" : "SupportNonRfc disabled");
 #endif
                 supportNonRfc = value;
+
+                DispatchEvent(this, SupportNonRfcChanged, EventArgs.Empty);
             }
         }
 
@@ -587,7 +595,9 @@ namespace Meebey.SmartIrc4net
                 throw new ArgumentNullException("nickname");
             }
 
-            return ircUsers[nickname];
+            IrcUser ircUser;
+            return ircUsers.TryGetValue(nickname, out ircUser) ? ircUser : null;
+
         }
 
         /// <summary>
@@ -1001,7 +1011,9 @@ namespace Meebey.SmartIrc4net
             if (SupportNonRfc)
             {
                 var nchan = (NonRfcChannel)chan;
+                nchan.UnsafeAdmins.Remove(nickname);
                 nchan.UnsafeHalfops.Remove(nickname);
+                nchan.UnsafeOwners.Remove(nickname);
             }
         }
 
@@ -1185,6 +1197,170 @@ namespace Meebey.SmartIrc4net
                                 }
 
                                 DispatchEvent(this, OnDehalfop, new DehalfopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                            }
+                        }
+                        break;
+                    case 'a':
+                        if (SupportNonRfc)
+                        {
+                            temp = (string)parametersEnumerator.Current;
+                            parametersEnumerator.MoveNext();
+
+                            if (add)
+                            {
+                                if (ActiveChannelSyncing)
+                                {
+                                    // sanity check
+                                    if (GetChannelUser(ircdata.Channel, temp) != null)
+                                    {
+                                        // update the halfop list
+                                        try
+                                        {
+                                            ((NonRfcChannel)channel).UnsafeAdmins.Add(temp, GetIrcUser(temp));
+#if LOG4NET
+                                            Logger.ChannelSyncing.Debug("added admin: " + temp + " to: " + ircdata.Channel);
+#endif
+                                        }
+                                        catch (ArgumentException)
+                                        {
+#if LOG4NET
+                                            Logger.ChannelSyncing.Debug("duplicate admin: " + temp + " in: " + ircdata.Channel + " not added");
+#endif
+                                        }
+
+                                        // update the user halfop status
+                                        NonRfcChannelUser cuser = (NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp);
+                                        cuser.IsAdmin = true;
+#if LOG4NET
+                                        Logger.ChannelSyncing.Debug("set admin status: " + temp + " for: " + ircdata.Channel);
+#endif
+                                    }
+                                    else
+                                    {
+#if LOG4NET
+                                        Logger.ChannelSyncing.Error("_InterpretChannelMode(): GetChannelUser(" + ircdata.Channel + "," + temp + ") returned null! Ignoring...");
+#endif
+                                    }
+                                }
+
+                                if (OnAdmin != null)
+                                {
+                                    OnAdmin(this, new AdminEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                                }
+                            }
+                            if (remove)
+                            {
+                                if (ActiveChannelSyncing)
+                                {
+                                    // sanity check
+                                    if (GetChannelUser(ircdata.Channel, temp) != null)
+                                    {
+                                        // update the halfop list
+                                        ((NonRfcChannel)channel).UnsafeAdmins.Remove(temp);
+#if LOG4NET
+                                        Logger.ChannelSyncing.Debug("removed admin: " + temp + " from: " + ircdata.Channel);
+#endif
+                                        // update the user halfop status
+                                        NonRfcChannelUser cuser = (NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp);
+                                        cuser.IsAdmin = false;
+#if LOG4NET
+                                        Logger.ChannelSyncing.Debug("unset admin status: " + temp + " for: " + ircdata.Channel);
+#endif
+                                    }
+                                    else
+                                    {
+#if LOG4NET
+                                        Logger.ChannelSyncing.Error("_InterpretChannelMode(): GetChannelUser(" + ircdata.Channel + "," + temp + ") returned null! Ignoring...");
+#endif
+                                    }
+                                }
+
+                                if (OnDeadmin != null)
+                                {
+                                    OnDeadmin(this, new DeadminEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                                }
+                            }
+                        }
+                        break;
+                    case 'r':
+                        if (SupportNonRfc)
+                        {
+                            temp = (string)parametersEnumerator.Current;
+                            parametersEnumerator.MoveNext();
+
+                            if (add)
+                            {
+                                if (ActiveChannelSyncing)
+                                {
+                                    // sanity check
+                                    if (GetChannelUser(ircdata.Channel, temp) != null)
+                                    {
+                                        // update the halfop list
+                                        try
+                                        {
+                                            ((NonRfcChannel)channel).UnsafeOwners.Add(temp, GetIrcUser(temp));
+#if LOG4NET
+                                            Logger.ChannelSyncing.Debug("added owner: " + temp + " to: " + ircdata.Channel);
+#endif
+                                        }
+                                        catch (ArgumentException)
+                                        {
+#if LOG4NET
+                                            Logger.ChannelSyncing.Debug("duplicate owner: " + temp + " in: " + ircdata.Channel + " not added");
+#endif
+                                        }
+
+                                        // update the user halfop status
+                                        NonRfcChannelUser cuser = (NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp);
+                                        cuser.IsOwner = true;
+#if LOG4NET
+                                        Logger.ChannelSyncing.Debug("set owner status: " + temp + " for: " + ircdata.Channel);
+#endif
+                                    }
+                                    else
+                                    {
+#if LOG4NET
+                                        Logger.ChannelSyncing.Error("_InterpretChannelMode(): GetChannelUser(" + ircdata.Channel + "," + temp + ") returned null! Ignoring...");
+#endif
+                                    }
+                                }
+
+                                if (OnOwner != null)
+                                {
+                                    OnOwner(this, new OwnerEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                                }
+                            }
+                            if (remove)
+                            {
+                                if (ActiveChannelSyncing)
+                                {
+                                    // sanity check
+                                    if (GetChannelUser(ircdata.Channel, temp) != null)
+                                    {
+                                        // update the halfop list
+                                        ((NonRfcChannel)channel).UnsafeOwners.Remove(temp);
+#if LOG4NET
+                                        Logger.ChannelSyncing.Debug("removed owner: " + temp + " from: " + ircdata.Channel);
+#endif
+                                        // update the user halfop status
+                                        NonRfcChannelUser cuser = (NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp);
+                                        cuser.IsOwner = false;
+#if LOG4NET
+                                        Logger.ChannelSyncing.Debug("unset owner status: " + temp + " for: " + ircdata.Channel);
+#endif
+                                    }
+                                    else
+                                    {
+#if LOG4NET
+                                        Logger.ChannelSyncing.Error("_InterpretChannelMode(): GetChannelUser(" + ircdata.Channel + "," + temp + ") returned null! Ignoring...");
+#endif
+                                    }
+                                }
+
+                                if (OnDeowner != null)
+                                {
+                                    OnDeowner(this, new DeownerEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                                }
                             }
                         }
                         break;
@@ -1780,16 +1956,29 @@ namespace Meebey.SmartIrc4net
                             channel.UnsafeOps.Remove(oldnickname);
                             channel.UnsafeOps.Add(newnickname, channeluser);
                         }
-                        if (SupportNonRfc && ((NonRfcChannelUser)channeluser).IsHalfop)
-                        {
-                            var nchannel = (NonRfcChannel)channel;
-                            nchannel.UnsafeHalfops.Remove(oldnickname);
-                            nchannel.UnsafeHalfops.Add(newnickname, channeluser);
-                        }
                         if (channeluser.IsVoice)
                         {
                             channel.UnsafeVoices.Remove(oldnickname);
                             channel.UnsafeVoices.Add(newnickname, channeluser);
+                        }
+                        if (SupportNonRfc)
+                        {
+                            var nchannel = (NonRfcChannel)channel;
+                            if (((NonRfcChannelUser)channeluser).IsAdmin)
+                            {
+                                nchannel.UnsafeAdmins.Remove(oldnickname);
+                                nchannel.UnsafeAdmins.Add(newnickname, channeluser);
+                            }
+                            if (((NonRfcChannelUser)channeluser).IsHalfop)
+                            {
+                                nchannel.UnsafeHalfops.Remove(oldnickname);
+                                nchannel.UnsafeHalfops.Add(newnickname, channeluser);
+                            }
+                            if (((NonRfcChannelUser)channeluser).IsOwner)
+                            {
+                                nchannel.UnsafeOwners.Remove(oldnickname);
+                                nchannel.UnsafeOwners.Add(newnickname, channeluser);
+                            }
                         }
                     }
                 }
@@ -1979,9 +2168,8 @@ namespace Meebey.SmartIrc4net
             if (ActiveChannelSyncing && IsJoined(channelname))
             {
                 string nickname;
-                bool op;
-                bool halfop;
-                bool voice;
+                bool op, voice;
+                bool halfop, admin, owner;
                 foreach (string user in userlist)
                 {
                     if (user.Length <= 0)
@@ -1990,8 +2178,11 @@ namespace Meebey.SmartIrc4net
                     }
 
                     op = false;
-                    halfop = false;
                     voice = false;
+                    halfop = false;
+                    admin = false;
+                    owner = false;
+
                     switch (user[0])
                     {
                         case '@':
@@ -2012,6 +2203,14 @@ namespace Meebey.SmartIrc4net
                             nickname = user.Substring(1);
                             break;
                         case '~':
+                            nickname = user.Substring(1);
+                            break;
+                        case '*':
+                            owner = true;
+                            nickname = user.Substring(1);
+                            break;
+                        case '!':
+                            admin = true;
                             nickname = user.Substring(1);
                             break;
                         default:
@@ -2048,13 +2247,6 @@ namespace Meebey.SmartIrc4net
                             Logger.ChannelSyncing.Debug("added op: " + nickname + " to: " + channelname);
 #endif
                         }
-                        if (SupportNonRfc && halfop)
-                        {
-                            ((NonRfcChannel)channel).UnsafeHalfops.Add(nickname, channeluser);
-#if LOG4NET
-                            Logger.ChannelSyncing.Debug("added halfop: " + nickname + " to: " + channelname);
-#endif
-                        }
                         if (voice)
                         {
                             channel.UnsafeVoices.Add(nickname, channeluser);
@@ -2062,13 +2254,40 @@ namespace Meebey.SmartIrc4net
                             Logger.ChannelSyncing.Debug("added voice: " + nickname + " to: " + channelname);
 #endif
                         }
+                        if (SupportNonRfc)
+                        {
+                            if (admin)
+                            {
+                                ((NonRfcChannel)channel).UnsafeAdmins.Add(nickname, channeluser);
+#if LOG4NET
+                                Logger.ChannelSyncing.Debug("added admin: " + nickname + " to: " + channelname);
+#endif
+                            }
+                            if (halfop)
+                            {
+                                ((NonRfcChannel)channel).UnsafeHalfops.Add(nickname, channeluser);
+#if LOG4NET
+                                Logger.ChannelSyncing.Debug("added halfop: " + nickname + " to: " + channelname);
+#endif
+                            }
+                            if (owner)
+                            {
+                                ((NonRfcChannel)channel).UnsafeOwners.Add(nickname, channeluser);
+#if LOG4NET
+                                Logger.ChannelSyncing.Debug("added owner: " + nickname + " to: " + channelname);
+#endif
+                            }
+
+                        }
                     }
 
                     channeluser.IsOp = op;
                     channeluser.IsVoice = voice;
                     if (SupportNonRfc)
                     {
+                        ((NonRfcChannelUser)channeluser).IsAdmin = admin;
                         ((NonRfcChannelUser)channeluser).IsHalfop = halfop;
+                        ((NonRfcChannelUser)channeluser).IsOwner = owner;
                     }
                 }
             }

@@ -34,6 +34,7 @@ namespace Meebey.SmartIrc4net
     /// <threadsafety static="true" instance="true" />
     public class NonRfcChannelUser : ChannelUser
     {
+
         /// <summary>
         /// 
         /// </summary>
@@ -56,5 +57,17 @@ namespace Meebey.SmartIrc4net
         /// </summary>
         /// <value> </value>
         public bool IsHalfop { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        public bool IsAdmin { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        public bool IsOwner { get; set; }
     }
 }

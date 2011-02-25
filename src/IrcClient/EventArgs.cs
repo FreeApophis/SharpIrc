@@ -7,7 +7,8 @@
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
- * Copyright (c) 2003-2005 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2003-2011 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2008-2011 Thomas Bruderer <apophis@apophis.ch>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  * 
@@ -524,6 +525,74 @@ namespace Meebey.SmartIrc4net
         public string Whom { get; private set; }
     }
 
+    public class AdminEventArgs : IrcEventArgs
+    {
+        internal AdminEventArgs(IrcMessageData data, string channel, string who, string whom)
+            : base(data)
+        {
+            Channel = channel;
+            Who = who;
+            Whom = whom;
+        }
+
+        public string Channel { get; private set; }
+
+        public string Who { get; private set; }
+
+        public string Whom { get; private set; }
+    }
+
+    public class DeadminEventArgs : IrcEventArgs
+    {
+        internal DeadminEventArgs(IrcMessageData data, string channel, string who, string whom)
+            : base(data)
+        {
+            Channel = channel;
+            Who = who;
+            Whom = whom;
+        }
+
+        public string Channel { get; private set; }
+
+        public string Who { get; private set; }
+
+        public string Whom { get; private set; }
+    }
+
+    public class OwnerEventArgs : IrcEventArgs
+    {
+        internal OwnerEventArgs(IrcMessageData data, string channel, string who, string whom)
+            : base(data)
+        {
+            Channel = channel;
+            Who = who;
+            Whom = whom;
+        }
+
+        public string Channel { get; private set; }
+
+        public string Who { get; private set; }
+
+        public string Whom { get; private set; }
+    }
+
+    public class DeownerEventArgs : IrcEventArgs
+    {
+        internal DeownerEventArgs(IrcMessageData data, string channel, string who, string whom)
+            : base(data)
+        {
+            Channel = channel;
+            Who = who;
+            Whom = whom;
+        }
+
+        public string Channel { get; private set; }
+
+        public string Who { get; private set; }
+
+        public string Whom { get; private set; }
+    }
+
     /// <summary>
     ///
     /// </summary>
@@ -563,4 +632,6 @@ namespace Meebey.SmartIrc4net
 
         public string Whom { get; private set; }
     }
+
+
 }

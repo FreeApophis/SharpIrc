@@ -7,7 +7,8 @@
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
  *
- * Copyright (c) 2003-2005 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2003-2011 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
+ * Copyright (c) 2008-2011 Thomas Bruderer <apophis@apophis.ch>
  * 
  * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
  * 
@@ -38,19 +39,22 @@ namespace Meebey.SmartIrc4net
     public class NonRfcChannel : Channel
     {
         private readonly Hashtable halfops = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
+        private readonly Hashtable admins = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
+        private readonly Hashtable owners = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="name"> </param>
-        internal NonRfcChannel(string name) : base(name)
+        internal NonRfcChannel(string name)
+            : base(name)
         {
         }
 
 #if LOG4NET
         ~NonRfcChannel()
         {
-            Logger.ChannelSyncing.Debug("NonRfcChannel ("+Name+") destroyed");
+            Logger.ChannelSyncing.Debug("NonRfcChannel (" + Name + ") destroyed");
         }
 #endif
 
@@ -60,7 +64,10 @@ namespace Meebey.SmartIrc4net
         /// <value> </value>
         public Hashtable Halfops
         {
-            get { return (Hashtable) halfops.Clone(); }
+            get
+            {
+                return (Hashtable)halfops.Clone();
+            }
         }
 
         /// <summary>
@@ -69,7 +76,58 @@ namespace Meebey.SmartIrc4net
         /// <value> </value>
         internal Hashtable UnsafeHalfops
         {
-            get { return halfops; }
+            get
+            {
+                return halfops;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        public Hashtable Admins
+        {
+            get
+            {
+                return (Hashtable)admins.Clone();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        internal Hashtable UnsafeAdmins
+        {
+            get
+            {
+                return admins;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        public Hashtable Owners
+        {
+            get
+            {
+                return (Hashtable)owners.Clone();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value> </value>
+        internal Hashtable UnsafeOwners
+        {
+            get
+            {
+                return owners;
+            }
         }
     }
 }
