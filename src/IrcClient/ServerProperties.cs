@@ -740,6 +740,14 @@ namespace Meebey.SmartIrc4net
         /// Server Supports the DccAllow Command
         /// </summary>
         public bool DccAllow { get; private set; }
+
+        #region foreach
+        public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
+        {
+            return ((IEnumerable<KeyValuePair<string, string>>)raw).GetEnumerator();
+        }
+
+        #endregion
     }
 
     public enum CaseMappingType

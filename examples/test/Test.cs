@@ -99,6 +99,13 @@ public class Test
             case "die":
                 Exit();
                 break;
+            case "server_properties":
+                foreach (var property in Client.Properties)
+                {
+                    Client.SendMessage(SendType.Message, e.Data.Nick, property.Key + " => " + property.Value);
+
+                }
+                break;
         }
     }
 
