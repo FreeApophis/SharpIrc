@@ -35,14 +35,8 @@ namespace Meebey.SmartIrc4net
         public void Parse(string line)
         {
             string[] parameters = line.Split(new[] { ' ' });
-            int i = 0;
-            foreach (string s in parameters)
+            foreach (string s in parameters.Skip(3))
             {
-                if (i < 3)
-                {
-                    i++; continue;
-                }
-
                 string[] pv = s.Split(new[] { '=' });
                 raw.Add(pv[0], ((pv.Length > 1) ? pv[1] : "TRUE"));
 

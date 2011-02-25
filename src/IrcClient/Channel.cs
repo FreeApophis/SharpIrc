@@ -38,9 +38,6 @@ namespace Meebey.SmartIrc4net
     /// <threadsafety static="true" instance="true" />
     public class Channel
     {
-        private readonly Hashtable users = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
-        private readonly Hashtable ops = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
-
         private DateTime activeSyncStop;
 
         /// <summary>
@@ -49,10 +46,13 @@ namespace Meebey.SmartIrc4net
         /// <param name="name"> </param>
         internal Channel(string name)
         {
+            UnsafeOps = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
+            UnsafeUsers = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
+            UnsafeVoices = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
+
             Mode = String.Empty;
             Topic = String.Empty;
             Bans = new StringCollection();
-            UnsafeVoices = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
             Key = String.Empty;
             Name = name;
             ActiveSyncStart = DateTime.Now;
@@ -83,17 +83,14 @@ namespace Meebey.SmartIrc4net
         /// <value> </value>
         public Hashtable Users
         {
-            get { return (Hashtable)users.Clone(); }
+            get { return (Hashtable)UnsafeUsers.Clone(); }
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeUsers
-        {
-            get { return users; }
-        }
+        internal Hashtable UnsafeUsers { get; private set; }
 
         /// <summary>
         /// 
@@ -101,17 +98,14 @@ namespace Meebey.SmartIrc4net
         /// <value> </value>
         public Hashtable Ops
         {
-            get { return (Hashtable)ops.Clone(); }
+            get { return (Hashtable)UnsafeOps.Clone(); }
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeOps
-        {
-            get { return ops; }
-        }
+        internal Hashtable UnsafeOps { get; private set; }
 
         /// <summary>
         /// 

@@ -966,6 +966,9 @@ namespace Meebey.SmartIrc4net
                     case ReplyCode.ErrorNicknameInUse:
                         EventErrNickNameInUse(ircdata);
                         break;
+                    case ReplyCode.Bounce:
+                        //*property parse code*//
+                        break;
                     case ReplyCode.SaslSuccess:
                     case ReplyCode.SaslFailure1:
                     case ReplyCode.SaslFailure2:

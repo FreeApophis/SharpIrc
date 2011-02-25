@@ -129,8 +129,7 @@ namespace Meebey.SmartIrc4net
                         rest = i;
                         break;
                     }
-                    else
-                        len += rawMessageArray[i].Length + 1;
+                    len += rawMessageArray[i].Length + 1;
                 }
 
                 args = new string[rest - start - 1];
@@ -147,7 +146,7 @@ namespace Meebey.SmartIrc4net
             replyCode = ReplyCode.Null;
             type = ReceiveType.Unknown;
 
-            _ParseLegacyInfo();
+            ParseLegacyInfo();
         }
 
         /// <summary>
@@ -282,7 +281,7 @@ namespace Meebey.SmartIrc4net
         }
 
         // refactored old field parsing code below, ignore for own sanity
-        private void _ParseLegacyInfo()
+        private void ParseLegacyInfo()
         {
             Match match = PrefixRegex.Match(prefix);
 
