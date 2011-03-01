@@ -968,7 +968,15 @@ namespace Meebey.SmartIrc4net
                         EventErrNickNameInUse(ircdata);
                         break;
                     case ReplyCode.Bounce:
-                        //*property parse code*//
+                        if (!ircdata.RawMessage.StartsWith("Try server"))
+                        {
+                            // RPL_ISUPPORT (Very common enhancement)
+                            properties.Parse(ircdata.RawMessage);
+                        }
+                        else
+                        {
+                            // RPL_BOUNCE (Rfc 2812)
+                        }
                         break;
                     case ReplyCode.SaslSuccess:
                     case ReplyCode.SaslFailure1:
