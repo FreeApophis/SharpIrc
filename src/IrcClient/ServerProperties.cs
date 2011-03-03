@@ -34,7 +34,7 @@ namespace Meebey.SmartIrc4net
     {
         public void Parse(string line)
         {
-            string[] parameters = line.Substring(0, line.IndexOf(":") - 1).Split(new[] { ' ' });
+            string[] parameters = line.Substring(0, line.LastIndexOf(":") - 1).Split(new[] { ' ' });
 
             foreach (string s in parameters.Skip(3))
             {
