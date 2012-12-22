@@ -26,6 +26,7 @@ using System;
 
 namespace apophis.SharpIRC.IrcClient
 {
+    [Serializable]
     public class WhoInfo
     {
         private WhoInfo()

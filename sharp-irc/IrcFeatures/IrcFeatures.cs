@@ -36,7 +36,7 @@ namespace apophis.SharpIRC.IrcFeatures
     /// Description of IrcFeatures2.
     /// </summary>
     /// 
-    public class IrcFeatures : IrcClient
+    public class IrcFeatures : IrcClient.IrcClient
     {
         #region Public Field Access
 

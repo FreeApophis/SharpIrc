@@ -31,6 +31,7 @@ namespace apophis.SharpIRC.IrcClient
     /// This class contains an IRC message in a parsed form
     /// </summary>
     /// <threadsafety static="true" instance="true" />
+    [Serializable]
     public class IrcMessageData
     {
         private static readonly Regex PrefixRegex = new Regex("([^!@]+)(![^@]+)?(@.+)?");
@@ -89,6 +90,7 @@ namespace apophis.SharpIRC.IrcClient
         /// <param name="rawMessage">message as it appears on wire, stripped of newline</param>
         public IrcMessageData(IrcClient ircClient, string rawMessage)
         {
+
             if (rawMessage == null)
             {
                 throw new ArgumentException("Cannot parse null message");

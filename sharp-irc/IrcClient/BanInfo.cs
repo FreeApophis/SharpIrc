@@ -22,8 +22,11 @@
  */
 
 
+using System;
+
 namespace apophis.SharpIRC.IrcClient
 {
+    [Serializable]
     public class BanInfo
     {
         private BanInfo()

@@ -28,6 +28,7 @@ namespace apophis.SharpIRC.IrcFeatures
     /// <summary>
     /// Base DCC Event Arguments
     /// </summary>
+    [Serializable]
     public class DccEventArgs : EventArgs
     {
         /// <summary>
@@ -45,6 +46,7 @@ namespace apophis.SharpIRC.IrcFeatures
     /// <summary>
     /// Dcc Event Args Involving Lines of Text
     /// </summary>
+    [Serializable]
     public class DccChatEventArgs : DccEventArgs
     {
         internal DccChatEventArgs(DccConnection dcc, string messageLine)
@@ -61,6 +63,7 @@ namespace apophis.SharpIRC.IrcFeatures
     /// <summary>
     /// Dcc Event Args involving Packets of Bytes
     /// </summary>
+    [Serializable]
     public class DccSendEventArgs : DccEventArgs
     {
         internal DccSendEventArgs(DccConnection dcc, byte[] package, int packageSize)
@@ -78,6 +81,7 @@ namespace apophis.SharpIRC.IrcFeatures
     /// <summary>
     /// Special DCC Event Arg for Receiving File Requests
     /// </summary>
+    [Serializable]
     public class DccSendRequestEventArgs : DccEventArgs
     {
         internal DccSendRequestEventArgs(DccConnection dcc, string filename, long filesize)

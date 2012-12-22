@@ -23,6 +23,7 @@
 
 namespace apophis.SharpIRC.IrcConnection
 {
+    // TODO: Unify this with StarkProxy!!
     public enum ProxyType
     {
         None,

@@ -28,6 +28,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class ActionEventArgs : CtcpEventArgs
     {
         internal ActionEventArgs(IrcMessageData data, string actionmsg)
@@ -42,6 +43,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class CtcpEventArgs : IrcEventArgs
     {
         internal CtcpEventArgs(IrcMessageData data, string ctcpcmd, string ctcpparam)
@@ -59,6 +61,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class ErrorEventArgs : IrcEventArgs
     {
         internal ErrorEventArgs(IrcMessageData data, string errormsg)
@@ -73,6 +76,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class MotdEventArgs : IrcEventArgs
     {
         internal MotdEventArgs(IrcMessageData data, string motdmsg)
@@ -87,6 +91,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class PingEventArgs : IrcEventArgs
     {
         internal PingEventArgs(IrcMessageData data, string pingdata)
@@ -101,6 +106,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class PongEventArgs : IrcEventArgs
     {
         internal PongEventArgs(IrcMessageData data, TimeSpan lag)
@@ -115,6 +121,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class KickEventArgs : IrcEventArgs
     {
         internal KickEventArgs(IrcMessageData data, string channel, string who, string whom, string kickreason)
@@ -138,6 +145,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class JoinEventArgs : IrcEventArgs
     {
         internal JoinEventArgs(IrcMessageData data, string channel, string who)
@@ -155,6 +163,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class NamesEventArgs : IrcEventArgs
     {
         private readonly string[] userList;
@@ -177,6 +186,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class ListEventArgs : IrcEventArgs
     {
         internal ListEventArgs(IrcMessageData data, ChannelInfo listInfo)
@@ -191,6 +201,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class InviteEventArgs : IrcEventArgs
     {
         internal InviteEventArgs(IrcMessageData data, string channel, string who)
@@ -208,6 +219,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class PartEventArgs : IrcEventArgs
     {
         internal PartEventArgs(IrcMessageData data, string channel, string who, string partmessage)
@@ -228,6 +240,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class WhoEventArgs : IrcEventArgs
     {
         private readonly WhoInfo whoInfo;
@@ -247,6 +260,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class QuitEventArgs : IrcEventArgs
     {
         internal QuitEventArgs(IrcMessageData data, string who, string quitmessage)
@@ -265,6 +279,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class AwayEventArgs : IrcEventArgs
     {
         internal AwayEventArgs(IrcMessageData data, string who, string awaymessage)
@@ -282,6 +297,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class NickChangeEventArgs : IrcEventArgs
     {
         internal NickChangeEventArgs(IrcMessageData data, string oldnick, string newnick)
@@ -299,6 +315,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class TopicEventArgs : IrcEventArgs
     {
         internal TopicEventArgs(IrcMessageData data, string channel, string topic)
@@ -316,6 +333,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class TopicChangeEventArgs : IrcEventArgs
     {
         internal TopicChangeEventArgs(IrcMessageData data, string channel, string who, string newtopic)
@@ -336,6 +354,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class BanEventArgs : IrcEventArgs
     {
         internal BanEventArgs(IrcMessageData data, string channel, string who, string hostmask)
@@ -356,6 +375,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class UnbanEventArgs : IrcEventArgs
     {
         internal UnbanEventArgs(IrcMessageData data, string channel, string who, string hostmask)
@@ -376,6 +396,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class OpEventArgs : IrcEventArgs
     {
         internal OpEventArgs(IrcMessageData data, string channel, string who, string whom)
@@ -396,6 +417,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class DeopEventArgs : IrcEventArgs
     {
         internal DeopEventArgs(IrcMessageData data, string channel, string who, string whom)
@@ -416,6 +438,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class HalfopEventArgs : IrcEventArgs
     {
         internal HalfopEventArgs(IrcMessageData data, string channel, string who, string whom)
@@ -436,6 +459,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class DehalfopEventArgs : IrcEventArgs
     {
         internal DehalfopEventArgs(IrcMessageData data, string channel, string who, string whom)
@@ -453,6 +477,7 @@ namespace apophis.SharpIRC.IrcClient
         public string Whom { get; private set; }
     }
 
+    [Serializable]
     public class AdminEventArgs : IrcEventArgs
     {
         internal AdminEventArgs(IrcMessageData data, string channel, string who, string whom)
@@ -470,6 +495,7 @@ namespace apophis.SharpIRC.IrcClient
         public string Whom { get; private set; }
     }
 
+    [Serializable]
     public class DeadminEventArgs : IrcEventArgs
     {
         internal DeadminEventArgs(IrcMessageData data, string channel, string who, string whom)
@@ -487,6 +513,7 @@ namespace apophis.SharpIRC.IrcClient
         public string Whom { get; private set; }
     }
 
+    [Serializable]
     public class OwnerEventArgs : IrcEventArgs
     {
         internal OwnerEventArgs(IrcMessageData data, string channel, string who, string whom)
@@ -504,6 +531,7 @@ namespace apophis.SharpIRC.IrcClient
         public string Whom { get; private set; }
     }
 
+    [Serializable]
     public class DeownerEventArgs : IrcEventArgs
     {
         internal DeownerEventArgs(IrcMessageData data, string channel, string who, string whom)
@@ -524,6 +552,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class VoiceEventArgs : IrcEventArgs
     {
         internal VoiceEventArgs(IrcMessageData data, string channel, string who, string whom)
@@ -544,6 +573,7 @@ namespace apophis.SharpIRC.IrcClient
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class DevoiceEventArgs : IrcEventArgs
     {
         internal DevoiceEventArgs(IrcMessageData data, string channel, string who, string whom)

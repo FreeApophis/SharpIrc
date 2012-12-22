@@ -28,6 +28,7 @@ namespace apophis.SharpIRC.IrcConnection
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class ReadLineEventArgs : EventArgs
     {
         internal ReadLineEventArgs(string line)
@@ -41,6 +42,7 @@ namespace apophis.SharpIRC.IrcConnection
     /// <summary>
     ///
     /// </summary>
+    [Serializable]
     public class WriteLineEventArgs : EventArgs
     {
         internal WriteLineEventArgs(string line)
@@ -54,6 +56,7 @@ namespace apophis.SharpIRC.IrcConnection
     /// <summary>
     /// 
     /// </summary>
+    [Serializable]
     public class AutoConnectErrorEventArgs : EventArgs
     {
         internal AutoConnectErrorEventArgs(string address, int port, Exception ex)

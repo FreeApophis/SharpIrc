@@ -41,7 +41,7 @@ namespace apophis.SharpIRC.IrcConnection
     /// 
     /// </summary>
     /// <threadsafety static="true" instance="true" />
-    public class IrcConnection
+    public class IrcConnection : MarshalByRefObject
     {
         private string[] addressList = { "localhost" };
         private int currentAddress;

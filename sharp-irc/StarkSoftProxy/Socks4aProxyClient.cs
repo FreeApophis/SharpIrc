@@ -82,7 +82,8 @@ namespace apophis.SharpIRC.StarkSoftProxy
         /// Create a Socks4 proxy client object.  The default proxy port 1080 is used.
         /// </summary>
         /// <param name="proxyHost">Host name or IP address of the proxy server.</param>
-        public Socks4aProxyClient(string proxyHost) : base(proxyHost)
+        public Socks4aProxyClient(string proxyHost)
+            : base(proxyHost)
         {
         }
 
@@ -163,7 +164,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
             if (userId == null)
                 userId = "";
 
-            byte[] destIp = {0, 0, 0, 1}; // build the invalid ip address as specified in the 4a protocol
+            byte[] destIp = { 0, 0, 0, 1 }; // build the invalid ip address as specified in the 4a protocol
             byte[] destPort = GetDestinationPortBytes(destinationPort);
             byte[] userIdBytes = Encoding.ASCII.GetBytes(userId);
             byte[] hostBytes = Encoding.ASCII.GetBytes(destinationHost);
@@ -178,7 +179,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
             request[8 + userIdBytes.Length] = 0x00; // null (byte with all zeros) terminator for userId
             hostBytes.CopyTo(request, 9 + userIdBytes.Length); // copy the host name to the request byte array
             request[9 + userIdBytes.Length + hostBytes.Length] = 0x00;
-                // null (byte with all zeros) terminator for userId
+            // null (byte with all zeros) terminator for userId
 
             // send the connect request
             proxy.Write(request, 0, request.Length);

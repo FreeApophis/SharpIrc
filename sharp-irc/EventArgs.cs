@@ -30,6 +30,7 @@ namespace apophis.SharpIRC
     ///
     /// </summary>
     /// <threadsafety static="true" instance="true" />
+    [Serializable]
     public class IrcEventArgs : EventArgs
     {
         internal IrcEventArgs(IrcMessageData data)

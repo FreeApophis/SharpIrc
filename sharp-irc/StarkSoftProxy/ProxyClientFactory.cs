@@ -107,8 +107,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
         /// <returns>Proxy client object.</returns>
         public IProxyClient CreateProxyClient(ProxyType type, TcpClient tcpClient)
         {
-            if (type == ProxyType.None)
-                throw new ArgumentOutOfRangeException("type");
+            if (type == ProxyType.None) { throw new ArgumentOutOfRangeException("type"); }
 
             switch (type)
             {
@@ -134,8 +133,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
         /// <returns>Proxy client object.</returns>
         public IProxyClient CreateProxyClient(ProxyType type, string proxyHost, int proxyPort)
         {
-            if (type == ProxyType.None)
-                throw new ArgumentOutOfRangeException("type");
+            if (type == ProxyType.None) { throw new ArgumentOutOfRangeException("type"); }
 
             switch (type)
             {
@@ -161,11 +159,9 @@ namespace apophis.SharpIRC.StarkSoftProxy
         /// <param name="proxyUsername">The proxy username.  This parameter is only used by Socks4 and Socks5 proxy objects.</param>
         /// <param name="proxyPassword">The proxy user password.  This parameter is only used Socks5 proxy objects.</param>
         /// <returns>Proxy client object.</returns>
-        public IProxyClient CreateProxyClient(ProxyType type, string proxyHost, int proxyPort, string proxyUsername,
-                                              string proxyPassword)
+        public IProxyClient CreateProxyClient(ProxyType type, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
         {
-            if (type == ProxyType.None)
-                throw new ArgumentOutOfRangeException("type");
+            if (type == ProxyType.None) { throw new ArgumentOutOfRangeException("type"); }
 
             switch (type)
             {
@@ -192,8 +188,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
         /// <param name="proxyUsername">The proxy username.  This parameter is only used by Socks4 and Socks5 proxy objects.</param>
         /// <param name="proxyPassword">The proxy user password.  This parameter is only used Socks5 proxy objects.</param>
         /// <returns>Proxy client object.</returns>
-        public IProxyClient CreateProxyClient(ProxyType type, TcpClient tcpClient, string proxyHost, int proxyPort,
-                                              string proxyUsername, string proxyPassword)
+        public IProxyClient CreateProxyClient(ProxyType type, TcpClient tcpClient, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
         {
             IProxyClient c = CreateProxyClient(type, proxyHost, proxyPort, proxyUsername, proxyPassword);
             c.TcpClient = tcpClient;
