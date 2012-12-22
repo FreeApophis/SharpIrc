@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{56D2D51C-27B4-4AE0-9D8A-CFFD02471487}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <NoStandardLibraries>false</NoStandardLibraries>
+    <AssemblyName>SmartIrc4Net</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>apophis.SharpIRC</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Consts.cs" />
+    <Compile Include="EventArgs.cs" />
+    <Compile Include="Exceptions.cs" />
+    <Compile Include="IrcClient\BanInfo.cs" />
+    <Compile Include="IrcClient\Channel.cs" />
+    <Compile Include="IrcClient\ChannelInfo.cs" />
+    <Compile Include="IrcClient\ChannelUser.cs" />
+    <Compile Include="IrcClient\EventArgs.cs" />
+    <Compile Include="IrcClient\IrcClient.cs" />
+    <Compile Include="IrcClient\IrcMessageData.cs" />
+    <Compile Include="IrcClient\IrcUser.cs" />
+    <Compile Include="IrcClient\NonRfcChannel.cs" />
+    <Compile Include="IrcClient\NonRfcChannelUser.cs" />
+    <Compile Include="IrcClient\ServerProperties.cs" />
+    <Compile Include="IrcClient\WhoInfo.cs" />
+    <Compile Include="IrcCommands\IrcCommands.cs" />
+    <Compile Include="IrcCommands\Rfc2812.cs" />
+    <Compile Include="IrcConnection\EventArgs.cs" />
+    <Compile Include="IrcConnection\IrcConnection.cs" />
+    <Compile Include="IrcConnection\ProxyType.cs" />
+    <Compile Include="IrcFeatures\DccChat.cs" />
+    <Compile Include="IrcFeatures\DccConnection.cs" />
+    <Compile Include="IrcFeatures\DccSend.cs" />
+    <Compile Include="IrcFeatures\Delegates.cs" />
+    <Compile Include="IrcFeatures\EventArgs.cs" />
+    <Compile Include="IrcFeatures\IrcConstants.cs" />
+    <Compile Include="IrcFeatures\IrcFeatures.cs" />
+    <Compile Include="StarkSoftProxy\EventArgs\CreateConnectionAsyncCompletedEventArgs.cs" />
+    <Compile Include="StarkSoftProxy\Exceptions\ProxyException.cs" />
+    <Compile Include="StarkSoftProxy\HttpProxyClient.cs" />
+    <Compile Include="StarkSoftProxy\IProxyClient.cs" />
+    <Compile Include="StarkSoftProxy\ProxyClientFactory.cs" />
+    <Compile Include="StarkSoftProxy\Socks4aProxyClient.cs" />
+    <Compile Include="StarkSoftProxy\Socks4ProxyClient.cs" />
+    <Compile Include="StarkSoftProxy\Socks5ProxyClient.cs" />
+    <Compile Include="StarkSoftProxy\Utils.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
+  <ProjectExtensions>
+    <VisualStudio AllowExistingFolder="true" />
+  </ProjectExtensions>
+</Project>
