@@ -119,7 +119,15 @@ namespace apophis.SharpIRC.IrcClient
         {
             if (handler == null) return;
 
-            ThreadPool.QueueUserWorkItem(state => handler.Invoke(sender, eventArgs));
+            try
+            {
+                ThreadPool.QueueUserWorkItem(state => handler.Invoke(sender, eventArgs));
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine("I should handle this better: TODO FAILINDISPATCH: PROBABLY REMOTE ("+exception.Message+")");
+            }
+
         }
 
 
@@ -1135,10 +1143,8 @@ namespace apophis.SharpIRC.IrcClient
                                     }
                                 }
 
-                                if (OnAdmin != null)
-                                {
-                                    OnAdmin(this, new AdminEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                                }
+                                DispatchEvent(this, OnAdmin, new AdminEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+
                             }
                             if (remove)
                             {
@@ -1155,10 +1161,7 @@ namespace apophis.SharpIRC.IrcClient
                                     }
                                 }
 
-                                if (OnDeadmin != null)
-                                {
-                                    OnDeadmin(this, new DeadminEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                                }
+                                DispatchEvent(this, OnDeadmin, new DeadminEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                             }
                         }
                         break;
@@ -1190,10 +1193,7 @@ namespace apophis.SharpIRC.IrcClient
                                     }
                                 }
 
-                                if (OnOwner != null)
-                                {
-                                    OnOwner(this, new OwnerEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                                }
+                                DispatchEvent(this, OnOwner, new OwnerEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                             }
                             if (remove)
                             {
@@ -1210,10 +1210,7 @@ namespace apophis.SharpIRC.IrcClient
                                     }
                                 }
 
-                                if (OnDeowner != null)
-                                {
-                                    OnDeowner(this, new DeownerEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
-                                }
+                                DispatchEvent(this, OnDeowner, new DeownerEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
                             }
                         }
                         break;
@@ -1413,10 +1410,10 @@ namespace apophis.SharpIRC.IrcClient
 
                     // request channel mode
                     RfcMode(channelname);
-                    
+
                     // request wholist
                     RfcWho(channelname);
-                    
+
                     // request banlist
                     Ban(channelname);
                 }
