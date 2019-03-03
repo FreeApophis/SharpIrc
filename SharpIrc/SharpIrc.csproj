@@ -3,6 +3,13 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>SharpIrc</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Thomas Bruderer</Authors>
+    <Company>apophis.ch</Company>
+    <Description>IRC Client libraray which can be used transparently proxied through AppDomains</Description>
+    <PackageLicenseExpression>LGPL-2.1-only</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/FreeApophis/sharpIRC</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/FreeApophis/sharpIRC</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
