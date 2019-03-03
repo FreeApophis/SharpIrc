@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\StarkSoftProxy\StarkSoftProxy.csproj" />
+    <PackageReference Include="StarkSoftProxy" Version="1.6.0" />
   </ItemGroup>
 
 </Project>

@@ -14,7 +14,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using SharpIrc.IrcCommands;
-using StarkSoftProxy;
+using Starksoft.Net.Proxy;
 
 namespace SharpIrc.IrcConnection
 {
@@ -373,7 +373,7 @@ namespace SharpIrc.IrcConnection
                     var proxyFactory = new ProxyClientFactory();
 
                     // HACK: map our ProxyType to Starksoft's ProxyType
-                    var proxyType = (StarkSoftProxy.ProxyType)Enum.Parse(typeof(ProxyType), ProxyType.ToString(), true);
+                    var proxyType = (ProxyType)Enum.Parse(typeof(ProxyType), ProxyType.ToString(), true);
 
                     if (ProxyUsername == null && ProxyPassword == null)
                     {
