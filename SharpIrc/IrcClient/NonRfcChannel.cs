@@ -13,9 +13,9 @@ namespace SharpIrc.IrcClient
     /// <threadsafety static="true" instance="true" />
     public class NonRfcChannel : Channel
     {
-        private readonly Hashtable halfops = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
-        private readonly Hashtable admins = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
-        private readonly Hashtable owners = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
+        private readonly Hashtable _halfops = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
+        private readonly Hashtable _admins = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
+        private readonly Hashtable _owners = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
 
         /// <summary>
         ///
@@ -31,72 +31,36 @@ namespace SharpIrc.IrcClient
         ///
         /// </summary>
         /// <value> </value>
-        public Hashtable Halfops
-        {
-            get
-            {
-                return (Hashtable)halfops.Clone();
-            }
-        }
+        public Hashtable Halfops => (Hashtable)_halfops.Clone();
 
         /// <summary>
         ///
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeHalfops
-        {
-            get
-            {
-                return halfops;
-            }
-        }
+        internal Hashtable UnsafeHalfops => _halfops;
 
         /// <summary>
         ///
         /// </summary>
         /// <value> </value>
-        public Hashtable Admins
-        {
-            get
-            {
-                return (Hashtable)admins.Clone();
-            }
-        }
+        public Hashtable Admins => (Hashtable)_admins.Clone();
 
         /// <summary>
         ///
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeAdmins
-        {
-            get
-            {
-                return admins;
-            }
-        }
+        internal Hashtable UnsafeAdmins => _admins;
 
         /// <summary>
         ///
         /// </summary>
         /// <value> </value>
-        public Hashtable Owners
-        {
-            get
-            {
-                return (Hashtable)owners.Clone();
-            }
-        }
+        public Hashtable Owners => (Hashtable)_owners.Clone();
 
         /// <summary>
         ///
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeOwners
-        {
-            get
-            {
-                return owners;
-            }
-        }
+        internal Hashtable UnsafeOwners => _owners;
     }
 }

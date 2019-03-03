@@ -16,10 +16,10 @@ namespace SharpIrc.IrcFeatures.EventArgs
             : base(dcc)
         {
             Message = messageLine;
-            MessageArray = messageLine.Split(new[] { ' ' });
+            MessageArray = messageLine.Split(' ');
         }
 
-        public string Message { get; private set; }
-        public string[] MessageArray { get; private set; }
+        public string Message { get; }
+        public string[] MessageArray { get; }
     }
 }

@@ -22,25 +22,19 @@ namespace SharpIrc.IrcFeatures
     {
         #region Public Field Access
 
-        public IPAddress ExternalIpAdress { get; set; }
+        public IPAddress ExternalIpAddress { get; set; }
 
         /// <summary>
         /// Access to all DccConnections, Its not possible to change the collection itself,
         /// but you can use the public Members of the DccCollections or its inherited Classes.
         /// </summary>
-        public ReadOnlyCollection<DccConnection> DccConnections
-        {
-            get { return new ReadOnlyCollection<DccConnection>(dccConnections); }
-        }
+        public ReadOnlyCollection<DccConnection> DccConnections => new ReadOnlyCollection<DccConnection>(_dccConnections);
 
         /// <summary>
         /// To handle more or less CTCP Events, modify this collection to your needs.
         /// You can also change the Delegates to your own implementations.
         /// </summary>
-        public Dictionary<string, CtcpDelegate> CtcpDelegates
-        {
-            get { return ctcpDelegates; }
-        }
+        public Dictionary<string, CtcpDelegate> CtcpDelegates { get; } = new Dictionary<string, CtcpDelegate>(StringComparer.CurrentCultureIgnoreCase);
 
         /// <summary>
         /// This Info is shown with the CTCP UserInfo Request
@@ -61,9 +55,7 @@ namespace SharpIrc.IrcFeatures
 
         #region private variables
 
-        private readonly Dictionary<string, CtcpDelegate> ctcpDelegates = new Dictionary<string, CtcpDelegate>(StringComparer.CurrentCultureIgnoreCase);
-
-        private readonly List<DccConnection> dccConnections = new List<DccConnection>();
+        private readonly List<DccConnection> _dccConnections = new List<DccConnection>();
 
         internal DccSpeed Speed = DccSpeed.RfcSendAhead;
 
@@ -75,100 +67,70 @@ namespace SharpIrc.IrcFeatures
 
         public void DccChatRequestEvent(DccEventArgs e)
         {
-            if (OnDccChatRequestEvent != null)
-            {
-                OnDccChatRequestEvent(this, e);
-            }
+            OnDccChatRequestEvent?.Invoke(this, e);
         }
 
         public event EventHandler<DccSendRequestEventArgs> OnDccSendRequestEvent;
 
         public void DccSendRequestEvent(DccSendRequestEventArgs e)
         {
-            if (OnDccSendRequestEvent != null)
-            {
-                OnDccSendRequestEvent(this, e);
-            }
+            OnDccSendRequestEvent?.Invoke(this, e);
         }
 
         public event EventHandler<DccEventArgs> OnDccChatStartEvent;
 
         public void DccChatStartEvent(DccEventArgs e)
         {
-            if (OnDccChatStartEvent != null)
-            {
-                OnDccChatStartEvent(this, e);
-            }
+            OnDccChatStartEvent?.Invoke(this, e);
         }
 
         public event EventHandler<DccEventArgs> OnDccSendStartEvent;
 
         public void DccSendStartEvent(DccEventArgs e)
         {
-            if (OnDccSendStartEvent != null)
-            {
-                OnDccSendStartEvent(this, e);
-            }
+            OnDccSendStartEvent?.Invoke(this, e);
         }
 
         public event EventHandler<DccChatEventArgs> OnDccChatReceiveLineEvent;
 
         public void DccChatReceiveLineEvent(DccChatEventArgs e)
         {
-            if (OnDccChatReceiveLineEvent != null)
-            {
-                OnDccChatReceiveLineEvent(this, e);
-            }
+            OnDccChatReceiveLineEvent?.Invoke(this, e);
         }
 
         public event EventHandler<DccSendEventArgs> OnDccSendReceiveBlockEvent;
 
         public void DccSendReceiveBlockEvent(DccSendEventArgs e)
         {
-            if (OnDccSendReceiveBlockEvent != null)
-            {
-                OnDccSendReceiveBlockEvent(this, e);
-            }
+            OnDccSendReceiveBlockEvent?.Invoke(this, e);
         }
 
         public event EventHandler<DccChatEventArgs> OnDccChatSentLineEvent;
 
         public void DccChatSentLineEvent(DccChatEventArgs e)
         {
-            if (OnDccChatSentLineEvent != null)
-            {
-                OnDccChatSentLineEvent(this, e);
-            }
+            OnDccChatSentLineEvent?.Invoke(this, e);
         }
 
         public event EventHandler<DccSendEventArgs> OnDccSendSentBlockEvent;
 
         internal void DccSendSentBlockEvent(DccSendEventArgs e)
         {
-            if (OnDccSendSentBlockEvent != null)
-            {
-                OnDccSendSentBlockEvent(this, e);
-            }
+            OnDccSendSentBlockEvent?.Invoke(this, e);
         }
 
         public event EventHandler<DccEventArgs> OnDccChatStopEvent;
 
         public void DccChatStopEvent(DccEventArgs e)
         {
-            if (OnDccChatStopEvent != null)
-            {
-                OnDccChatStopEvent(this, e);
-            }
+            OnDccChatStopEvent?.Invoke(this, e);
         }
 
         public event EventHandler<DccEventArgs> OnDccSendStopEvent;
 
         public void DccSendStopEvent(DccEventArgs e)
         {
-            if (OnDccSendStopEvent != null)
-            {
-                OnDccSendStopEvent(this, e);
-            }
+            OnDccSendStopEvent?.Invoke(this, e);
         }
 
         #endregion Public DCC Events (Global: All Dcc Events)
@@ -181,19 +143,19 @@ namespace SharpIrc.IrcFeatures
             OnCtcpRequest += CtcpRequestsHandler;
 
             // Adding ctcp handler, all commands are lower case (.ToLower() in handler)
-            ctcpDelegates.Add("version", CtcpVersionDelegate);
-            ctcpDelegates.Add("clientinfo", CtcpClientInfoDelegate);
-            ctcpDelegates.Add("time", CtcpTimeDelegate);
-            ctcpDelegates.Add("userinfo", CtcpUserInfoDelegate);
-            ctcpDelegates.Add("url", CtcpUrlDelegate);
-            ctcpDelegates.Add("source", CtcpSourceDelegate);
-            ctcpDelegates.Add("finger", CtcpFingerDelegate);
+            CtcpDelegates.Add("version", CtcpVersionDelegate);
+            CtcpDelegates.Add("clientinfo", CtcpClientInfoDelegate);
+            CtcpDelegates.Add("time", CtcpTimeDelegate);
+            CtcpDelegates.Add("userinfo", CtcpUserInfoDelegate);
+            CtcpDelegates.Add("url", CtcpUrlDelegate);
+            CtcpDelegates.Add("source", CtcpSourceDelegate);
+            CtcpDelegates.Add("finger", CtcpFingerDelegate);
 
             // The DCC Handler
-            ctcpDelegates.Add("dcc", CtcpDccDelegate);
+            CtcpDelegates.Add("dcc", CtcpDccDelegate);
 
             // Don't remove the Ping handler without your own implementation
-            ctcpDelegates.Add("ping", CtcpPingDelegate);
+            CtcpDelegates.Add("ping", CtcpPingDelegate);
         }
 
         /// <summary>
@@ -223,8 +185,8 @@ namespace SharpIrc.IrcFeatures
         /// <param name="priority">Non Dcc Message Priority for Negotiation</param>
         public void InitDccChat(string user, bool passive, Priority priority)
         {
-            var chat = new DccChat(this, user, ExternalIpAdress, passive, priority);
-            dccConnections.Add(chat);
+            var chat = new DccChat(this, user, ExternalIpAddress, passive, priority);
+            _dccConnections.Add(chat);
             ThreadPool.QueueUserWorkItem(chat.InitWork);
             RemoveInvalidDccConnections();
         }
@@ -234,7 +196,7 @@ namespace SharpIrc.IrcFeatures
         /// Send a local File
         /// </summary>
         /// <param name="user">Destination of the File (no channel)</param>
-        /// <param name="filepath">complete filepath, absolute or relative (carefull)</param>
+        /// <param name="filepath">complete filepath, absolute or relative (careful)</param>
         public void SendFile(string user, string filepath)
         {
             var fi = new FileInfo(filepath);
@@ -245,10 +207,10 @@ namespace SharpIrc.IrcFeatures
         }
 
         /// <summary>
-        /// Send a local File passivly
+        /// Send a local File passively
         /// </summary>
         /// <param name="user">Destination of the File (no channel)</param>
-        /// <param name="filepath">complete filepath, absolute or relative (carefull)</param>
+        /// <param name="filepath">complete filepath, absolute or relative (careful)</param>
         /// <param name="passive">Passive DCC</param>
         public void SendFile(string user, string filepath, bool passive)
         {
@@ -265,10 +227,10 @@ namespace SharpIrc.IrcFeatures
         /// <param name="user">Destination of the File (no channel)</param>
         /// <param name="file">You can send any stream here</param>
         /// <param name="filename">give a filename for the remote User</param>
-        /// <param name="filesize">give the length of the stream</param>
-        public void SendFile(string user, Stream file, string filename, long filesize)
+        /// <param name="fileSize">give the length of the stream</param>
+        public void SendFile(string user, Stream file, string filename, long fileSize)
         {
-            SendFile(user, file, filename, filesize, DccSpeed.RfcSendAhead, false);
+            SendFile(user, file, filename, fileSize, DccSpeed.RfcSendAhead, false);
         }
 
         /// <summary>
@@ -277,12 +239,12 @@ namespace SharpIrc.IrcFeatures
         /// <param name="user">Destination of the File (no channel)</param>
         /// <param name="file">You can send any stream here</param>
         /// <param name="filename">give a filename for the remote User</param>
-        /// <param name="filesize">give the length of the stream</param>
-        /// <param name="speed">What ACK Managment should be used</param>
+        /// <param name="fileSize">give the length of the stream</param>
+        /// <param name="speed">What ACK management should be used</param>
         /// <param name="passive">Passive DCC</param>
-        public void SendFile(string user, Stream file, string filename, long filesize, DccSpeed speed, bool passive)
+        public void SendFile(string user, Stream file, string filename, long fileSize, DccSpeed speed, bool passive)
         {
-            SendFile(user, file, filename, filesize, speed, passive, Priority.Medium);
+            SendFile(user, file, filename, fileSize, speed, passive, Priority.Medium);
         }
 
         /// <summary>
@@ -291,15 +253,15 @@ namespace SharpIrc.IrcFeatures
         /// <param name="user">Destination of the File (no channel)</param>
         /// <param name="file">You can send any stream here</param>
         /// <param name="filename">give a filename for the remote User</param>
-        /// <param name="filesize">give the length of the stream</param>
-        /// <param name="speed">What ACK Managment should be used</param>
+        /// <param name="fileSize">give the length of the stream</param>
+        /// <param name="speed">What ACK management should be used</param>
         /// <param name="passive">Passive DCC</param>
         /// <param name="priority">Non Dcc Message Priority for Negotiation</param>
-        public void SendFile(string user, Stream file, string filename, long filesize, DccSpeed speed, bool passive,
+        public void SendFile(string user, Stream file, string filename, long fileSize, DccSpeed speed, bool passive,
                              Priority priority)
         {
-            var send = new DccSend(this, user, ExternalIpAdress, file, filename, filesize, speed, passive, priority);
-            dccConnections.Add(send);
+            var send = new DccSend(this, user, ExternalIpAddress, file, filename, fileSize, speed, passive, priority);
+            _dccConnections.Add(send);
             ThreadPool.QueueUserWorkItem(send.InitWork);
             RemoveInvalidDccConnections();
         }
@@ -310,9 +272,9 @@ namespace SharpIrc.IrcFeatures
 
         private void CtcpRequestsHandler(object sender, CtcpEventArgs e)
         {
-            if (ctcpDelegates.ContainsKey(e.CtcpCommand))
+            if (CtcpDelegates.ContainsKey(e.CtcpCommand))
             {
-                ctcpDelegates[e.CtcpCommand].Invoke(e);
+                CtcpDelegates[e.CtcpCommand].Invoke(e);
             }
             RemoveInvalidDccConnections();
         }
@@ -328,7 +290,7 @@ namespace SharpIrc.IrcFeatures
 
         private void CtcpClientInfoDelegate(CtcpEventArgs e)
         {
-            string clientInfo = ctcpDelegates.Aggregate("CLIENTINFO", (current, kvp) => current + " " + kvp.Key.ToUpper());
+            string clientInfo = CtcpDelegates.Aggregate("CLIENTINFO", (current, kvp) => current + " " + kvp.Key.ToUpper());
             SendMessage(SendType.CtcpReply, e.Data.Nick, clientInfo);
         }
 
@@ -384,7 +346,7 @@ namespace SharpIrc.IrcFeatures
         private void CtcpFingerDelegate(CtcpEventArgs e)
         {
             SendMessage(SendType.CtcpReply, e.Data.Nick, "FINGER Don't touch little Helga there! ");
-            //SendMessage(SendType.CtcpReply, e.Data.Nick, "FINGER " + this.Realname + " (" + this.Email + ") Idle " + this.Idle + " seconds (" + ((string.IsNullOrEmpty(this.Reason)) ? this.Reason : "-") + ") ");
+            //SendMessage(SendType.CtcpReply, e.Data.Nick, "FINGER " + this.RealName + " (" + this.Email + ") Idle " + this.Idle + " seconds (" + ((string.IsNullOrEmpty(this.Reason)) ? this.Reason : "-") + ") ");
         }
 
         private void CtcpDccDelegate(CtcpEventArgs e)
@@ -398,16 +360,15 @@ namespace SharpIrc.IrcFeatures
                 switch (e.Data.MessageArray[1])
                 {
                     case "CHAT":
-                        var chat = new DccChat(this, ExternalIpAdress, e);
-                        dccConnections.Add(chat);
+                        var chat = new DccChat(this, ExternalIpAddress, e);
+                        _dccConnections.Add(chat);
                         ThreadPool.QueueUserWorkItem(chat.InitWork);
                         break;
                     case "SEND":
                         if (e.Data.MessageArray.Length > 6 && (FilterMarker(e.Data.MessageArray[6]) != "T"))
                         {
-                            long session;
-                            long.TryParse(FilterMarker(e.Data.MessageArray[6]), out session);
-                            foreach (DccConnection dc in dccConnections)
+                            long.TryParse(FilterMarker(e.Data.MessageArray[6]), out var session);
+                            foreach (DccConnection dc in _dccConnections)
                             {
                                 if (dc.IsSession(session))
                                 {
@@ -420,20 +381,20 @@ namespace SharpIrc.IrcFeatures
                         }
                         else
                         {
-                            var send = new DccSend(this, ExternalIpAdress, e);
-                            dccConnections.Add(send);
+                            var send = new DccSend(this, ExternalIpAddress, e);
+                            _dccConnections.Add(send);
                             ThreadPool.QueueUserWorkItem(send.InitWork);
                         }
                         break;
                     case "RESUME":
-                        if (dccConnections.Any(dc => (dc is DccSend) && (((DccSend)dc).TryResume(e))))
+                        if (_dccConnections.Any(dc => (dc is DccSend send) && (send.TryResume(e))))
                         {
                             return;
                         }
                         SendMessage(SendType.CtcpReply, e.Data.Nick, "ERRMSG Invalid DCC RESUME");
                         break;
                     case "ACCEPT":
-                        if (dccConnections.Any(dc => (dc is DccSend) && (((DccSend)dc).TryAccept(e))))
+                        if (_dccConnections.Any(dc => (dc is DccSend send) && (send.TryAccept(e))))
                         {
                             return;
                         }
@@ -450,13 +411,13 @@ namespace SharpIrc.IrcFeatures
         }
 
         /// <summary>
-        /// cleanup all old invalide DCCs (late cleaning)
+        /// cleanup all old invalid DCCs (late cleaning)
         /// </summary>
         private void RemoveInvalidDccConnections()
         {
-            foreach (DccConnection dc in dccConnections.Where(dc => (!dc.Valid) && (!dc.Connected)).ToList())
+            foreach (DccConnection dc in _dccConnections.Where(dc => (!dc.Valid) && (!dc.Connected)).ToList())
             {
-                dccConnections.Remove(dc);
+                _dccConnections.Remove(dc);
             }
         }
 

@@ -18,6 +18,6 @@ namespace SharpIrc.IrcClient.EventArgs
             ListInfo = listInfo;
         }
 
-        public ChannelInfo ListInfo { get; private set; }
+        public ChannelInfo ListInfo { get; }
     }
 }

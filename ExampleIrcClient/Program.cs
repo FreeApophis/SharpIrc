@@ -22,7 +22,7 @@ namespace IrcClient
         // make an instance of the high-level API
         public static SharpIrc.IrcClient.IrcClient Client = new SharpIrc.IrcClient.IrcClient();
 
-        // this method we will use to analyse queries (also known as private messages)
+        // this method we will use to analyze queries (also known as private messages)
         public static void OnQueryMessage(object sender, IrcEventArgs e)
         {
             switch (e.Data.MessageArray[0])
@@ -49,17 +49,17 @@ namespace IrcClient
                     foreach (DictionaryEntry de in channel.Users)
                     {
                         string key = (string)de.Key;
-                        var channeluser = (ChannelUser)de.Value;
+                        var channelUser = (ChannelUser)de.Value;
                         nicknameList += "(";
-                        if (channeluser.IsOp)
+                        if (channelUser.IsOp)
                         {
                             nicknameList += "@";
                         }
-                        if (channeluser.IsVoice)
+                        if (channelUser.IsVoice)
                         {
                             nicknameList += "+";
                         }
-                        nicknameList += ")" + key + " => " + channeluser.Nick + ", ";
+                        nicknameList += ")" + key + " => " + channelUser.Nick + ", ";
                     }
                     Client.SendMessage(SendType.Message, e.Data.Nick, nicknameList);
 
@@ -121,13 +121,13 @@ namespace IrcClient
             Client.OnRawMessage += OnRawMessage;
 
             // the server we want to connect to, could be also a simple string
-            var serverlist = new[] { "irc.freenode.org" };
+            var servers = new[] { "irc.freenode.org" };
             const int port = 6667;
             const string channel = "#sharpirc-test";
             try
             {
                 // here we try to connect to the server and exceptions get handled
-                Client.Connect(serverlist, port);
+                Client.Connect(servers, port);
             }
             catch (ConnectionException e)
             {
@@ -146,7 +146,7 @@ namespace IrcClient
                 for (int i = 0; i < 3; i++)
                 {
                     // here we send just 3 different types of messages, 3 times for
-                    // testing the delay and flood protection (messagebuffer work)
+                    // testing the delay and flood protection (message buffer work)
                     Client.SendMessage(SendType.Message, channel, "test message (" + i + ")");
                     Client.SendMessage(SendType.Action, channel, "thinks this is cool (" + i + ")");
                     Client.SendMessage(SendType.Notice, channel, "SharpIRC rocks (" + i + ")");
@@ -190,14 +190,14 @@ namespace IrcClient
             // like "JOIN #test" and then "PRIVMSG #test :hello to you"
             while (true)
             {
-                string cmd = Console.ReadLine();
-                if (cmd.StartsWith("/list"))
+                string command = Console.ReadLine();
+                if (command != null && command.StartsWith("/list"))
                 {
-                    int pos = cmd.IndexOf(" ");
+                    int pos = command.IndexOf(" ", StringComparison.Ordinal);
                     string channel = null;
                     if (pos != -1)
                     {
-                        channel = cmd.Substring(pos + 1);
+                        channel = command.Substring(pos + 1);
                     }
 
                     IList<ChannelInfo> channelInfos = Client.GetChannelList(channel);
@@ -209,7 +209,7 @@ namespace IrcClient
                 }
                 else
                 {
-                    Client.WriteLine(cmd);
+                    Client.WriteLine(command);
                 }
             }
         }

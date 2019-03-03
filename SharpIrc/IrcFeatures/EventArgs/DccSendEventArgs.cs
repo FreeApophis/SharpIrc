@@ -19,8 +19,8 @@ namespace SharpIrc.IrcFeatures.EventArgs
             PackageSize = packageSize;
         }
 
-        public byte[] Package { get; private set; }
+        public byte[] Package { get; }
 
-        public int PackageSize { get; private set; }
+        public int PackageSize { get; }
     }
 }

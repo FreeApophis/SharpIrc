@@ -12,12 +12,12 @@ namespace SharpIrc.IrcClient.EventArgs
     [Serializable]
     public class ActionEventArgs : CtcpEventArgs
     {
-        internal ActionEventArgs(IrcMessageData data, string actionmsg)
-            : base(data, "ACTION", actionmsg)
+        internal ActionEventArgs(IrcMessageData data, string actionMessage)
+            : base(data, "ACTION", actionMessage)
         {
-            ActionMessage = actionmsg;
+            ActionMessage = actionMessage;
         }
 
-        public string ActionMessage { get; private set; }
+        public string ActionMessage { get; }
     }
 }

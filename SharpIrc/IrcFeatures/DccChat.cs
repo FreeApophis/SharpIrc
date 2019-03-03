@@ -41,12 +41,12 @@ namespace SharpIrc.IrcFeatures
         internal DccChat(IrcFeatures irc, string user, IPAddress externalIpAddress, bool passive, Priority priority)
         {
             Irc = irc;
-            ExternalIPAdress = externalIpAddress;
+            ExternalIpAddress = externalIpAddress;
             User = user;
 
             if (passive)
             {
-                irc.SendMessage(SendType.CtcpRequest, user, "DCC CHAT chat " + HostToDccInt(externalIpAddress) + " 0 " + SessionID, priority);
+                irc.SendMessage(SendType.CtcpRequest, user, "DCC CHAT chat " + HostToDccInt(externalIpAddress) + " 0 " + SessionId, priority);
                 Disconnect();
             }
             else
@@ -62,19 +62,19 @@ namespace SharpIrc.IrcFeatures
         /// Constructor of a DCC Chat for a Incoming DCC Chat Request
         /// </summary>
         /// <param name="irc">IrcFeature Class</param>
-        /// <param name="externalIpAddress">Our externally reachable IP Adress</param>
+        /// <param name="externalIpAddress">Our externally reachable IP Address</param>
         /// <param name="e">The Ctcp Event which initiated this constructor</param>
         internal DccChat(IrcFeatures irc, IPAddress externalIpAddress, CtcpEventArgs e)
         {
             Irc = irc;
-            ExternalIPAdress = externalIpAddress;
+            ExternalIpAddress = externalIpAddress;
             User = e.Data.Nick;
 
             if (e.Data.MessageArray.Length > 4)
             {
-                bool okIP = long.TryParse(e.Data.MessageArray[3], out var ip);
-                bool okPort = int.TryParse(FilterMarker(e.Data.MessageArray[4]), out var port); // port 0 = passive
-                if ((e.Data.MessageArray[2] == "chat") && okIP && okPort)
+                bool ipOk = long.TryParse(e.Data.MessageArray[3], out var ip);
+                bool portOk = int.TryParse(FilterMarker(e.Data.MessageArray[4]), out var port); // port 0 = passive
+                if ((e.Data.MessageArray[2] == "chat") && ipOk && portOk)
                 {
                     RemoteEndPoint = new IPEndPoint(IPAddress.Parse(DccIntToHost(ip)), port);
                     if (e.Data.MessageArray.Length > 5 && e.Data.MessageArray[5] != "T")
@@ -152,7 +152,7 @@ namespace SharpIrc.IrcFeatures
                     DccServer.Start();
                     LocalEndPoint = (IPEndPoint)DccServer.LocalEndpoint;
                     Irc.SendMessage(SendType.CtcpRequest, User,
-                                    "DCC CHAT chat " + HostToDccInt(ExternalIPAdress) + " " + LocalEndPoint.Port);
+                                    "DCC CHAT chat " + HostToDccInt(ExternalIpAddress) + " " + LocalEndPoint.Port);
                 }
                 else
                 {

@@ -12,15 +12,15 @@ namespace SharpIrc.IrcClient.EventArgs
     [Serializable]
     public class QuitEventArgs : IrcEventArgs
     {
-        internal QuitEventArgs(IrcMessageData data, string who, string quitmessage)
+        internal QuitEventArgs(IrcMessageData data, string who, string quitMessage)
             : base(data)
         {
             Who = who;
-            QuitMessage = quitmessage;
+            QuitMessage = quitMessage;
         }
 
-        public string Who { get; private set; }
+        public string Who { get; }
 
-        public string QuitMessage { get; private set; }
+        public string QuitMessage { get; }
     }
 }

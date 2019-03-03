@@ -18,12 +18,12 @@ namespace SharpIrc.IrcClient
     /// <threadsafety static="true" instance="true" />
     public class IrcUser
     {
-        private readonly IrcClient ircClient;
+        private readonly IrcClient _ircClient;
 
-        internal IrcUser(string nickname, IrcClient ircclient)
+        internal IrcUser(string nickname, IrcClient ircClient)
         {
             HopCount = -1;
-            ircClient = ircclient;
+            _ircClient = ircClient;
             Nick = nickname;
         }
 
@@ -57,7 +57,7 @@ namespace SharpIrc.IrcClient
         /// <remarks>
         /// Do _not_ set this value, it will break channel sync!
         /// </remarks>
-        public string Realname { get; set; }
+        public string RealName { get; set; }
 
         /// <summary>
         /// Gets or sets the server operator status of the user
@@ -103,10 +103,10 @@ namespace SharpIrc.IrcClient
         {
             get
             {
-                string[] channels = ircClient.GetChannels();
+                string[] channels = _ircClient.GetChannels();
 
                 return channels
-                    .Select(c => ircClient.GetChannel(c))
+                    .Select(c => _ircClient.GetChannel(c))
                     .Where(c => c.UnsafeUsers.ContainsKey(Nick))
                     .Select(c => c.Name).ToArray();
             }

@@ -25,7 +25,7 @@ namespace SharpIrc.IrcClient
 
         public int HopCount { get; private set; }
 
-        public string Realname { get; private set; }
+        public string RealName { get; private set; }
 
         public bool IsAway { get; private set; }
 
@@ -46,29 +46,29 @@ namespace SharpIrc.IrcClient
                 Host = data.RawMessageArray[5],
                 Server = data.RawMessageArray[6],
                 Nick = data.RawMessageArray[7],
-                Realname = String.Join(" ", data.MessageArray, 1, data.MessageArray.Length - 1)
+                RealName = String.Join(" ", data.MessageArray, 1, data.MessageArray.Length - 1)
             };
 
             // skip hop count
 
-            int hopcount = 0;
-            string hopcountStr = data.MessageArray[0];
+            int hopCount = 0;
+            string hopCountString = data.MessageArray[0];
             try
             {
-                hopcount = int.Parse(hopcountStr);
+                hopCount = int.Parse(hopCountString);
             }
-            catch (FormatException ex)
+            catch (FormatException)
             {
             }
 
-            string usermode = data.RawMessageArray[8];
+            string userMode = data.RawMessageArray[8];
             bool op = false;
             bool voice = false;
-            bool ircop = false;
+            bool ircOp = false;
             bool away = false;
             bool registered = false;
 
-            foreach (char c in usermode)
+            foreach (char c in userMode)
             {
                 switch (c)
                 {
@@ -85,7 +85,7 @@ namespace SharpIrc.IrcClient
                         voice = true;
                         break;
                     case '*':
-                        ircop = true;
+                        ircOp = true;
                         break;
                     case 'r':
                         registered = true;
@@ -95,8 +95,8 @@ namespace SharpIrc.IrcClient
             whoInfo.IsAway = away;
             whoInfo.IsOp = op;
             whoInfo.IsVoice = voice;
-            whoInfo.IsIrcOp = ircop;
-            whoInfo.HopCount = hopcount;
+            whoInfo.IsIrcOp = ircOp;
+            whoInfo.HopCount = hopCount;
             whoInfo.IsRegistered = registered;
 
             return whoInfo;

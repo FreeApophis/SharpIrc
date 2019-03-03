@@ -13,31 +13,26 @@ namespace SharpIrc.IrcClient
     /// <threadsafety static="true" instance="true" />
     public class ChannelUser
     {
-        private readonly IrcUser ircUser;
-
         /// <summary>
         ///
         /// </summary>
         /// <param name="channel"> </param>
-        /// <param name="ircuser"> </param>
-        internal ChannelUser(string channel, IrcUser ircuser)
+        /// <param name="ircUser"> </param>
+        internal ChannelUser(string channel, IrcUser ircUser)
         {
             Channel = channel;
-            ircUser = ircuser;
+            IrcUser = ircUser;
         }
 
         /// <summary>
         /// Gets the channel name
         /// </summary>
-        public string Channel { get; private set; }
+        public string Channel { get; }
 
         /// <summary>
         /// Gets the server operator status of the user
         /// </summary>
-        public bool IsIrcOp
-        {
-            get { return ircUser.IsIrcOp; }
-        }
+        public bool IsIrcOp => IrcUser.IsIrcOp;
 
         /// <summary>
         /// Gets or sets the op flag of the user (+o)
@@ -58,74 +53,47 @@ namespace SharpIrc.IrcClient
         /// <summary>
         /// Gets the away status of the user
         /// </summary>
-        public bool IsAway
-        {
-            get { return ircUser.IsAway; }
-        }
+        public bool IsAway => IrcUser.IsAway;
 
         /// <summary>
         /// Gets the underlaying IrcUser object
         /// </summary>
-        public IrcUser IrcUser
-        {
-            get { return ircUser; }
-        }
+        public IrcUser IrcUser { get; }
 
         /// <summary>
         /// Gets the nickname of the user
         /// </summary>
-        public string Nick
-        {
-            get { return ircUser.Nick; }
-        }
+        public string Nick => IrcUser.Nick;
 
         /// <summary>
         /// Gets the identity (username) of the user, which is used by some IRC networks for authentication.
         /// </summary>
-        public string Ident
-        {
-            get { return ircUser.Ident; }
-        }
+        public string Ident => IrcUser.Ident;
 
         /// <summary>
         /// Gets the hostname of the user,
         /// </summary>
-        public string Host
-        {
-            get { return ircUser.Host; }
-        }
+        public string Host => IrcUser.Host;
 
         /// <summary>
         /// Gets the supposed real name of the user.
         /// </summary>
-        public string Realname
-        {
-            get { return ircUser.Realname; }
-        }
+        public string RealName => IrcUser.RealName;
 
         /// <summary>
         /// Gets the server the user is connected to.
         /// </summary>
         /// <value> </value>
-        public string Server
-        {
-            get { return ircUser.Server; }
-        }
+        public string Server => IrcUser.Server;
 
         /// <summary>
         /// Gets or sets the count of hops between you and the user's server
         /// </summary>
-        public int HopCount
-        {
-            get { return ircUser.HopCount; }
-        }
+        public int HopCount => IrcUser.HopCount;
 
         /// <summary>
         /// Gets the list of channels the user has joined
         /// </summary>
-        public string[] JoinedChannels
-        {
-            get { return ircUser.JoinedChannels; }
-        }
+        public string[] JoinedChannels => IrcUser.JoinedChannels;
     }
 }

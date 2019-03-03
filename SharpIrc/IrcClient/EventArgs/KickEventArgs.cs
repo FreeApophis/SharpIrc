@@ -12,21 +12,21 @@ namespace SharpIrc.IrcClient.EventArgs
     [Serializable]
     public class KickEventArgs : IrcEventArgs
     {
-        internal KickEventArgs(IrcMessageData data, string channel, string who, string whom, string kickreason)
+        internal KickEventArgs(IrcMessageData data, string channel, string who, string whom, string kickReason)
             : base(data)
         {
             Channel = channel;
             Who = who;
             Whom = whom;
-            KickReason = kickreason;
+            KickReason = kickReason;
         }
 
-        public string Channel { get; private set; }
+        public string Channel { get; }
 
-        public string Who { get; private set; }
+        public string Who { get; }
 
-        public string Whom { get; private set; }
+        public string Whom { get; }
 
-        public string KickReason { get; private set; }
+        public string KickReason { get; }
     }
 }

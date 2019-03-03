@@ -12,12 +12,12 @@ namespace SharpIrc.IrcClient.EventArgs
     [Serializable]
     public class MotdEventArgs : IrcEventArgs
     {
-        internal MotdEventArgs(IrcMessageData data, string motdmsg)
+        internal MotdEventArgs(IrcMessageData data, string motdMessage)
             : base(data)
         {
-            MotdMessage = motdmsg;
+            MotdMessage = motdMessage;
         }
 
-        public string MotdMessage { get; private set; }
+        public string MotdMessage { get; }
     }
 }

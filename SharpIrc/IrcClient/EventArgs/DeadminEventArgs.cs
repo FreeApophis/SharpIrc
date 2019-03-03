@@ -17,10 +17,10 @@ namespace SharpIrc.IrcClient.EventArgs
             Whom = whom;
         }
 
-        public string Channel { get; private set; }
+        public string Channel { get; }
 
-        public string Who { get; private set; }
+        public string Who { get; }
 
-        public string Whom { get; private set; }
+        public string Whom { get; }
     }
 }

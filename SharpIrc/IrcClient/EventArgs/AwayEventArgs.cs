@@ -12,15 +12,15 @@ namespace SharpIrc.IrcClient.EventArgs
     [Serializable]
     public class AwayEventArgs : IrcEventArgs
     {
-        internal AwayEventArgs(IrcMessageData data, string who, string awaymessage)
+        internal AwayEventArgs(IrcMessageData data, string who, string awayMessage)
             : base(data)
         {
             Who = who;
-            AwayMessage = awaymessage;
+            AwayMessage = awayMessage;
         }
 
-        public string Who { get; private set; }
+        public string Who { get; }
 
-        public string AwayMessage { get; private set; }
+        public string AwayMessage { get; }
     }
 }

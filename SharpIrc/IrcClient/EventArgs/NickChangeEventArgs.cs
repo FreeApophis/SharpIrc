@@ -12,15 +12,15 @@ namespace SharpIrc.IrcClient.EventArgs
     [Serializable]
     public class NickChangeEventArgs : IrcEventArgs
     {
-        internal NickChangeEventArgs(IrcMessageData data, string oldnick, string newnick)
+        internal NickChangeEventArgs(IrcMessageData data, string oldNickname, string newNickname)
             : base(data)
         {
-            OldNickname = oldnick;
-            NewNickname = newnick;
+            OldNickname = oldNickname;
+            NewNickname = newNickname;
         }
 
-        public string OldNickname { get; private set; }
+        public string OldNickname { get; }
 
-        public string NewNickname { get; private set; }
+        public string NewNickname { get; }
     }
 }

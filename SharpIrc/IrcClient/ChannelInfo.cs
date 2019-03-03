@@ -16,10 +16,10 @@ namespace SharpIrc.IrcClient
             Topic = topic;
         }
 
-        public string Channel { get; private set; }
+        public string Channel { get; }
 
-        public int UserCount { get; private set; }
+        public int UserCount { get; }
 
-        public string Topic { get; private set; }
+        public string Topic { get; }
     }
 }

@@ -13,77 +13,72 @@ using SharpIrc.IrcFeatures.EventArgs;
 namespace SharpIrc.IrcFeatures
 {
     /// <summary>
-    /// Dcc Send Connection, Filetransfer
+    /// Dcc Send Connection, file transfer
     /// </summary>
     public sealed class DccSend : DccConnection
     {
         #region Private Variables
 
-        private readonly byte[] buffer = new byte[8192];
-        private readonly bool directionUp;
-        private readonly string filename;
-        private readonly long filesize;
-        private readonly DccSpeed speed;
-        private Stream file;
-        private long sentBytes;
+        private readonly byte[] _buffer = new byte[8192];
+        private readonly bool _directionUp;
+        private readonly string _filename;
+        private readonly long _fileSize;
+        private readonly DccSpeed _speed;
+        private Stream _file;
 
         #endregion Private Variables
 
         #region Public Properties
 
-        public long SentBytes
-        {
-            get { return sentBytes; }
-        }
+        public long SentBytes { get; private set; }
 
         #endregion Public Properties
 
-        internal DccSend(IrcFeatures irc, string user, IPAddress externalIpAdress, Stream file, string filename, long filesize, DccSpeed speed, bool passive, Priority priority)
+        internal DccSend(IrcFeatures irc, string user, IPAddress externalIpAddress, Stream file, string filename, long fileSize, DccSpeed speed, bool passive, Priority priority)
         {
             Irc = irc;
-            directionUp = true;
-            this.file = file;
-            this.filesize = filesize;
-            this.filename = filename;
-            this.speed = speed;
+            _directionUp = true;
+            _file = file;
+            _fileSize = fileSize;
+            _filename = filename;
+            _speed = speed;
             User = user;
 
             if (passive)
             {
-                irc.SendMessage(SendType.CtcpRequest, user, "DCC SEND \"" + filename + "\" " + HostToDccInt(externalIpAdress) + " 0 " + filesize + " " + SessionID, priority);
+                irc.SendMessage(SendType.CtcpRequest, user, "DCC SEND \"" + filename + "\" " + HostToDccInt(externalIpAddress) + " 0 " + fileSize + " " + SessionId, priority);
             }
             else
             {
                 DccServer = new TcpListener(new IPEndPoint(IPAddress.Any, 0));
                 DccServer.Start();
                 LocalEndPoint = (IPEndPoint)DccServer.LocalEndpoint;
-                irc.SendMessage(SendType.CtcpRequest, user, "DCC SEND \"" + filename + "\" " + HostToDccInt(externalIpAdress) + " " + LocalEndPoint.Port + " " + filesize, priority);
+                irc.SendMessage(SendType.CtcpRequest, user, "DCC SEND \"" + filename + "\" " + HostToDccInt(externalIpAddress) + " " + LocalEndPoint.Port + " " + fileSize, priority);
             }
         }
 
-        internal DccSend(IrcFeatures irc, IPAddress externalIpAdress, CtcpEventArgs e)
+        internal DccSend(IrcFeatures irc, IPAddress externalIpAddress, CtcpEventArgs e)
         {
             /* Remote Request */
             Irc = irc;
-            directionUp = false;
+            _directionUp = false;
             User = e.Data.Nick;
 
             if (e.Data.MessageArray.Length > 4)
             {
-                long ip, filesize = 0;
-                int port = 0;
-                bool okIP = long.TryParse(e.Data.MessageArray[3], out ip);
-                bool okPo = int.TryParse(e.Data.MessageArray[4], out port); // port 0 = passive
+                long fileSize = 0;
+                bool ipOk = long.TryParse(e.Data.MessageArray[3], out var ip);
+                bool portOk = int.TryParse(e.Data.MessageArray[4], out var port); // port 0 = passive
                 if (e.Data.MessageArray.Length > 5)
                 {
-                    bool okFs = long.TryParse(FilterMarker(e.Data.MessageArray[5]), out filesize);
-                    this.filesize = filesize;
-                    filename = e.Data.MessageArray[2].Trim(new[] { '\"' });
+                    bool fileSizeOk = long.TryParse(FilterMarker(e.Data.MessageArray[5]), out fileSize);
+                    _fileSize = fileSize;
+                    _filename = e.Data.MessageArray[2].Trim('\"');
                 }
-                if (okIP && okPo)
+                if (ipOk && portOk)
                 {
                     RemoteEndPoint = new IPEndPoint(IPAddress.Parse(DccIntToHost(ip)), port);
-                    DccSendRequestEvent(new DccSendRequestEventArgs(this, e.Data.MessageArray[2], filesize));
+                    DccSendRequestEvent(new DccSendRequestEventArgs(this, e.Data.MessageArray[2], fileSize));
                     return;
                 }
                 irc.SendMessage(SendType.CtcpReply, e.Data.Nick, "ERRMSG DCC Send Parameter Error");
@@ -117,71 +112,71 @@ namespace SharpIrc.IrcFeatures
             DccSendStartEvent(new DccEventArgs(this));
             int bytes;
 
-            if (directionUp)
+            if (_directionUp)
             {
                 do
                 {
                     while (Connection.Available > 0)
                     {
-                        switch (speed)
+                        switch (_speed)
                         {
                             case DccSpeed.Rfc:
-                                Connection.GetStream().Read(buffer, 0, buffer.Length);
+                                Connection.GetStream().Read(_buffer, 0, _buffer.Length);
                                 // TODO: only send x not ACKed Bytes ahead / (nobody wants this anyway)
                                 break;
                             case DccSpeed.RfcSendAhead:
-                                Connection.GetStream().Read(buffer, 0, buffer.Length);
+                                Connection.GetStream().Read(_buffer, 0, _buffer.Length);
                                 break;
                             case DccSpeed.Turbo: // Available > 0 should not happen
                                 break;
                         }
                     }
 
-                    bytes = file.Read(buffer, 0, buffer.Length);
+                    bytes = _file.Read(_buffer, 0, _buffer.Length);
                     try
                     {
-                        Connection.GetStream().Write(buffer, 0, bytes);
+                        Connection.GetStream().Write(_buffer, 0, bytes);
                     }
                     catch (IOException)
                     {
                         bytes = 0; // Connection Lost
                     }
 
-                    sentBytes += bytes;
+                    SentBytes += bytes;
 
                     if (bytes > 0)
                     {
-                        DccSendSentBlockEvent(new DccSendEventArgs(this, buffer, bytes));
+                        DccSendSentBlockEvent(new DccSendEventArgs(this, _buffer, bytes));
                         Console.Write(".");
                     }
                 } while (bytes > 0);
             }
             else
             {
-                while ((bytes = Connection.GetStream().Read(buffer, 0, buffer.Length)) > 0)
+                while ((bytes = Connection.GetStream().Read(_buffer, 0, _buffer.Length)) > 0)
                 {
-                    file.Write(buffer, 0, bytes);
-                    sentBytes += bytes;
-                    if (speed != DccSpeed.Turbo)
+                    _file.Write(_buffer, 0, bytes);
+                    SentBytes += bytes;
+                    if (_speed != DccSpeed.Turbo)
                     {
-                        Connection.GetStream().Write(GetAck(sentBytes), 0, 4);
+                        Connection.GetStream().Write(GetAck(SentBytes), 0, 4);
                     }
 
-                    DccSendReceiveBlockEvent(new DccSendEventArgs(this, buffer, bytes));
+                    DccSendReceiveBlockEvent(new DccSendEventArgs(this, _buffer, bytes));
                 }
             }
 
 
             IsValid = false;
             IsConnected = false;
-            Console.WriteLine("--> Filetrangsfer Endet / Bytes sent: " + sentBytes + " of " + filesize);
+            Console.WriteLine("--> Filetrangsfer Endet / Bytes sent: " + SentBytes + " of " + _fileSize);
             DccSendStopEvent(new DccEventArgs(this));
         }
 
         #region Public Methods for the DCC Send Object
 
         /// <summary>
-        /// With this methode you can accept a DCC SEND Request you got from another User
+        /// With this method you can accept a DCC SEND Request you got from another User
         /// </summary>
         /// <param name="file">Any Stream you want use as a file, if you use offset it should be Seekable</param>
         /// <param name="offset">Offset to start a Resume Request for the rest of a file</param>
@@ -193,13 +188,13 @@ namespace SharpIrc.IrcFeatures
             try
             {
                 if (file != null)
-                    this.file = file;
+                    _file = file;
                 if (RemoteEndPoint.Port == 0)
                 {
                     DccServer = new TcpListener(new IPEndPoint(IPAddress.Any, 0));
                     DccServer.Start();
                     LocalEndPoint = (IPEndPoint)DccServer.LocalEndpoint;
-                    Irc.SendMessage(SendType.CtcpRequest, User, "DCC SEND \"" + filename + "\" " + HostToDccInt(ExternalIPAdress) + " " + LocalEndPoint.Port + " " + filesize);
+                    Irc.SendMessage(SendType.CtcpRequest, User, "DCC SEND \"" + _filename + "\" " + HostToDccInt(ExternalIpAddress) + " " + LocalEndPoint.Port + " " + _fileSize);
                 }
                 else
                 {
@@ -211,17 +206,17 @@ namespace SharpIrc.IrcFeatures
                     }
                     else
                     {
-                        if (this.file.CanSeek)
+                        if (_file.CanSeek)
                         {
-                            this.file.Seek(offset, SeekOrigin.Begin);
-                            sentBytes = offset;
-                            Irc.SendMessage(SendType.CtcpRequest, User, "DCC RESUME \"" + filename + "\" " + RemoteEndPoint.Port + " " + offset);
+                            _file.Seek(offset, SeekOrigin.Begin);
+                            SentBytes = offset;
+                            Irc.SendMessage(SendType.CtcpRequest, User, "DCC RESUME \"" + _filename + "\" " + RemoteEndPoint.Port + " " + offset);
                         }
                         else
                         {
-                            /* Resume of a file which is not seekable : I dont care, its your filestream! */
-                            sentBytes = offset;
-                            Irc.SendMessage(SendType.CtcpRequest, User, "DCC RESUME \"" + filename + "\" " + RemoteEndPoint.Port + " " + offset);
+                            /* Resume of a file which is not seekable : I don't care, its your file stream! */
+                            SentBytes = offset;
+                            Irc.SendMessage(SendType.CtcpRequest, User, "DCC RESUME \"" + _filename + "\" " + RemoteEndPoint.Port + " " + offset);
                         }
                     }
                 }
@@ -243,11 +238,10 @@ namespace SharpIrc.IrcFeatures
         {
             if (User == e.Data.Nick)
             {
-                if ((e.Data.MessageArray.Length > 4) && (filename == e.Data.MessageArray[2].Trim(new[] { '\"' })))
+                if ((e.Data.MessageArray.Length > 4) && (_filename == e.Data.MessageArray[2].Trim('\"')))
                 {
-                    long offset;
-                    long.TryParse(FilterMarker(e.Data.MessageArray[4]), out offset);
-                    if (file.CanSeek)
+                    long.TryParse(FilterMarker(e.Data.MessageArray[4]), out var offset);
+                    if (_file.CanSeek)
                     {
                         if (e.Data.MessageArray.Length > 5)
                         {
@@ -258,8 +252,8 @@ namespace SharpIrc.IrcFeatures
                             Irc.SendMessage(SendType.CtcpRequest, e.Data.Nick, "DCC ACCEPT " + e.Data.MessageArray[2] + " " + e.Data.MessageArray[3] + " " + FilterMarker(e.Data.MessageArray[4]));
                         }
 
-                        file.Seek(offset, SeekOrigin.Begin);
-                        sentBytes = offset;
+                        _file.Seek(offset, SeekOrigin.Begin);
+                        SentBytes = offset;
                         return true;
                     }
                     Irc.SendMessage(SendType.CtcpRequest, e.Data.Nick, "ERRMSG DCC File not seekable");
@@ -272,7 +266,7 @@ namespace SharpIrc.IrcFeatures
         {
             if (User == e.Data.Nick)
             {
-                if ((e.Data.MessageArray.Length > 4) && (filename == e.Data.MessageArray[2].Trim(new[] { '\"' })))
+                if ((e.Data.MessageArray.Length > 4) && (_filename == e.Data.MessageArray[2].Trim('\"')))
                 {
                     return AcceptRequest(null, 0);
                 }
@@ -282,11 +276,9 @@ namespace SharpIrc.IrcFeatures
 
         internal bool SetRemote(CtcpEventArgs e)
         {
-            long ip;
-            int port;
-            bool okIP = long.TryParse(e.Data.MessageArray[3], out ip);
-            bool okPo = int.TryParse(e.Data.MessageArray[4], out port); // port 0 = passive
-            if (okIP && okPo)
+            bool ipOk = long.TryParse(e.Data.MessageArray[3], out var ip);
+            bool portOk = int.TryParse(e.Data.MessageArray[4], out var port); // port 0 = passive
+            if (ipOk && portOk)
             {
                 RemoteEndPoint = new IPEndPoint(IPAddress.Parse(DccIntToHost(ip)), port);
                 return true;

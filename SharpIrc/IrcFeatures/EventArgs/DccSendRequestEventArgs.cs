@@ -12,15 +12,15 @@ namespace SharpIrc.IrcFeatures.EventArgs
     [Serializable]
     public class DccSendRequestEventArgs : DccEventArgs
     {
-        internal DccSendRequestEventArgs(DccConnection dcc, string filename, long filesize)
+        internal DccSendRequestEventArgs(DccConnection dcc, string filename, long fileSize)
             : base(dcc)
         {
             Filename = filename;
-            Filesize = filesize;
+            FileSize = fileSize;
         }
 
         public string Filename { get; private set; }
 
-        public long Filesize { get; private set; }
+        public long FileSize { get; private set; }
     }
 }

@@ -12,17 +12,12 @@ namespace SharpIrc.IrcClient.EventArgs
     [Serializable]
     public class WhoEventArgs : IrcEventArgs
     {
-        private readonly WhoInfo whoInfo;
-
         internal WhoEventArgs(IrcMessageData data, WhoInfo whoInfo)
             : base(data)
         {
-            this.whoInfo = whoInfo;
+            WhoInfo = whoInfo;
         }
 
-        public WhoInfo WhoInfo
-        {
-            get { return whoInfo; }
-        }
+        public WhoInfo WhoInfo { get; }
     }
 }

@@ -11,7 +11,7 @@ using SharpIrc.IrcFeatures.EventArgs;
 namespace SharpIrc.IrcFeatures
 {
     /// <summary>
-    /// Baseclass for all DccConnections
+    /// Base class for all DccConnections
     /// </summary>
     public class DccConnection
     {
@@ -19,7 +19,7 @@ namespace SharpIrc.IrcFeatures
 
         protected TcpClient Connection;
         protected TcpListener DccServer;
-        protected IPAddress ExternalIPAdress;
+        protected IPAddress ExternalIpAddress;
         protected IrcFeatures Irc;
         protected IPEndPoint LocalEndPoint;
         protected IPEndPoint RemoteEndPoint;
@@ -30,16 +30,13 @@ namespace SharpIrc.IrcFeatures
         protected bool IsValid = true;
 
         protected bool Reject;
-        protected long SessionID;
+        protected long SessionId;
 
         private class Session
         {
-            private static long next;
+            private static long _next;
 
-            internal static long Next
-            {
-                get { return ++next; }
-            }
+            internal static long Next => ++_next;
         }
 
         #endregion Private Variables
@@ -49,26 +46,17 @@ namespace SharpIrc.IrcFeatures
         /// <summary>
         /// Returns false when the Connections is not Valid (before or after Connection)
         /// </summary>
-        public bool Connected
-        {
-            get { return IsConnected; }
-        }
+        public bool Connected => IsConnected;
 
         /// <summary>
         /// Returns false when the Connections is not Valid anymore (only at the end)
         /// </summary>
-        public bool Valid
-        {
-            get { return IsValid && (IsConnected || (DateTime.Now < Timeout)); }
-        }
+        public bool Valid => IsValid && (IsConnected || (DateTime.Now < Timeout));
 
         /// <summary>
         /// Returns the Nick of the User we have a DCC with
         /// </summary>
-        public string Nick
-        {
-            get { return User; }
-        }
+        public string Nick => User;
 
         #endregion Public Fields
 
@@ -78,10 +66,7 @@ namespace SharpIrc.IrcFeatures
 
         protected virtual void DccChatRequestEvent(DccEventArgs e)
         {
-            if (OnDccChatRequestEvent != null)
-            {
-                OnDccChatRequestEvent(this, e);
-            }
+            OnDccChatRequestEvent?.Invoke(this, e);
             Irc.DccChatRequestEvent(e);
         }
 
@@ -89,10 +74,7 @@ namespace SharpIrc.IrcFeatures
 
         protected virtual void DccSendRequestEvent(DccSendRequestEventArgs e)
         {
-            if (OnDccSendRequestEvent != null)
-            {
-                OnDccSendRequestEvent(this, e);
-            }
+            OnDccSendRequestEvent?.Invoke(this, e);
             Irc.DccSendRequestEvent(e);
         }
 
@@ -100,10 +82,7 @@ namespace SharpIrc.IrcFeatures
 
         protected virtual void DccChatStartEvent(DccEventArgs e)
         {
-            if (OnDccChatStartEvent != null)
-            {
-                OnDccChatStartEvent(this, e);
-            }
+            OnDccChatStartEvent?.Invoke(this, e);
             Irc.DccChatStartEvent(e);
         }
 
@@ -111,10 +90,7 @@ namespace SharpIrc.IrcFeatures
 
         protected virtual void DccSendStartEvent(DccEventArgs e)
         {
-            if (OnDccSendStartEvent != null)
-            {
-                OnDccSendStartEvent(this, e);
-            }
+            OnDccSendStartEvent?.Invoke(this, e);
             Irc.DccSendStartEvent(e);
         }
 
@@ -122,10 +98,7 @@ namespace SharpIrc.IrcFeatures
 
         protected virtual void DccChatReceiveLineEvent(DccChatEventArgs e)
         {
-            if (OnDccChatReceiveLineEvent != null)
-            {
-                OnDccChatReceiveLineEvent(this, e);
-            }
+            OnDccChatReceiveLineEvent?.Invoke(this, e);
             Irc.DccChatReceiveLineEvent(e);
         }
 
@@ -133,10 +106,7 @@ namespace SharpIrc.IrcFeatures
 
         protected virtual void DccSendReceiveBlockEvent(DccSendEventArgs e)
         {
-            if (OnDccSendReceiveBlockEvent != null)
-            {
-                OnDccSendReceiveBlockEvent(this, e);
-            }
+            OnDccSendReceiveBlockEvent?.Invoke(this, e);
             Irc.DccSendReceiveBlockEvent(e);
         }
 
@@ -144,10 +114,7 @@ namespace SharpIrc.IrcFeatures
 
         protected virtual void DccChatSentLineEvent(DccChatEventArgs e)
         {
-            if (OnDccChatSentLineEvent != null)
-            {
-                OnDccChatSentLineEvent(this, e);
-            }
+            OnDccChatSentLineEvent?.Invoke(this, e);
             Irc.DccChatSentLineEvent(e);
         }
 
@@ -155,10 +122,7 @@ namespace SharpIrc.IrcFeatures
 
         protected virtual void DccSendSentBlockEvent(DccSendEventArgs e)
         {
-            if (OnDccSendSentBlockEvent != null)
-            {
-                OnDccSendSentBlockEvent(this, e);
-            }
+            OnDccSendSentBlockEvent?.Invoke(this, e);
             Irc.DccSendSentBlockEvent(e);
         }
 
@@ -166,10 +130,7 @@ namespace SharpIrc.IrcFeatures
 
         protected virtual void DccChatStopEvent(DccEventArgs e)
         {
-            if (OnDccChatStopEvent != null)
-            {
-                OnDccChatStopEvent(this, e);
-            }
+            OnDccChatStopEvent?.Invoke(this, e);
             Irc.DccChatStopEvent(e);
         }
 
@@ -177,10 +138,7 @@ namespace SharpIrc.IrcFeatures
 
         protected virtual void DccSendStopEvent(DccEventArgs e)
         {
-            if (OnDccSendStopEvent != null)
-            {
-                OnDccSendStopEvent(this, e);
-            }
+            OnDccSendStopEvent?.Invoke(this, e);
             Irc.DccSendStopEvent(e);
         }
 
@@ -189,7 +147,7 @@ namespace SharpIrc.IrcFeatures
         internal DccConnection()
         {
             //Each DccConnection gets a Unique Identifier (just used internally until we have a TcpClient connected)
-            SessionID = Session.Next;
+            SessionId = Session.Next;
             // If a Connection is not established within 120 Seconds we invalidate the DccConnection (see property Valid)
             Timeout = DateTime.Now.AddSeconds(120);
         }
@@ -201,7 +159,7 @@ namespace SharpIrc.IrcFeatures
 
         internal bool IsSession(long session)
         {
-            return (session == this.SessionID);
+            return (session == SessionId);
         }
 
         #region Public Methods
@@ -222,7 +180,7 @@ namespace SharpIrc.IrcFeatures
 
         public override string ToString()
         {
-            return "DCC Session " + SessionID + " of " + GetType() + " is " + ((IsConnected) ? "connected to " + RemoteEndPoint.Address : "not connected") + "[" + User + "]";
+            return "DCC Session " + SessionId + " of " + GetType() + " is " + ((IsConnected) ? "connected to " + RemoteEndPoint.Address : "not connected") + "[" + User + "]";
         }
 
         #endregion Public Methods
@@ -231,10 +189,22 @@ namespace SharpIrc.IrcFeatures
 
         protected long HostToDccInt(IPAddress ip)
         {
-            long temp = (ip.Address & 0xff) << 24;
-            temp |= (ip.Address & 0xff00) << 8;
-            temp |= (ip.Address >> 8) & 0xff00;
-            temp |= (ip.Address >> 24) & 0xff;
+            var bytes = ip.GetAddressBytes();
+
+            if (bytes.Length != 4)
+            {
+                throw new NotImplementedException("IPv6 not supported");
+            }
+
+            long temp = 0;
+
+#pragma warning disable CS0675 // Bitwise-or operator used on a sign-extended operand
+            temp |= (bytes[0]) << 24;
+            temp |= (bytes[1]) << 16;
+            temp |= (bytes[2]) << 8;
+            temp |= (bytes[3]);
+#pragma warning restore CS0675 // Bitwise-or operator used on a sign-extended operand
+
             return temp;
         }
 
@@ -242,18 +212,18 @@ namespace SharpIrc.IrcFeatures
         {
             var ep = new IPEndPoint(ip, 80);
             char[] sep = { '.' };
-            string[] ipparts = ep.Address.ToString().Split(sep);
-            return ipparts[3] + "." + ipparts[2] + "." + ipparts[1] + "." + ipparts[0];
+            string[] ipParts = ep.Address.ToString().Split(sep);
+            return ipParts[3] + "." + ipParts[2] + "." + ipParts[1] + "." + ipParts[0];
         }
 
         protected byte[] GetAck(long sentBytes)
         {
-            var acks = new byte[4];
-            acks[0] = (byte)((sentBytes >> 24) % 256);
-            acks[1] = (byte)((sentBytes >> 16) % 256);
-            acks[2] = (byte)((sentBytes >> 8) % 256);
-            acks[3] = (byte)((sentBytes) % 256);
-            return acks;
+            var acknowledged = new byte[4];
+            acknowledged[0] = (byte)((sentBytes >> 24) % 256);
+            acknowledged[1] = (byte)((sentBytes >> 16) % 256);
+            acknowledged[2] = (byte)((sentBytes >> 8) % 256);
+            acknowledged[3] = (byte)((sentBytes) % 256);
+            return acknowledged;
         }
 
         protected string FilterMarker(string msg)

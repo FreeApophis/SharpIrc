@@ -22,6 +22,6 @@ namespace SharpIrc
         /// <summary>
         ///
         /// </summary>
-        public IrcMessageData Data { get; private set; }
+        public IrcMessageData Data { get; }
     }
 }

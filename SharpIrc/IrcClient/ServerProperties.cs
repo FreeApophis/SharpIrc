@@ -15,12 +15,12 @@ namespace SharpIrc.IrcClient
     {
         public void Parse(string line)
         {
-            string[] parameters = line.Substring(0, line.LastIndexOf(":") - 1).Split(new[] { ' ' });
+            string[] parameters = line.Substring(0, line.LastIndexOf(":", StringComparison.Ordinal) - 1).Split(' ');
 
             foreach (string s in parameters.Skip(3))
             {
-                string[] pv = s.Split(new[] { '=' });
-                raw.Add(pv[0], ((pv.Length > 1) ? pv[1] : "TRUE"));
+                string[] pv = s.Split('=');
+                _raw.Add(pv[0], ((pv.Length > 1) ? pv[1] : "TRUE"));
 
                 // Boolean value;
                 switch (pv[0])
@@ -32,10 +32,10 @@ namespace SharpIrc.IrcClient
                         InviteExceptions = true;
                         break;
                     case "WALLCHOPS":
-                        wAllChannelOps = true;
+                        _wAllChannelOps = true;
                         break;
                     case "WALLVOICES":
-                        wAllVoices = true;
+                        _wAllVoices = true;
                         break;
                     case "RFC2812":
                         RfC2812 = true;
@@ -74,19 +74,19 @@ namespace SharpIrc.IrcClient
                         ModeG = true;
                         break;
                     case "IRCD":
-                        ircDaemon = pv[1];
+                        _ircDaemon = pv[1];
                         break;
                     case "PREFIX":
-                        nickPrefix = pv[1];
+                        _nickPrefix = pv[1];
                         break;
                     case "CHANTYPES":
-                        channelTypes = pv[1];
+                        _channelTypes = pv[1];
                         break;
                     case "CHANMODES":
-                        channelModes = pv[1];
+                        _channelModes = pv[1];
                         break;
                     case "MODES":
-                        maxChannelModes = int.Parse(pv[1]);
+                        MaxChannelModes = int.Parse(pv[1]);
                         break;
                     case "MAXCHANNELS":
                         maxChannels = int.Parse(pv[1]);
@@ -95,84 +95,84 @@ namespace SharpIrc.IrcClient
                         maxChannelsByType = pv[1];
                         break;
                     case "NICKLEN":
-                        maxNickLength = int.Parse(pv[1]);
+                        MaxNickLength = int.Parse(pv[1]);
                         break;
                     case "MAXBANS":
-                        maxBans = int.Parse(pv[1]);
+                        _maxBans = int.Parse(pv[1]);
                         break;
                     case "MAXLIST":
-                        maxList = pv[1];
+                        _maxList = pv[1];
                         break;
                     case "NETWORK":
-                        networkName = pv[1];
+                        NetworkName = pv[1];
                         break;
                     case "STATUSMSG":
-                        statusMessage = pv[1];
+                        _statusMessage = pv[1];
                         break;
                     case "CASEMAPPING":
-                        if (pv[1] == "ascii") caseMapping = CaseMappingType.Ascii;
-                        if (pv[1] == "rfc1459") caseMapping = CaseMappingType.Rfc1459;
-                        if (pv[1] == "strict-rfc1459") caseMapping = CaseMappingType.Rfc1459Strict;
+                        if (pv[1] == "ascii") CaseMapping = CaseMappingType.Ascii;
+                        if (pv[1] == "rfc1459") CaseMapping = CaseMappingType.Rfc1459;
+                        if (pv[1] == "strict-rfc1459") CaseMapping = CaseMappingType.Rfc1459Strict;
                         break;
                     case "ELIST":
-                        extendedListCommand = pv[1];
+                        _extendedListCommand = pv[1];
                         break;
                     case "TOPICLEN":
-                        maxTopicLength = int.Parse(pv[1]);
+                        MaxTopicLength = int.Parse(pv[1]);
                         break;
                     case "KICKLEN":
-                        maxKickLength = int.Parse(pv[1]);
+                        MaxKickLength = int.Parse(pv[1]);
                         break;
                     case "CHANNELLEN":
-                        maxChannelLength = int.Parse(pv[1]);
+                        MaxChannelLength = int.Parse(pv[1]);
                         break;
                     case "CHIDLEN":
-                        channelIDLength = int.Parse(pv[1]);
+                        _channelIdLength = int.Parse(pv[1]);
                         break;
                     case "IDCHAN":
-                        channelIDLengthByType = pv[1];
+                        _channelIdLengthByType = pv[1];
                         break;
                     case "STD":
-                        ircStandard = pv[1];
+                        IrcStandard = pv[1];
                         break;
                     case "SILENCE":
                         MaxSilence = int.Parse(pv[1]);
                         break;
                     case "AWAYLEN":
-                        maxAwayLength = int.Parse(pv[1]);
+                        MaxAwayLength = int.Parse(pv[1]);
                         break;
                     case "MAXTARGETS":
-                        maxTargets = int.Parse(pv[1]);
+                        MaxTargets = int.Parse(pv[1]);
                         break;
                     case "WATCH":
                         MaxWatch = int.Parse(pv[1]);
                         break;
                     case "LANGUAGE":
-                        language = pv[1];
+                        _language = pv[1];
                         break;
                     case "KEYLEN":
-                        maxKeyLength = int.Parse(pv[1]);
+                        _maxKeyLength = int.Parse(pv[1]);
                         break;
                     case "USERLEN":
-                        maxUserLength = int.Parse(pv[1]);
+                        MaxUserLength = int.Parse(pv[1]);
                         break;
                     case "HOSTLEN":
-                        maxHostLength = int.Parse(pv[1]);
+                        MaxHostLength = int.Parse(pv[1]);
                         break;
                     case "CMDS":
                         SetCommands(pv[1]);
                         break;
                     case "MAXNICKLEN":
-                        maxNickLength = int.Parse(pv[1]);
+                        MaxNickLength = int.Parse(pv[1]);
                         break;
                     case "MAXCHANNELLEN":
-                        maxChannelLength = int.Parse(pv[1]);
+                        MaxChannelLength = int.Parse(pv[1]);
                         break;
                     case "MAP":
                         Map = true;
                         break;
                     case "TARGMAX":
-                        maxTargetsByCommand = pv[1];
+                        MaxTargetsByCommand = pv[1];
                         break;
                     default:
                         break;
@@ -190,7 +190,7 @@ namespace SharpIrc.IrcClient
 
         private void SetCommands(string commandList)
         {
-            foreach (string command in commandList.Split(new[] { ',' }))
+            foreach (string command in commandList.Split(','))
             {
                 switch (command)
                 {
@@ -212,64 +212,40 @@ namespace SharpIrc.IrcClient
             }
         }
 
-        private readonly Dictionary<string, string> raw = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
+        private readonly Dictionary<string, string> _raw = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
 
         /// <summary>
         /// Safe Access to All Values Sent in RPL_ISUPPORT
         /// If a Value is not Set this will Return "FALSE" (this can also mean: we don't know)
         /// If a Value has no Parameter this will Return "TRUE"
-        /// The Index should be the Identifier sent by the Server like "PREFIX" (not casesensitive)
+        /// The Index should be the Identifier sent by the Server like "PREFIX" (not case sensitive)
         /// </summary>
-        public string this[string s]
-        {
-            get
-            {
-                return raw.ContainsKey(s) ? raw[s] : "FALSE";
-            }
-        }
+        public string this[string s] => _raw.ContainsKey(s) ? _raw[s] : "FALSE";
 
         public IEnumerable<string> KnownValues()
         {
-            return raw.Keys;
+            return _raw.Keys;
         }
 
 
-        private string ircDaemon = "unknown";
+        private string _ircDaemon = "unknown";
         /// <summary>
         /// Returns the Name of the IrcDaemon
         /// </summary>
-        public string IrcDaemon
-        {
-            get
-            {
-                return ircDaemon;
-            }
-        }
+        public string IrcDaemon => _ircDaemon;
 
-        private string channelTypes = string.Empty;
+        private string _channelTypes = string.Empty;
 
-        public IEnumerable<char> ChannelTypes
-        {
-            get
-            {
-                return channelTypes.ToCharArray();
-            }
-        }
+        public IEnumerable<char> ChannelTypes => _channelTypes.ToCharArray();
 
-        private string channelModes = string.Empty;
+        private string _channelModes = string.Empty;
 
-        public IEnumerable<char> ChannelModes
-        {
-            get
-            {
-                return channelModes.Where(c => c != ',').ToList();
-            }
-        }
+        public IEnumerable<char> ChannelModes => _channelModes.Where(c => c != ',').ToList();
 
         public IEnumerable<char> GetChannelModes(ChannelModeType channelModeType)
         {
             var temp = new List<char>();
-            string[] modes = channelModes.Split(new[] { ',' });
+            string[] modes = _channelModes.Split(',');
             if (modes.Length < 4)
                 return temp;
             if (channelModeType == ChannelModeType.WithUserhostParameter)
@@ -296,18 +272,10 @@ namespace SharpIrc.IrcClient
             temp.AddRange(modes.Where(c => c != ','));
         }
 
-        private int maxChannelModes = -1;
-
         /// <summary>
         /// Returns the maximum number of channel modes with parameter allowed per MODE command (-1 if unknown)
         /// </summary>
-        public int MaxChannelModes
-        {
-            get
-            {
-                return maxChannelModes;
-            }
-        }
+        public int MaxChannelModes { get; private set; } = -1;
 
         private int maxChannels = -1;
         private string maxChannelsByType = string.Empty;
@@ -316,13 +284,7 @@ namespace SharpIrc.IrcClient
         /// <summary>
         /// Maximum number of channels allowed to join (# channels);
         /// </summary>
-        public int MaxChannels
-        {
-            get
-            {
-                return GetMaxChannels('#');
-            }
-        }
+        public int MaxChannels => GetMaxChannels('#');
 
         /// <summary>
         /// Maximum number of channels allowed to join per Channel Type;
@@ -336,20 +298,12 @@ namespace SharpIrc.IrcClient
             return pfn.ContainsKey(channelPrefix) ? pfn[channelPrefix] : maxChannels;
         }
 
-        private int maxNickLength = 9;  // Rfc 2812
-
         /// <summary>
         /// Returns the the maximum allowed nickname length.
         /// </summary>
-        public int MaxNickLength
-        {
-            get
-            {
-                return maxNickLength;
-            }
-        }
+        public int MaxNickLength { get; private set; } = 9;
 
-        private string maxList = string.Empty;
+        private string _maxList = string.Empty;
 
         /// <summary>
         ///  Returns the maximal number of List entries in a List.
@@ -358,36 +312,22 @@ namespace SharpIrc.IrcClient
         /// <returns>Maximal Length of List (of type listType)</returns>
         public int GetMaxList(char listType)
         {
-            Dictionary<char, int> pfn = ParsePfxNum(maxList);
+            Dictionary<char, int> pfn = ParsePfxNum(_maxList);
 
             return pfn.ContainsKey(listType) ? pfn[listType] : -1;
         }
 
-        private int maxBans = -1;
+        private int _maxBans = -1;
         /// <summary>
         /// Maximum number of bans per channel.
         /// Note: This Value is either from the MAXBANS or the MAXLIST Value
         /// </summary>
-        public int MaxBans
-        {
-            get
-            {
-                return Math.Max(maxBans, GetMaxList('b'));
-            }
-        }
-
-        private string networkName = "unknwon";
+        public int MaxBans => Math.Max(_maxBans, GetMaxList('b'));
 
         /// <summary>
         /// Returns the Network Name if known
         /// </summary>
-        public string NetworkName
-        {
-            get
-            {
-                return networkName;
-            }
-        }
+        public string NetworkName { get; private set; } = "unknown";
 
         /// <summary>
         /// Returns true if the server support ban exceptions (e mode).
@@ -400,20 +340,14 @@ namespace SharpIrc.IrcClient
         public bool InviteExceptions { get; private set; }
 
 
-        private string statusMessage = string.Empty;
+        private string _statusMessage = string.Empty;
 
         /// <summary>
         /// Returns a list of Prefixes which can be used before a Channel name to message nicks who have a certain status or higher.
         /// </summary>
-        public IEnumerable<char> StatusMessage
-        {
-            get
-            {
-                return statusMessage.ToCharArray();
-            }
-        }
+        public IEnumerable<char> StatusMessage => _statusMessage.ToCharArray();
 
-        private bool wAllVoices;
+        private bool _wAllVoices;
 
         /// <summary>
         /// Returns true if the server supports messaging channel operators (NOTICE @#channel)
@@ -423,13 +357,13 @@ namespace SharpIrc.IrcClient
         {
             get
             {
-                bool statusContainsVoice = StatusMessage.Where(c => c == '+').Any();
+                bool statusContainsVoice = StatusMessage.Any(c => c == '+');
 
-                return (wAllVoices || statusContainsVoice);
+                return (_wAllVoices || statusContainsVoice);
             }
         }
 
-        private bool wAllChannelOps;
+        private bool _wAllChannelOps;
 
         /// <summary>
         /// Returns true if the server supports messaging channel operators (NOTICE @#channel)
@@ -439,92 +373,48 @@ namespace SharpIrc.IrcClient
         {
             get
             {
-                bool statusContainsOp = StatusMessage.Where(c => c == '@').Any();
+                bool statusContainsOp = StatusMessage.Any(c => c == '@');
 
-                return (wAllChannelOps || statusContainsOp);
+                return (_wAllChannelOps || statusContainsOp);
             }
         }
-
-        private CaseMappingType caseMapping = CaseMappingType.Unknown;
 
         /// <summary>
         /// Returns the used Case Mapping type ascii or rfc1459
         /// </summary>
-        public CaseMappingType CaseMapping
-        {
-            get
-            {
-                return caseMapping;
-            }
-        }
+        public CaseMappingType CaseMapping { get; private set; } = CaseMappingType.Unknown;
 
 
-        private string extendedListCommand = string.Empty;
+        private string _extendedListCommand = string.Empty;
 
         /// <summary>
-        /// Returns an Enum with all List Extentions possible on the server
+        /// Returns an Enum with all List extensions possible on the server
         /// </summary>
-        public EListType ExtendedListCommand
-        {
-            get
-            {
-                return extendedListCommand.Aggregate<char, EListType>(0, (current, c) => current | (EListType)Enum.Parse(typeof(EListType), c.ToString()));
-            }
-        }
-
-        private int maxTopicLength = -1;
+        public EListType ExtendedListCommand => _extendedListCommand.Aggregate<char, EListType>(0, (current, c) => current | (EListType)Enum.Parse(typeof(EListType), c.ToString()));
 
         /// <summary>
         /// Retruns the maximal allowed Length of a channel topic if known (-1 otherwise)
         /// </summary>
-        public int MaxTopicLength
-        {
-            get
-            {
-                return maxTopicLength;
-            }
-        }
-
-        private int maxKickLength = -1;
+        public int MaxTopicLength { get; private set; } = -1;
 
         /// <summary>
         /// Retruns the maximal allowed Length of a kick message if known (-1 otherwise)
         /// </summary>
-        public int MaxKickLength
-        {
-            get
-            {
-                return maxKickLength;
-            }
-        }
-
-        private int maxChannelLength = 50;  // Rfc 2812
+        public int MaxKickLength { get; private set; } = -1;
 
         /// <summary>
         /// Retruns the maximal allowed Length of a channel name
         /// </summary>
-        public int MaxChannelLength
-        {
-            get
-            {
-                return maxChannelLength;
-            }
-        }
+        public int MaxChannelLength { get; private set; } = 50;
 
-        private int channelIDLength = 5; // Rfc 2811
-        private string channelIDLengthByType = string.Empty;
+        private int _channelIdLength = 5; // Rfc 2811
+        private string _channelIdLengthByType = string.Empty;
 
 
         /// <summary>
         /// Returns the ID length for channels (! channels);
         /// </summary>
-        public int ChannelIDLength
-        {
-            get
-            {
-                return GetChannelIDLength('!');
-            }
-        }
+        public int ChannelIdLength => GetChannelIdLength('!');
 
 
         /// <summary>
@@ -532,19 +422,19 @@ namespace SharpIrc.IrcClient
         /// </summary>
         /// <param name="channelPrefix">On Which Type of channels (ex. '#')</param>
         /// <returns>Length of Channel ID</returns>
-        public int GetChannelIDLength(char channelPrefix)
+        public int GetChannelIdLength(char channelPrefix)
         {
-            Dictionary<char, int> pfn = ParsePfxNum(channelIDLengthByType);
+            Dictionary<char, int> pfn = ParsePfxNum(_channelIdLengthByType);
 
-            return pfn.ContainsKey(channelPrefix) ? pfn[channelPrefix] : channelIDLength;
+            return pfn.ContainsKey(channelPrefix) ? pfn[channelPrefix] : _channelIdLength;
         }
 
         private static Dictionary<char, int> ParsePfxNum(string toParse)
         {
             var result = new Dictionary<char, int>();
-            foreach (string sr in toParse.Split(new[] { ',' }))
+            foreach (string sr in toParse.Split(','))
             {
-                string[] ssr = sr.Split(new[] { ':' });  // ssr[0] list of chars, ssr[1] numeric value
+                string[] ssr = sr.Split(':');  // ssr[0] list of chars, ssr[1] numeric value
                 foreach (char c in ssr[0])
                 {
                     result.Add(c, int.Parse(ssr[1]));
@@ -553,18 +443,10 @@ namespace SharpIrc.IrcClient
             return result;
         }
 
-        private string ircStandard = "none";
-
         /// <summary>
         /// Returns the used Irc-Standard if known
         /// </summary>
-        public string IrcStandard
-        {
-            get
-            {
-                return ircStandard;
-            }
-        }
+        public string IrcStandard { get; private set; } = "none";
 
 
         /// <summary>
@@ -592,18 +474,10 @@ namespace SharpIrc.IrcClient
         /// </summary>
         public bool SafeList { get; private set; }
 
-        private int maxAwayLength = -1;
-
         /// <summary>
         /// The maximum length of an away message, returns -1 if not known
         /// </summary>
-        public int MaxAwayLength
-        {
-            get
-            {
-                return maxAwayLength;
-            }
-        }
+        public int MaxAwayLength { get; private set; } = -1;
 
         /// <summary>
         /// NOQUIT
@@ -625,30 +499,15 @@ namespace SharpIrc.IrcClient
         /// </summary>
         public bool CNotice { get; private set; }
 
-        private int maxTargets = 1;
-        private string maxTargetsByCommand = string.Empty;
-
         /// <summary>
         /// Returns the maximum number of targets for PrivMsg and Notice
         /// </summary>
-        public int MaxTargets
-        {
-            get
-            {
-                return maxTargets;
-            }
-        }
+        public int MaxTargets { get; private set; } = 1;
 
         /// <summary>
         /// Returns the MAXTARGETS String (unparsed);
         /// </summary>
-        public string MaxTargetsByCommand
-        {
-            get
-            {
-                return maxTargetsByCommand;
-            }
-        }
+        public string MaxTargetsByCommand { get; private set; } = string.Empty;
 
         /// <summary>
         /// Returns true if the Server supports the Knock Command
@@ -675,24 +534,18 @@ namespace SharpIrc.IrcClient
         /// </summary>
         public bool ModeG { get; private set; }
 
-        private string language = string.Empty;
+        private string _language = string.Empty;
 
         /// <summary>
         /// Returns a list of Languages if the Server supports the Language command.
         /// </summary>
-        public IEnumerable<string> Languages
-        {
-            get
-            {
-                return language.Split(new[] { ',' });
-            }
-        }
+        public IEnumerable<string> Languages => _language.Split(',');
 
 
-        private string nickPrefix = string.Empty;
+        private string _nickPrefix = string.Empty;
 
         /// <summary>
-        /// Returns a Dictionary with Usermodes and Userprefixes for Channels.
+        /// Returns a dictionary with user modes and user prefixes for channels.
         /// If we don't have values from the servers you can assume at least +ov / @+ are supported
         /// However the dictionary will be empty!
         /// Key = Mode, Value = Prefix, ex. NickPrefix['o'] = '@'
@@ -702,7 +555,7 @@ namespace SharpIrc.IrcClient
         {
             get
             {
-                string[] np = nickPrefix.Split(new[] { ')' });
+                string[] np = _nickPrefix.Split(')');
                 var temp = new Dictionary<char, char>();
                 int i = 0;
                 foreach (char c in np[1])
@@ -714,44 +567,22 @@ namespace SharpIrc.IrcClient
             }
         }
 
-        private int maxKeyLength = -1;
+        private int _maxKeyLength = -1;
 
         /// <summary>
         /// Returns the maximum allowed Key length on this server or -1 if unknown
         /// </summary>
-        public int MaxKeyLength
-        {
-            get
-            {
-                return maxKeyLength;
-            }
-        }
-
-        private int maxUserLength = -1;
+        public int MaxKeyLength => _maxKeyLength;
 
         /// <summary>
-        ///  Returns the Maximum allowed User length on this server or -1 if unknwon
+        ///  Returns the Maximum allowed User length on this server or -1 if unknown
         /// </summary>
-        public int MaxUserLength
-        {
-            get
-            {
-                return maxUserLength;
-            }
-        }
-
-        private int maxHostLength = -1;
+        public int MaxUserLength { get; private set; } = -1;
 
         /// <summary>
-        ///  Returns the Maximum allowed Host length on this server or -1 if unknwon
+        ///  Returns the Maximum allowed Host length on this server or -1 if unknown
         /// </summary>
-        public int MaxHostLength
-        {
-            get
-            {
-                return maxHostLength;
-            }
-        }
+        public int MaxHostLength { get; private set; } = -1;
 
         /// <summary>
         /// Returns true if we know this server supports the Map Command
@@ -766,45 +597,8 @@ namespace SharpIrc.IrcClient
         #region foreach
         public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
         {
-            return ((IEnumerable<KeyValuePair<string, string>>)raw).GetEnumerator();
+            return ((IEnumerable<KeyValuePair<string, string>>)_raw).GetEnumerator();
         }
-
         #endregion foreach
-    }
-
-    public enum CaseMappingType
-    {
-        Unknown,
-        Rfc1459,
-        Rfc1459Strict,
-        Ascii
-
-    }
-
-    [Flags]
-    public enum ChannelModeType
-    {
-        WithUserhostParameter,
-        WithAlwaysParamter,
-        WithSetOnlyParameter,
-        WithoutParameter
-    }
-
-    /// <summary>
-    /// M = mask search,
-    /// N = !mask search
-    /// U = usercount search (< >)
-    /// C = creation time search (C< C>)
-    /// T = topic search (T< T>)
-    /// </summary>
-    [Flags]
-    public enum EListType
-    {
-
-        M,
-        N,
-        U,
-        C,
-        T
     }
 }

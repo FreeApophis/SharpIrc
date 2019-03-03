@@ -12,15 +12,15 @@ namespace SharpIrc.IrcClient.EventArgs
     [Serializable]
     public class CtcpEventArgs : IrcEventArgs
     {
-        internal CtcpEventArgs(IrcMessageData data, string ctcpcmd, string ctcpparam)
+        internal CtcpEventArgs(IrcMessageData data, string ctcpCommand, string ctcpParameter)
             : base(data)
         {
-            CtcpCommand = ctcpcmd;
-            CtcpParameter = ctcpparam;
+            CtcpCommand = ctcpCommand;
+            CtcpParameter = ctcpParameter;
         }
 
-        public string CtcpCommand { get; private set; }
+        public string CtcpCommand { get; }
 
-        public string CtcpParameter { get; private set; }
+        public string CtcpParameter { get; }
     }
 }

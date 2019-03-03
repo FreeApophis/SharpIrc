@@ -12,18 +12,18 @@ namespace SharpIrc.IrcClient.EventArgs
     [Serializable]
     public class UnbanEventArgs : IrcEventArgs
     {
-        internal UnbanEventArgs(IrcMessageData data, string channel, string who, string hostmask)
+        internal UnbanEventArgs(IrcMessageData data, string channel, string who, string hostMask)
             : base(data)
         {
             Channel = channel;
             Who = who;
-            Hostmask = hostmask;
+            HostMask = hostMask;
         }
 
-        public string Channel { get; private set; }
+        public string Channel { get; }
 
-        public string Who { get; private set; }
+        public string Who { get; }
 
-        public string Hostmask { get; private set; }
+        public string HostMask { get; }
     }
 }

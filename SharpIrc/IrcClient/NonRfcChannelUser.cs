@@ -15,9 +15,9 @@ namespace SharpIrc.IrcClient
         ///
         /// </summary>
         /// <param name="channel"> </param>
-        /// <param name="ircuser"> </param>
-        internal NonRfcChannelUser(string channel, IrcUser ircuser)
-            : base(channel, ircuser)
+        /// <param name="ircUser"> </param>
+        internal NonRfcChannelUser(string channel, IrcUser ircUser)
+            : base(channel, ircUser)
         {
         }
 

@@ -16,118 +16,105 @@ namespace SharpIrc.IrcClient
     public class IrcMessageData
     {
         private static readonly Regex PrefixRegex = new Regex("([^!@]+)(![^@]+)?(@.+)?");
-        private readonly string[] args;
-        private readonly string command;
-        private readonly SharpIrc.IrcClient.IrcClient irc;
-        private readonly string[] messageArray;
-        private readonly string prefix;
-        private readonly string rawMessage;
-        private readonly string[] rawMessageArray;
-        private readonly string rest;
-        private string channel;
-        private string host;
-        private string ident;
-        private string nick;
-        private ReplyCode replyCode;
-        private ReceiveType type;
+        private readonly SharpIrc.IrcClient.IrcClient _irc;
 
         /// <summary>
-        /// Constructor to create an instace of IrcMessageData
+        /// Constructor to create an instance of IrcMessageData
         /// </summary>
-        /// <param name="ircclient">IrcClient the message originated from</param>
+        /// <param name="ircClient">IrcClient the message originated from</param>
         /// <param name="from">combined nickname, identity and host of the user that sent the message (nick!ident@host)</param>
         /// <param name="nick">nickname of the user that sent the message</param>
-        /// <param name="ident">identity (username) of the userthat sent the message</param>
+        /// <param name="ident">identity (username) of the user that sent the message</param>
         /// <param name="host">hostname of the user that sent the message</param>
         /// <param name="channel">channel the message originated from</param>
         /// <param name="message">message</param>
-        /// <param name="rawmessage">raw message sent by the server</param>
+        /// <param name="rawMessage">raw message sent by the server</param>
         /// <param name="type">message type</param>
         /// <param name="replycode">message reply code</param>
-        public IrcMessageData(SharpIrc.IrcClient.IrcClient ircclient, string from, string nick, string ident, string host, string channel, string message, string rawmessage, ReceiveType type, ReplyCode replycode)
+        public IrcMessageData(SharpIrc.IrcClient.IrcClient ircClient, string from, string nick, string ident, string host, string channel, string message, string rawMessage, ReceiveType type, ReplyCode replycode)
         {
-            irc = ircclient;
-            rawMessage = rawmessage;
-            rawMessageArray = rawmessage.Split(new[] { ' ' });
-            this.type = type;
-            replyCode = replycode;
-            prefix = from;
-            this.nick = nick;
-            this.ident = ident;
-            this.host = host;
-            this.channel = channel;
+            _irc = ircClient;
+            RawMessage = rawMessage;
+            RawMessageArray = rawMessage.Split(' ');
+            Type = type;
+            ReplyCode = replycode;
+            From = from;
+            Nick = nick;
+            Ident = ident;
+            Host = host;
+            Channel = channel;
 
             // message is optional
             if (message == null) return;
 
-            rest = message;
-            messageArray = message.Split(new[] { ' ' });
+            Message = message;
+            MessageArray = message.Split(' ');
         }
 
         /// <summary>
-        /// Constructor to create an instace of IrcMessageData
+        /// Constructor to create an instance of IrcMessageData
         /// </summary>
         /// <param name="ircClient">IrcClient the message originated from</param>
         /// <param name="rawMessage">message as it appears on wire, stripped of newline</param>
-        public IrcMessageData(SharpIrc.IrcClient.IrcClient ircClient, string rawMessage)
+        public IrcMessageData(IrcClient ircClient, string rawMessage)
         {
 
             if (rawMessage == null)
             {
-                throw new ArgumentException("Cannot parse null message");
+                throw new ArgumentNullException(nameof(rawMessage));
             }
             if (rawMessage == "")
             {
                 throw new ArgumentException("Cannot parse empty message");
             }
 
-            irc = ircClient;
-            this.rawMessage = rawMessage;
-            rawMessageArray = rawMessage.Split(' ');
-            prefix = "";
-            rest = "";
+            _irc = ircClient;
+            RawMessage = rawMessage;
+            RawMessageArray = rawMessage.Split(' ');
+            From = "";
+            Message = "";
 
             int start = 0;
             int len = 0;
-            if (rawMessageArray[0][0] == ':')
+            if (RawMessageArray[0][0] == ':')
             {
-                prefix = rawMessageArray[0].Substring(1);
+                From = RawMessageArray[0].Substring(1);
                 start = 1;
-                len += prefix.Length + 1;
+                len += From.Length + 1;
             }
 
-            command = rawMessageArray[start];
-            len += command.Length + 1;
+            Command = RawMessageArray[start];
+            len += Command.Length + 1;
 
-            int length = rawMessageArray.Length;
+            int length = RawMessageArray.Length;
 
             if (start + 1 < length)
             {
-                for (int i = start + 1; i < rawMessageArray.Length; i++)
+                for (int i = start + 1; i < RawMessageArray.Length; i++)
                 {
-                    if (rawMessageArray[i][0] == ':')
+                    if (RawMessageArray[i][0] == ':')
                     {
                         length = i;
                         break;
                     }
-                    len += rawMessageArray[i].Length + 1;
+                    len += RawMessageArray[i].Length + 1;
                 }
 
-                args = new string[length - start - 1];
-                Array.Copy(rawMessageArray, start + 1, args, 0, length - start - 1);
-                if (length < rawMessageArray.Length)
+                Args = new string[length - start - 1];
+                Array.Copy(RawMessageArray, start + 1, Args, 0, length - start - 1);
+                if (length < RawMessageArray.Length)
                 {
-                    rest = this.rawMessage.Substring(this.rawMessage.IndexOf(':', len) + 1);
-                    messageArray = rest.Split(' ');
+                    Message = RawMessage.Substring(RawMessage.IndexOf(':', len) + 1);
+                    MessageArray = Message.Split(' ');
                 }
             }
             else
             {
-                args = new string[0];
+                Args = new string[0];
             }
 
-            replyCode = ReplyCode.Null;
-            type = ReceiveType.Unknown;
+            ReplyCode = ReplyCode.Null;
+            Type = ReceiveType.Unknown;
 
             ParseLegacyInfo();
         }
@@ -135,10 +122,7 @@ namespace SharpIrc.IrcClient
         /// <summary>
         /// Gets the IrcClient object the message originated from
         /// </summary>
-        public SharpIrc.IrcClient.IrcClient Irc
-        {
-            get { return irc; }
-        }
+        public SharpIrc.IrcClient.IrcClient Irc => _irc;
 
         /// <summary>
         /// Gets the combined nickname, identity and hostname of the user that sent the message
@@ -146,153 +130,107 @@ namespace SharpIrc.IrcClient
         /// <example>
         /// nick!ident@host
         /// </example>
-        public string From
-        {
-            get { return prefix; }
-        }
+        public string From { get; }
 
         /// <summary>
         /// Gets the nickname of the user that sent the message
         /// </summary>
-        public string Nick
-        {
-            get { return nick; }
-        }
+        public string Nick { get; private set; }
 
         /// <summary>
         /// Gets the identity (username) of the user that sent the message
         /// </summary>
-        public string Ident
-        {
-            get { return ident; }
-        }
+        public string Ident { get; private set; }
 
         /// <summary>
         /// Gets the hostname of the user that sent the message
         /// </summary>
-        public string Host
-        {
-            get { return host; }
-        }
+        public string Host { get; private set; }
 
         /// <summary>
         /// Gets the channel the message originated from
         /// </summary>
-        public string Channel
-        {
-            get { return channel; }
-        }
+        public string Channel { get; private set; }
 
         /// <summary>
         /// Gets the message
         /// </summary>
-        public string Message
-        {
-            get { return rest; }
-        }
+        public string Message { get; }
 
         /// <summary>
         /// Gets the message as an array of strings (splitted by space)
         /// </summary>
-        public string[] MessageArray
-        {
-            get { return messageArray; }
-        }
+        public string[] MessageArray { get; }
 
         /// <summary>
         /// Gets the raw message sent by the server
         /// </summary>
-        public string RawMessage
-        {
-            get { return rawMessage; }
-        }
+        public string RawMessage { get; }
 
         /// <summary>
         /// Gets the raw message sent by the server as array of strings (splitted by space)
         /// </summary>
-        public string[] RawMessageArray
-        {
-            get { return rawMessageArray; }
-        }
+        public string[] RawMessageArray { get; }
 
         /// <summary>
         /// Gets the message type
         /// </summary>
-        public ReceiveType Type
-        {
-            get { return type; }
-        }
+        public ReceiveType Type { get; private set; }
 
         /// <summary>
         /// Gets the message reply code
         /// </summary>
-        public ReplyCode ReplyCode
-        {
-            get { return replyCode; }
-        }
+        public ReplyCode ReplyCode { get; private set; }
 
         /// <summary>
         /// Gets the message prefix
         /// </summary>
-        public string Prefix
-        {
-            get { return prefix; }
-        }
+        public string Prefix => From;
 
         /// <summary>
         /// Gets the message command word
         /// </summary>
-        public string Command
-        {
-            get { return command; }
-        }
+        public string Command { get; }
 
         /// <summary>
         /// Gets the message arguments
         /// </summary>
-        public string[] Args
-        {
-            get { return args; }
-        }
+        public string[] Args { get; }
 
         /// <summary>
         /// Gets the message trailing argument
         /// </summary>
-        public string Rest
-        {
-            get { return rest; }
-        }
+        public string Rest => Message;
 
         // refactored old field parsing code below, ignore for own sanity
         private void ParseLegacyInfo()
         {
-            Match match = PrefixRegex.Match(prefix);
+            Match match = PrefixRegex.Match(From);
 
             if (match.Success)
             {
-                if (match.Groups[2].Success || match.Groups[3].Success || (prefix.IndexOf('.') < 0))
-                    nick = match.Groups[1].ToString();
+                if (match.Groups[2].Success || match.Groups[3].Success || (From.IndexOf('.') < 0))
+                    Nick = match.Groups[1].ToString();
             }
 
             if (match.Groups[2].Success)
-                ident = match.Groups[2].ToString().Substring(1);
+                Ident = match.Groups[2].ToString().Substring(1);
             if (match.Groups[3].Success)
-                host = match.Groups[3].ToString().Substring(1);
+                Host = match.Groups[3].ToString().Substring(1);
 
-            int code;
-            if (int.TryParse(command, out code))
+            if (int.TryParse(Command, out var code))
             {
-                replyCode = (ReplyCode)code;
+                ReplyCode = (ReplyCode)code;
             }
             else
             {
-                replyCode = ReplyCode.Null;
+                ReplyCode = ReplyCode.Null;
             }
-            if (replyCode != ReplyCode.Null)
+            if (ReplyCode != ReplyCode.Null)
             {
                 // categorize replies
 
-                switch (replyCode)
+                switch (ReplyCode)
                 {
                     case ReplyCode.Welcome:
                     case ReplyCode.YourHost:
@@ -303,7 +241,7 @@ namespace SharpIrc.IrcClient
                     case ReplyCode.SaslFailure1:
                     case ReplyCode.SaslFailure2:
                     case ReplyCode.SaslAbort:
-                        type = ReceiveType.Login;
+                        Type = ReceiveType.Login;
                         break;
 
                     case ReplyCode.LuserClient:
@@ -311,39 +249,39 @@ namespace SharpIrc.IrcClient
                     case ReplyCode.LuserUnknown:
                     case ReplyCode.LuserMe:
                     case ReplyCode.LuserChannels:
-                        type = ReceiveType.Info;
+                        Type = ReceiveType.Info;
                         break;
 
                     case ReplyCode.MotdStart:
                     case ReplyCode.Motd:
                     case ReplyCode.EndOfMotd:
-                        type = ReceiveType.Motd;
+                        Type = ReceiveType.Motd;
                         break;
 
                     case ReplyCode.NamesReply:
                     case ReplyCode.EndOfNames:
-                        type = ReceiveType.Name;
+                        Type = ReceiveType.Name;
                         break;
 
                     case ReplyCode.WhoReply:
                     case ReplyCode.EndOfWho:
-                        type = ReceiveType.Who;
+                        Type = ReceiveType.Who;
                         break;
 
                     case ReplyCode.ListStart:
                     case ReplyCode.List:
                     case ReplyCode.ListEnd:
-                        type = ReceiveType.List;
+                        Type = ReceiveType.List;
                         break;
 
                     case ReplyCode.BanList:
                     case ReplyCode.EndOfBanList:
-                        type = ReceiveType.BanList;
+                        Type = ReceiveType.BanList;
                         break;
 
                     case ReplyCode.Topic:
                     case ReplyCode.NoTopic:
-                        type = ReceiveType.Topic;
+                        Type = ReceiveType.Topic;
                         break;
 
                     case ReplyCode.WhoIsUser:
@@ -352,31 +290,31 @@ namespace SharpIrc.IrcClient
                     case ReplyCode.WhoIsIdle:
                     case ReplyCode.WhoIsChannels:
                     case ReplyCode.EndOfWhoIs:
-                        type = ReceiveType.WhoIs;
+                        Type = ReceiveType.WhoIs;
                         break;
 
                     case ReplyCode.WhoWasUser:
                     case ReplyCode.EndOfWhoWas:
-                        type = ReceiveType.WhoWas;
+                        Type = ReceiveType.WhoWas;
                         break;
 
                     case ReplyCode.UserModeIs:
-                        type = ReceiveType.UserMode;
+                        Type = ReceiveType.UserMode;
                         break;
 
                     case ReplyCode.ChannelModeIs:
-                        type = ReceiveType.ChannelMode;
+                        Type = ReceiveType.ChannelMode;
                         break;
 
                     default:
                         if ((code >= 400) &&
                             (code <= 599))
                         {
-                            type = ReceiveType.ErrorMessage;
+                            Type = ReceiveType.ErrorMessage;
                         }
                         else
                         {
-                            type = ReceiveType.Unknown;
+                            Type = ReceiveType.Unknown;
                         }
                         break;
                 }
@@ -385,130 +323,130 @@ namespace SharpIrc.IrcClient
             {
                 // categorize commands
 
-                switch (command)
+                switch (Command)
                 {
                     case "PING":
-                        type = ReceiveType.Unknown;
+                        Type = ReceiveType.Unknown;
                         break;
 
                     case "ERROR":
-                        type = ReceiveType.Error;
+                        Type = ReceiveType.Error;
                         break;
 
                     case "PRIVMSG":
-                        if (args.Length > 0 && rest.StartsWith("\x1" + "ACTION") && rest.EndsWith("\x1"))
+                        if (Args.Length > 0 && Message.StartsWith("\x1" + "ACTION") && Message.EndsWith("\x1"))
                         {
-                            switch (args[0][0])
+                            switch (Args[0][0])
                             {
                                 case '#':
                                 case '!':
                                 case '&':
                                 case '+':
-                                    type = ReceiveType.ChannelAction;
+                                    Type = ReceiveType.ChannelAction;
                                     break;
 
                                 default:
-                                    type = ReceiveType.QueryAction;
+                                    Type = ReceiveType.QueryAction;
                                     break;
                             }
                         }
-                        else if (rest.StartsWith("\x1") && rest.EndsWith("\x1"))
+                        else if (Message.StartsWith("\x1") && Message.EndsWith("\x1"))
                         {
-                            type = ReceiveType.CtcpRequest;
+                            Type = ReceiveType.CtcpRequest;
                         }
-                        else if (args.Length > 0)
+                        else if (Args.Length > 0)
                         {
-                            switch (args[0][0])
+                            switch (Args[0][0])
                             {
                                 case '#':
                                 case '!':
                                 case '&':
                                 case '+':
-                                    type = ReceiveType.ChannelMessage;
+                                    Type = ReceiveType.ChannelMessage;
                                     break;
 
                                 default:
-                                    type = ReceiveType.QueryMessage;
+                                    Type = ReceiveType.QueryMessage;
                                     break;
                             }
                         }
                         break;
 
                     case "NOTICE":
-                        if (rest.StartsWith("\x1") && rest.EndsWith("\x1"))
+                        if (Message.StartsWith("\x1") && Message.EndsWith("\x1"))
                         {
-                            type = ReceiveType.CtcpReply;
+                            Type = ReceiveType.CtcpReply;
                         }
-                        else if (args.Length > 0)
+                        else if (Args.Length > 0)
                         {
-                            switch (args[0][0])
+                            switch (Args[0][0])
                             {
                                 case '#':
                                 case '!':
                                 case '&':
                                 case '+':
-                                    type = ReceiveType.ChannelNotice;
+                                    Type = ReceiveType.ChannelNotice;
                                     break;
 
                                 default:
-                                    type = ReceiveType.QueryNotice;
+                                    Type = ReceiveType.QueryNotice;
                                     break;
                             }
                         }
                         break;
 
                     case "INVITE":
-                        type = ReceiveType.Invite;
+                        Type = ReceiveType.Invite;
                         break;
 
                     case "JOIN":
-                        type = ReceiveType.Join;
+                        Type = ReceiveType.Join;
                         break;
 
                     case "PART":
-                        type = ReceiveType.Part;
+                        Type = ReceiveType.Part;
                         break;
 
                     case "TOPIC":
-                        type = ReceiveType.TopicChange;
+                        Type = ReceiveType.TopicChange;
                         break;
 
                     case "NICK":
-                        type = ReceiveType.NickChange;
+                        Type = ReceiveType.NickChange;
                         break;
 
                     case "KICK":
-                        type = ReceiveType.Kick;
+                        Type = ReceiveType.Kick;
                         break;
 
                     case "MODE":
-                        switch (args[0][0])
+                        switch (Args[0][0])
                         {
                             case '#':
                             case '!':
                             case '&':
                             case '+':
-                                type = ReceiveType.ChannelModeChange;
+                                Type = ReceiveType.ChannelModeChange;
                                 break;
 
                             default:
-                                type = ReceiveType.UserModeChange;
+                                Type = ReceiveType.UserModeChange;
                                 break;
                         }
                         break;
 
                     case "QUIT":
-                        type = ReceiveType.Quit;
+                        Type = ReceiveType.Quit;
                         break;
 
                     case "CAP":
                     case "AUTHENTICATE":
-                        type = ReceiveType.Other;
+                        Type = ReceiveType.Other;
                         break;
                 }
             }
 
-            switch (type)
+            switch (Type)
             {
                 case ReceiveType.Join:
                 case ReceiveType.Kick:
@@ -518,7 +456,7 @@ namespace SharpIrc.IrcClient
                 case ReceiveType.ChannelMessage:
                 case ReceiveType.ChannelAction:
                 case ReceiveType.ChannelNotice:
-                    channel = rawMessageArray[2];
+                    Channel = RawMessageArray[2];
                     break;
 
                 case ReceiveType.Who:
@@ -526,26 +464,26 @@ namespace SharpIrc.IrcClient
                 case ReceiveType.Invite:
                 case ReceiveType.BanList:
                 case ReceiveType.ChannelMode:
-                    channel = rawMessageArray[3];
+                    Channel = RawMessageArray[3];
                     break;
 
                 case ReceiveType.Name:
-                    channel = rawMessageArray[4];
+                    Channel = RawMessageArray[4];
                     break;
             }
 
-            switch (replyCode)
+            switch (ReplyCode)
             {
                 case ReplyCode.List:
                 case ReplyCode.ListEnd:
                 case ReplyCode.ErrorNoChannelModes:
-                    channel = args[1];
+                    Channel = Args[1];
                     break;
             }
 
-            if (channel != null && channel.StartsWith(":"))
+            if (Channel != null && Channel.StartsWith(":"))
             {
-                channel = Channel.Substring(1);
+                Channel = Channel.Substring(1);
             }
         }
 
@@ -554,16 +492,16 @@ namespace SharpIrc.IrcClient
             var sb = new StringBuilder("[");
 
             sb.Append("<");
-            sb.Append(prefix ?? "null");
+            sb.Append(From ?? "null");
             sb.Append("> ");
 
             sb.Append("<");
-            sb.Append(command ?? "null");
+            sb.Append(Command ?? "null");
             sb.Append("> ");
 
             sb.Append("<");
             string sep = "";
-            foreach (string a in (args ?? new string[0]))
+            foreach (string a in (Args ?? new string[0]))
             {
                 sb.Append(sep);
                 sep = ", ";
@@ -572,27 +510,27 @@ namespace SharpIrc.IrcClient
             sb.Append("> ");
 
             sb.Append("<");
-            sb.Append(rest ?? "null");
+            sb.Append(Message ?? "null");
             sb.Append("> ");
 
             sb.Append("(Type=");
-            sb.Append(type.ToString());
+            sb.Append(Type.ToString());
             sb.Append(") ");
 
             sb.Append("(Nick=");
-            sb.Append(nick ?? "null");
+            sb.Append(Nick ?? "null");
             sb.Append(") ");
 
             sb.Append("(Ident=");
-            sb.Append(ident ?? "null");
+            sb.Append(Ident ?? "null");
             sb.Append(") ");
 
             sb.Append("(Host=");
-            sb.Append(host ?? "null");
+            sb.Append(Host ?? "null");
             sb.Append(") ");
 
             sb.Append("(Channel=");
-            sb.Append(channel ?? "null");
+            sb.Append(Channel ?? "null");
             sb.Append(") ");
 
             return sb.ToString();

@@ -5,6 +5,7 @@
 using System;
 using System.Collections;
 using System.Collections.Specialized;
+using static System.String;
 
 namespace SharpIrc.IrcClient
 {
@@ -14,7 +15,7 @@ namespace SharpIrc.IrcClient
     /// <threadsafety static="true" instance="true" />
     public class Channel
     {
-        private DateTime activeSyncStop;
+        private DateTime _activeSyncStop;
 
         /// <summary>
         ///
@@ -26,10 +27,10 @@ namespace SharpIrc.IrcClient
             UnsafeUsers = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
             UnsafeVoices = Hashtable.Synchronized(new Hashtable(StringComparer.InvariantCultureIgnoreCase));
 
-            Mode = String.Empty;
-            Topic = String.Empty;
+            Mode = Empty;
+            Topic = Empty;
             Bans = new StringCollection();
-            Key = String.Empty;
+            Key = Empty;
             Name = name;
             ActiveSyncStart = DateTime.Now;
         }
@@ -38,7 +39,7 @@ namespace SharpIrc.IrcClient
         ///
         /// </summary>
         /// <value> </value>
-        public string Name { get; private set; }
+        public string Name { get; }
 
         /// <summary>
         ///
@@ -50,52 +51,43 @@ namespace SharpIrc.IrcClient
         ///
         /// </summary>
         /// <value> </value>
-        public Hashtable Users
-        {
-            get { return (Hashtable)UnsafeUsers.Clone(); }
-        }
+        public Hashtable Users => (Hashtable)UnsafeUsers.Clone();
 
         /// <summary>
         ///
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeUsers { get; private set; }
+        internal Hashtable UnsafeUsers { get; }
 
         /// <summary>
         ///
         /// </summary>
         /// <value> </value>
-        public Hashtable Ops
-        {
-            get { return (Hashtable)UnsafeOps.Clone(); }
-        }
+        public Hashtable Ops => (Hashtable)UnsafeOps.Clone();
 
         /// <summary>
         ///
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeOps { get; private set; }
+        internal Hashtable UnsafeOps { get; }
 
         /// <summary>
         ///
         /// </summary>
         /// <value> </value>
-        public Hashtable Voices
-        {
-            get { return (Hashtable)UnsafeVoices.Clone(); }
-        }
+        public Hashtable Voices => (Hashtable)UnsafeVoices.Clone();
 
         /// <summary>
         ///
         /// </summary>
         /// <value> </value>
-        internal Hashtable UnsafeVoices { get; private set; }
+        internal Hashtable UnsafeVoices { get; }
 
         /// <summary>
         ///
         /// </summary>
         /// <value> </value>
-        public StringCollection Bans { get; private set; }
+        public StringCollection Bans { get; }
 
         /// <summary>
         ///
@@ -119,7 +111,7 @@ namespace SharpIrc.IrcClient
         ///
         /// </summary>
         /// <value> </value>
-        public DateTime ActiveSyncStart { get; private set; }
+        public DateTime ActiveSyncStart { get; }
 
         /// <summary>
         ///
@@ -127,11 +119,11 @@ namespace SharpIrc.IrcClient
         /// <value> </value>
         public DateTime ActiveSyncStop
         {
-            get { return activeSyncStop; }
+            get => _activeSyncStop;
             set
             {
-                activeSyncStop = value;
-                ActiveSyncTime = activeSyncStop.Subtract(ActiveSyncStart);
+                _activeSyncStop = value;
+                ActiveSyncTime = _activeSyncStop.Subtract(ActiveSyncStart);
             }
         }
 
@@ -141,6 +133,6 @@ namespace SharpIrc.IrcClient
         /// <value> </value>
         public TimeSpan ActiveSyncTime { get; private set; }
 
-        public bool IsSycned { get; set; }
+        public bool IsSynced { get; set; }
     }
 }

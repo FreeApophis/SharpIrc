@@ -15,7 +15,6 @@ using System.Text;
 using System.Threading;
 using SharpIrc.IrcCommands;
 using StarkSoftProxy;
-using ProxyType = SharpIrc.IrcConnection.ProxyType;
 
 namespace SharpIrc.IrcConnection
 {
@@ -25,21 +24,19 @@ namespace SharpIrc.IrcConnection
     /// <threadsafety static="true" instance="true" />
     public class IrcConnection : MarshalByRefObject
     {
-        private string[] addressList = { "localhost" };
-        private int currentAddress;
-        private StreamReader reader;
-        private StreamWriter writer;
-        private readonly ReadThread readThread;
-        private readonly WriteThread writeThread;
-        private readonly IdleWorkerThread idleWorkerThread;
-        private TcpClient tcpClient;
-        private readonly Hashtable sendBuffer = Hashtable.Synchronized(new Hashtable());
-        private bool isConnectionError;
-        private bool isDisconnecting;
-        private bool autoRetry;
-        private DateTime lastPingSent;
-        private DateTime lastPongReceived;
-        private TimeSpan lag;
+        private int _currentAddress;
+        private StreamReader _reader;
+        private StreamWriter _writer;
+        private readonly ReadThread _readThread;
+        private readonly WriteThread _writeThread;
+        private readonly IdleWorkerThread _idleWorkerThread;
+        private TcpClient _tcpClient;
+        private readonly Hashtable _sendBuffer = Hashtable.Synchronized(new Hashtable());
+        private bool _isConnectionError;
+        private bool _isDisconnecting;
+        private DateTime _lastPingSent;
+        private DateTime _lastPongReceived;
+        private TimeSpan _lag;
 
         /// <event cref="OnReadLine">
         /// Raised when a \r\n terminated line is read from the socket
@@ -90,14 +87,14 @@ namespace SharpIrc.IrcConnection
             {
                 lock (this)
                 {
-                    return isConnectionError;
+                    return _isConnectionError;
                 }
             }
             set
             {
                 lock (this)
                 {
-                    isConnectionError = value;
+                    _isConnectionError = value;
                 }
             }
         }
@@ -108,14 +105,14 @@ namespace SharpIrc.IrcConnection
             {
                 lock (this)
                 {
-                    return isDisconnecting;
+                    return _isDisconnecting;
                 }
             }
             set
             {
                 lock (this)
                 {
-                    isDisconnecting = value;
+                    _isDisconnecting = value;
                 }
             }
         }
@@ -123,18 +120,12 @@ namespace SharpIrc.IrcConnection
         /// <summary>
         /// Gets the current address of the connection
         /// </summary>
-        public string Address
-        {
-            get { return addressList[currentAddress]; }
-        }
+        public string Address => AddressList[_currentAddress];
 
         /// <summary>
         /// Gets the address list of the connection
         /// </summary>
-        public string[] AddressList
-        {
-            get { return addressList; }
-        }
+        public string[] AddressList { get; private set; } = { "localhost" };
 
         /// <summary>
         /// Gets the used port of the connection
@@ -160,14 +151,7 @@ namespace SharpIrc.IrcConnection
         /// true, if the library should retry to connect
         /// false, if the library should not retry
         /// </value>
-        public bool AutoRetry
-        {
-            get { return autoRetry; }
-            set
-            {
-                autoRetry = value;
-            }
-        }
+        public bool AutoRetry { get; set; }
 
         /// <summary>
         /// Delay between retry attempts in Connect() in seconds.
@@ -207,12 +191,12 @@ namespace SharpIrc.IrcConnection
         /// <summary>
         /// Gets the SharpIRC version number
         /// </summary>
-        public string VersionNumber { get; private set; }
+        public string VersionNumber { get; }
 
         /// <summary>
         /// Gets the full SharpIRC version string
         /// </summary>
-        public string VersionString { get; private set; }
+        public string VersionString { get; }
 
         /// <summary>
         /// Encoding which is used for reading and writing to the socket
@@ -275,13 +259,13 @@ namespace SharpIrc.IrcConnection
         {
             get
             {
-                if (lastPingSent > lastPongReceived)
+                if (_lastPingSent > _lastPongReceived)
                 {
                     // there is an outstanding ping, thus we don't have a current lag value
-                    return DateTime.Now - lastPingSent;
+                    return DateTime.Now - _lastPingSent;
                 }
 
-                return lag;
+                return _lag;
             }
         }
 
@@ -298,7 +282,7 @@ namespace SharpIrc.IrcConnection
 
         /// <summary>
         /// Standard Setting is to use no Proxy Server, if you Set this to any other value,
-        /// you have to set the ProxyHost and ProxyPort aswell (and give credentials if needed)
+        /// you have to set the ProxyHost and ProxyPort as well (and give credentials if needed)
         /// Default: ProxyType.None
         /// </summary>
         public ProxyType ProxyType { get; set; }
@@ -328,19 +312,19 @@ namespace SharpIrc.IrcConnection
             AutoRetryLimit = 3;
             AutoRetryDelay = 30;
             SendDelay = 200;
-            sendBuffer[Priority.High] = Queue.Synchronized(new Queue());
-            sendBuffer[Priority.AboveMedium] = Queue.Synchronized(new Queue());
-            sendBuffer[Priority.Medium] = Queue.Synchronized(new Queue());
-            sendBuffer[Priority.BelowMedium] = Queue.Synchronized(new Queue());
-            sendBuffer[Priority.Low] = Queue.Synchronized(new Queue());
+            _sendBuffer[Priority.High] = Queue.Synchronized(new Queue());
+            _sendBuffer[Priority.AboveMedium] = Queue.Synchronized(new Queue());
+            _sendBuffer[Priority.Medium] = Queue.Synchronized(new Queue());
+            _sendBuffer[Priority.BelowMedium] = Queue.Synchronized(new Queue());
+            _sendBuffer[Priority.Low] = Queue.Synchronized(new Queue());
 
             // setup own callbacks
             OnReadLine += SimpleParser;
             OnConnectionError += _OnConnectionError;
 
-            readThread = new ReadThread(this);
-            writeThread = new WriteThread(this);
-            idleWorkerThread = new IdleWorkerThread(this);
+            _readThread = new ReadThread(this);
+            _writeThread = new WriteThread(this);
+            _idleWorkerThread = new IdleWorkerThread(this);
 
             Assembly assembly = Assembly.GetAssembly(GetType());
             AssemblyName assemblyName = assembly.GetName(false);
@@ -356,11 +340,11 @@ namespace SharpIrc.IrcConnection
         /// Connects to the specified server and port, when the connection fails
         /// the next server in the list will be used.
         /// </summary>
-        /// <param name="addresslist">List of servers to connect to</param>
-        /// <param name="port">Portnumber to connect to</param>
+        /// <param name="addresses">List of servers to connect to</param>
+        /// <param name="port">Port number to connect to</param>
         /// <exception cref="CouldNotConnectException">The connection failed</exception>
         /// <exception cref="AlreadyConnectedException">If there is already an active connection</exception>
-        public void Connect(string[] addresslist, int port)
+        public void Connect(string[] addresses, int port)
         {
             if (IsConnected)
             {
@@ -369,22 +353,19 @@ namespace SharpIrc.IrcConnection
 
             AutoRetryAttempt++;
 
-            addressList = (string[])addresslist.Clone();
+            AddressList = (string[])addresses.Clone();
             Port = port;
 
-            if (OnConnecting != null)
-            {
-                OnConnecting(this, EventArgs.Empty);
-            }
+            OnConnecting?.Invoke(this, EventArgs.Empty);
             try
             {
                 IPAddress ip = Dns.Resolve(Address).AddressList[0];
 
-                tcpClient = new TcpClient { NoDelay = true };
-                tcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
+                _tcpClient = new TcpClient { NoDelay = true };
+                _tcpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
                 // set timeout, after this the connection will be aborted
-                tcpClient.ReceiveTimeout = SocketReceiveTimeout * 1000;
-                tcpClient.SendTimeout = SocketSendTimeout * 1000;
+                _tcpClient.ReceiveTimeout = SocketReceiveTimeout * 1000;
+                _tcpClient.SendTimeout = SocketSendTimeout * 1000;
 
                 if (ProxyType != ProxyType.None)
                 {
@@ -403,16 +384,16 @@ namespace SharpIrc.IrcConnection
                         proxyClient = proxyFactory.CreateProxyClient(proxyType, ProxyHost, ProxyPort, ProxyUsername, ProxyPassword);
                     }
 
-                    tcpClient.Connect(ProxyHost, ProxyPort);
-                    proxyClient.TcpClient = tcpClient;
+                    _tcpClient.Connect(ProxyHost, ProxyPort);
+                    proxyClient.TcpClient = _tcpClient;
                     proxyClient.CreateConnection(ip.ToString(), port);
                 }
                 else
                 {
-                    tcpClient.Connect(ip, port);
+                    _tcpClient.Connect(ip, port);
                 }
 
-                Stream stream = tcpClient.GetStream();
+                Stream stream = _tcpClient.GetStream();
                 if (UseSsl)
                 {
                     RemoteCertificateValidationCallback certValidation = ValidateServerCertificate
@@ -437,8 +418,8 @@ namespace SharpIrc.IrcConnection
                     }
                     stream = sslStream;
                 }
-                reader = new StreamReader(stream, Encoding);
-                writer = new StreamWriter(stream, Encoding);
+                _reader = new StreamReader(stream, Encoding);
+                _writer = new StreamWriter(stream, Encoding);
 
                 if (Encoding.GetPreamble().Length > 0)
                 {
@@ -446,12 +427,12 @@ namespace SharpIrc.IrcConnection
                     // like UTF-8 has a BOM, this will confuse the IRCd!
                     // Thus we send a \r\n so the IRCd can safely ignore that
                     // garbage.
-                    writer.WriteLine();
+                    _writer.WriteLine();
                     // make sure we flush the BOM+CRLF correctly
-                    writer.Flush();
+                    _writer.Flush();
                 }
 
-                // Connection was succeful, reseting the connect counter
+                // Connection was successful, resetting the connect counter
                 AutoRetryAttempt = 0;
 
                 // updating the connection error state, so connecting is possible again
@@ -459,14 +440,11 @@ namespace SharpIrc.IrcConnection
                 IsConnected = true;
 
                 // lets power up our threads
-                readThread.Start();
-                writeThread.Start();
-                idleWorkerThread.Start();
+                _readThread.Start();
+                _writeThread.Start();
+                _idleWorkerThread.Start();
 
-                if (OnConnected != null)
-                {
-                    OnConnected(this, EventArgs.Empty);
-                }
+                OnConnected?.Invoke(this, EventArgs.Empty);
             }
             catch (AuthenticationException ex)
             {
@@ -475,30 +453,28 @@ namespace SharpIrc.IrcConnection
             }
             catch (Exception e)
             {
-                if (reader != null)
+                if (_reader != null)
                 {
                     try
                     {
-                        reader.Close();
+                        _reader.Close();
                     }
                     catch (ObjectDisposedException)
                     {
                     }
                 }
-                if (writer != null)
+                if (_writer != null)
                 {
                     try
                     {
-                        writer.Close();
+                        _writer.Close();
                     }
                     catch (ObjectDisposedException)
                     {
                     }
                 }
-                if (tcpClient != null)
-                {
-                    tcpClient.Close();
-                }
+
+                _tcpClient?.Close();
                 IsConnected = false;
                 IsConnectionError = true;
 
@@ -508,16 +484,13 @@ namespace SharpIrc.IrcConnection
                     throw;
                 }
 
-                if (autoRetry && (AutoRetryLimit == -1 || AutoRetryLimit == 0 || AutoRetryLimit <= AutoRetryAttempt))
+                if (AutoRetry && (AutoRetryLimit == -1 || AutoRetryLimit == 0 || AutoRetryLimit <= AutoRetryAttempt))
                 {
-                    if (OnAutoConnectError != null)
-                    {
-                        OnAutoConnectError(this, new AutoConnectErrorEventArgs(Address, Port, e));
-                    }
+                    OnAutoConnectError?.Invoke(this, new AutoConnectErrorEventArgs(Address, Port, e));
                     Thread.Sleep(AutoRetryDelay * 1000);
                     NextAddress();
                     // FIXME: this is recursion
-                    Connect(addressList, Port);
+                    Connect(AddressList, Port);
                 }
                 else
                 {
@@ -552,7 +525,7 @@ namespace SharpIrc.IrcConnection
         public void Reconnect()
         {
             Disconnect();
-            Connect(addressList, Port);
+            Connect(AddressList, Port);
         }
 
         /// <summary>
@@ -569,25 +542,19 @@ namespace SharpIrc.IrcConnection
                     "The connection could not be disconnected because there is no active connection");
             }
 
-            if (OnDisconnecting != null)
-            {
-                OnDisconnecting(this, EventArgs.Empty);
-            }
+            OnDisconnecting?.Invoke(this, EventArgs.Empty);
 
             IsDisconnecting = true;
 
-            readThread.Stop();
-            writeThread.Stop();
-            tcpClient.Close();
+            _readThread.Stop();
+            _writeThread.Stop();
+            _tcpClient.Close();
             IsConnected = false;
             IsRegistered = false;
 
             IsDisconnecting = false;
 
-            if (OnDisconnected != null)
-            {
-                OnDisconnected(this, EventArgs.Empty);
-            }
+            OnDisconnected?.Invoke(this, EventArgs.Empty);
 
         }
 
@@ -651,31 +618,27 @@ namespace SharpIrc.IrcConnection
                 // block till the queue has data, but bail out on connection error
                 while (IsConnected &&
                        !IsConnectionError &&
-                       readThread.Queue.Count == 0)
+                       _readThread.Queue.Count == 0)
                 {
                     Thread.Sleep(10);
                 }
             }
 
             if (IsConnected &&
-                readThread.Queue.Count > 0)
+                _readThread.Queue.Count > 0)
             {
-                data = (string)(readThread.Queue.Dequeue());
+                data = (string)(_readThread.Queue.Dequeue());
             }
 
             if (!string.IsNullOrEmpty(data))
             {
-                if (OnReadLine != null)
-                {
-                    OnReadLine(this, new ReadLineEventArgs(data));
-                }
+                OnReadLine?.Invoke(this, new ReadLineEventArgs(data));
             }
 
             if (IsConnectionError &&
-                !IsDisconnecting &&
-                OnConnectionError != null)
+                !IsDisconnecting)
             {
-                OnConnectionError(this, EventArgs.Empty);
+                OnConnectionError?.Invoke(this, EventArgs.Empty);
             }
 
             return data;
@@ -699,7 +662,7 @@ namespace SharpIrc.IrcConnection
             }
             else
             {
-                ((Queue)sendBuffer[priority]).Enqueue(data);
+                ((Queue)_sendBuffer[priority]).Enqueue(data);
             }
         }
 
@@ -718,8 +681,8 @@ namespace SharpIrc.IrcConnection
             {
                 try
                 {
-                    writer.Write(data + "\r\n");
-                    writer.Flush();
+                    _writer.Write(data + "\r\n");
+                    _writer.Flush();
                 }
                 catch (IOException)
                 {
@@ -732,10 +695,7 @@ namespace SharpIrc.IrcConnection
                     return false;
                 }
 
-                if (OnWriteLine != null)
-                {
-                    OnWriteLine(this, new WriteLineEventArgs(data));
-                }
+                OnWriteLine?.Invoke(this, new WriteLineEventArgs(data));
                 return true;
             }
 
@@ -744,35 +704,35 @@ namespace SharpIrc.IrcConnection
 
         private void NextAddress()
         {
-            currentAddress++;
-            if (currentAddress >= addressList.Length)
+            _currentAddress++;
+            if (_currentAddress >= AddressList.Length)
             {
-                currentAddress = 0;
+                _currentAddress = 0;
             }
         }
 
         private void SimpleParser(object sender, ReadLineEventArgs args)
         {
-            string rawline = args.Line;
-            string[] rawlineex = rawline.Split(new[] { ' ' });
-            string messagecode;
+            string rawLien = args.Line;
+            string[] rawLineEx = rawLien.Split(' ');
+            string messageCode;
 
-            if (rawline[0] == ':')
+            if (rawLien[0] == ':')
             {
-                messagecode = rawlineex[1];
+                messageCode = rawLineEx[1];
 
-                ReplyCode replycode = ReplyCode.Null;
+                ReplyCode replyCode = ReplyCode.Null;
                 try
                 {
-                    replycode = (ReplyCode)int.Parse(messagecode);
+                    replyCode = (ReplyCode)int.Parse(messageCode);
                 }
                 catch (FormatException)
                 {
                 }
 
-                if (replycode != ReplyCode.Null)
+                if (replyCode != ReplyCode.Null)
                 {
-                    switch (replycode)
+                    switch (replyCode)
                     {
                         case ReplyCode.Welcome:
                             IsRegistered = true;
@@ -781,12 +741,12 @@ namespace SharpIrc.IrcConnection
                 }
                 else
                 {
-                    switch (rawlineex[1])
+                    switch (rawLineEx[1])
                     {
                         case "PONG":
                             DateTime now = DateTime.Now;
-                            lastPongReceived = now;
-                            lag = now - lastPingSent;
+                            _lastPongReceived = now;
+                            _lag = now - _lastPingSent;
 
                             break;
                     }
@@ -794,8 +754,8 @@ namespace SharpIrc.IrcConnection
             }
             else
             {
-                messagecode = rawlineex[0];
-                switch (messagecode)
+                messageCode = rawLineEx[0];
+                switch (messageCode)
                 {
                     case "ERROR":
                         // FIXME: handle server errors differently than connection errors!
@@ -830,10 +790,10 @@ namespace SharpIrc.IrcConnection
         /// </summary>
         private class ReadThread
         {
-            private readonly IrcConnection connection;
-            private Thread thread;
+            private readonly IrcConnection _connection;
+            private Thread _thread;
 
-            public Queue Queue { get; private set; }
+            public Queue Queue { get; }
 
             /// <summary>
             ///
@@ -842,7 +802,7 @@ namespace SharpIrc.IrcConnection
             public ReadThread(IrcConnection connection)
             {
                 Queue = Queue.Synchronized(new Queue());
-                this.connection = connection;
+                _connection = connection;
             }
 
             /// <summary>
@@ -850,12 +810,12 @@ namespace SharpIrc.IrcConnection
             /// </summary>
             public void Start()
             {
-                thread = new Thread(Worker)
+                _thread = new Thread(Worker)
                 {
-                    Name = "ReadThread (" + connection.Address + ":" + connection.Port + ")",
+                    Name = "ReadThread (" + _connection.Address + ":" + _connection.Port + ")",
                     IsBackground = true
                 };
-                thread.Start();
+                _thread.Start();
             }
 
             /// <summary>
@@ -863,14 +823,14 @@ namespace SharpIrc.IrcConnection
             /// </summary>
             public void Stop()
             {
-                thread.Abort();
+                _thread.Abort();
                 // make sure we close the stream after the thread is gone, else
                 // the thread will think the connection is broken!
-                thread.Join();
+                _thread.Join();
 
                 try
                 {
-                    connection.reader.Close();
+                    _connection._reader.Close();
                 }
                 catch (ObjectDisposedException)
                 {
@@ -884,21 +844,21 @@ namespace SharpIrc.IrcConnection
                     try
                     {
                         string data;
-                        while (connection.IsConnected && ((data = connection.reader.ReadLine()) != null))
+                        while (_connection.IsConnected && ((data = _connection._reader.ReadLine()) != null))
                         {
                             Queue.Enqueue(data);
                         }
                     }
-                    catch (IOException e)
+                    catch (IOException)
                     {
                     }
                     finally
                     {
                         // only flag this as connection error if we are not
                         // cleanly disconnecting
-                        if (!connection.IsDisconnecting)
+                        if (!_connection.IsDisconnecting)
                         {
-                            connection.IsConnectionError = true;
+                            _connection.IsConnectionError = true;
                         }
                     }
                 }
@@ -906,7 +866,7 @@ namespace SharpIrc.IrcConnection
                 {
                     Thread.ResetAbort();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                 }
             }
@@ -917,20 +877,20 @@ namespace SharpIrc.IrcConnection
         /// </summary>
         private class WriteThread
         {
-            private readonly IrcConnection connection;
-            private int aboveMediumCount;
-            private int aboveMediumSentCount;
+            private readonly IrcConnection _connection;
+            private int _aboveMediumCount;
+            private int _aboveMediumSentCount;
             private const int AboveMediumThresholdCount = 4;
-            private int belowMediumCount;
-            private int belowMediumSentCount;
+            private int _belowMediumCount;
+            private int _belowMediumSentCount;
             private const int BelowMediumThresholdCount = 1;
-            private int burstCount;
-            private int highCount;
-            private int lowCount;
-            private int mediumCount;
-            private int mediumSentCount;
+            private int _burstCount;
+            private int _highCount;
+            private int _lowCount;
+            private int _mediumCount;
+            private int _mediumSentCount;
             private const int MediumThresholdCount = 2;
-            private Thread thread;
+            private Thread _thread;
 
             /// <summary>
             ///
@@ -938,7 +898,7 @@ namespace SharpIrc.IrcConnection
             /// <param name="connection"></param>
             public WriteThread(IrcConnection connection)
             {
-                this.connection = connection;
+                _connection = connection;
             }
 
             /// <summary>
@@ -946,12 +906,12 @@ namespace SharpIrc.IrcConnection
             /// </summary>
             public void Start()
             {
-                thread = new Thread(_Worker)
+                _thread = new Thread(_Worker)
                 {
-                    Name = "WriteThread (" + connection.Address + ":" + connection.Port + ")",
+                    Name = "WriteThread (" + _connection.Address + ":" + _connection.Port + ")",
                     IsBackground = true
                 };
-                thread.Start();
+                _thread.Start();
             }
 
             /// <summary>
@@ -960,14 +920,14 @@ namespace SharpIrc.IrcConnection
             public void Stop()
             {
 
-                thread.Abort();
+                _thread.Abort();
                 // make sure we close the stream after the thread is gone, else
                 // the thread will think the connection is broken!
-                thread.Join();
+                _thread.Join();
 
                 try
                 {
-                    connection.writer.Close();
+                    _connection._writer.Close();
                 }
                 catch (ObjectDisposedException)
                 {
@@ -980,22 +940,22 @@ namespace SharpIrc.IrcConnection
                 {
                     try
                     {
-                        while (connection.IsConnected)
+                        while (_connection.IsConnected)
                         {
                             _CheckBuffer();
-                            Thread.Sleep(connection.SendDelay);
+                            Thread.Sleep(_connection.SendDelay);
                         }
                     }
-                    catch (IOException e)
+                    catch (IOException)
                     {
                     }
                     finally
                     {
                         // only flag this as connection error if we are not
                         // cleanly disconnecting
-                        if (!connection.IsDisconnecting)
+                        if (!_connection.IsDisconnecting)
                         {
-                            connection.IsConnectionError = true;
+                            _connection.IsConnectionError = true;
                         }
                     }
                 }
@@ -1003,7 +963,7 @@ namespace SharpIrc.IrcConnection
                 {
                     Thread.ResetAbort();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                 }
             }
@@ -1013,17 +973,17 @@ namespace SharpIrc.IrcConnection
             // WARNING: complex scheduler, don't even think about changing it!
             private void _CheckBuffer()
             {
-                // only send data if we are succefully registered on the IRC network
-                if (!connection.IsRegistered)
+                // only send data if we are successfully registered on the IRC network
+                if (!_connection.IsRegistered)
                 {
                     return;
                 }
 
-                highCount = ((Queue)connection.sendBuffer[Priority.High]).Count;
-                aboveMediumCount = ((Queue)connection.sendBuffer[Priority.AboveMedium]).Count;
-                mediumCount = ((Queue)connection.sendBuffer[Priority.Medium]).Count;
-                belowMediumCount = ((Queue)connection.sendBuffer[Priority.BelowMedium]).Count;
-                lowCount = ((Queue)connection.sendBuffer[Priority.Low]).Count;
+                _highCount = ((Queue)_connection._sendBuffer[Priority.High]).Count;
+                _aboveMediumCount = ((Queue)_connection._sendBuffer[Priority.AboveMedium]).Count;
+                _mediumCount = ((Queue)_connection._sendBuffer[Priority.Medium]).Count;
+                _belowMediumCount = ((Queue)_connection._sendBuffer[Priority.BelowMedium]).Count;
+                _lowCount = ((Queue)_connection._sendBuffer[Priority.Low]).Count;
 
                 if (_CheckHighBuffer() &&
                     _CheckAboveMediumBuffer() &&
@@ -1032,30 +992,30 @@ namespace SharpIrc.IrcConnection
                     _CheckLowBuffer())
                 {
                     // everything is sent, resetting all counters
-                    aboveMediumSentCount = 0;
-                    mediumSentCount = 0;
-                    belowMediumSentCount = 0;
-                    burstCount = 0;
+                    _aboveMediumSentCount = 0;
+                    _mediumSentCount = 0;
+                    _belowMediumSentCount = 0;
+                    _burstCount = 0;
                 }
 
-                if (burstCount < 3)
+                if (_burstCount < 3)
                 {
-                    burstCount++;
+                    _burstCount++;
                     //_CheckBuffer();
                 }
             }
 
             private bool _CheckHighBuffer()
             {
-                if (highCount > 0)
+                if (_highCount > 0)
                 {
-                    var data = (string)((Queue)connection.sendBuffer[Priority.High]).Dequeue();
-                    if (connection._WriteLine(data) == false)
+                    var data = (string)((Queue)_connection._sendBuffer[Priority.High]).Dequeue();
+                    if (_connection._WriteLine(data) == false)
                     {
-                        ((Queue)connection.sendBuffer[Priority.High]).Enqueue(data);
+                        ((Queue)_connection._sendBuffer[Priority.High]).Enqueue(data);
                     }
 
-                    if (highCount > 1)
+                    if (_highCount > 1)
                     {
                         // there is more data to send
                         return false;
@@ -1067,17 +1027,17 @@ namespace SharpIrc.IrcConnection
 
             private bool _CheckAboveMediumBuffer()
             {
-                if ((aboveMediumCount > 0) &&
-                    (aboveMediumSentCount < AboveMediumThresholdCount))
+                if ((_aboveMediumCount > 0) &&
+                    (_aboveMediumSentCount < AboveMediumThresholdCount))
                 {
-                    var data = (string)((Queue)connection.sendBuffer[Priority.AboveMedium]).Dequeue();
-                    if (connection._WriteLine(data) == false)
+                    var data = (string)((Queue)_connection._sendBuffer[Priority.AboveMedium]).Dequeue();
+                    if (_connection._WriteLine(data) == false)
                     {
-                        ((Queue)connection.sendBuffer[Priority.AboveMedium]).Enqueue(data);
+                        ((Queue)_connection._sendBuffer[Priority.AboveMedium]).Enqueue(data);
                     }
-                    aboveMediumSentCount++;
+                    _aboveMediumSentCount++;
 
-                    if (aboveMediumSentCount < AboveMediumThresholdCount)
+                    if (_aboveMediumSentCount < AboveMediumThresholdCount)
                     {
                         return false;
                     }
@@ -1088,17 +1048,17 @@ namespace SharpIrc.IrcConnection
 
             private bool _CheckMediumBuffer()
             {
-                if ((mediumCount > 0) &&
-                    (mediumSentCount < MediumThresholdCount))
+                if ((_mediumCount > 0) &&
+                    (_mediumSentCount < MediumThresholdCount))
                 {
-                    var data = (string)((Queue)connection.sendBuffer[Priority.Medium]).Dequeue();
-                    if (connection._WriteLine(data) == false)
+                    var data = (string)((Queue)_connection._sendBuffer[Priority.Medium]).Dequeue();
+                    if (_connection._WriteLine(data) == false)
                     {
-                        ((Queue)connection.sendBuffer[Priority.Medium]).Enqueue(data);
+                        ((Queue)_connection._sendBuffer[Priority.Medium]).Enqueue(data);
                     }
-                    mediumSentCount++;
+                    _mediumSentCount++;
 
-                    if (mediumSentCount < MediumThresholdCount)
+                    if (_mediumSentCount < MediumThresholdCount)
                     {
                         return false;
                     }
@@ -1109,17 +1069,17 @@ namespace SharpIrc.IrcConnection
 
             private bool _CheckBelowMediumBuffer()
             {
-                if ((belowMediumCount > 0) &&
-                    (belowMediumSentCount < BelowMediumThresholdCount))
+                if ((_belowMediumCount > 0) &&
+                    (_belowMediumSentCount < BelowMediumThresholdCount))
                 {
-                    var data = (string)((Queue)connection.sendBuffer[Priority.BelowMedium]).Dequeue();
-                    if (connection._WriteLine(data) == false)
+                    var data = (string)((Queue)_connection._sendBuffer[Priority.BelowMedium]).Dequeue();
+                    if (_connection._WriteLine(data) == false)
                     {
-                        ((Queue)connection.sendBuffer[Priority.BelowMedium]).Enqueue(data);
+                        ((Queue)_connection._sendBuffer[Priority.BelowMedium]).Enqueue(data);
                     }
-                    belowMediumSentCount++;
+                    _belowMediumSentCount++;
 
-                    if (belowMediumSentCount < BelowMediumThresholdCount)
+                    if (_belowMediumSentCount < BelowMediumThresholdCount)
                     {
                         return false;
                     }
@@ -1130,23 +1090,23 @@ namespace SharpIrc.IrcConnection
 
             private bool _CheckLowBuffer()
             {
-                if (lowCount > 0)
+                if (_lowCount > 0)
                 {
-                    if ((highCount > 0) ||
-                        (aboveMediumCount > 0) ||
-                        (mediumCount > 0) ||
-                        (belowMediumCount > 0))
+                    if ((_highCount > 0) ||
+                        (_aboveMediumCount > 0) ||
+                        (_mediumCount > 0) ||
+                        (_belowMediumCount > 0))
                     {
                         return true;
                     }
 
-                    var data = (string)((Queue)connection.sendBuffer[Priority.Low]).Dequeue();
-                    if (connection._WriteLine(data) == false)
+                    var data = (string)((Queue)_connection._sendBuffer[Priority.Low]).Dequeue();
+                    if (_connection._WriteLine(data) == false)
                     {
-                        ((Queue)connection.sendBuffer[Priority.Low]).Enqueue(data);
+                        ((Queue)_connection._sendBuffer[Priority.Low]).Enqueue(data);
                     }
 
-                    if (lowCount > 1)
+                    if (_lowCount > 1)
                     {
                         return false;
                     }
@@ -1165,8 +1125,8 @@ namespace SharpIrc.IrcConnection
         /// </summary>
         private class IdleWorkerThread
         {
-            private readonly IrcConnection connection;
-            private Thread thread;
+            private readonly IrcConnection _connection;
+            private Thread _thread;
 
             /// <summary>
             ///
@@ -1174,7 +1134,7 @@ namespace SharpIrc.IrcConnection
             /// <param name="connection"></param>
             public IdleWorkerThread(IrcConnection connection)
             {
-                this.connection = connection;
+                _connection = connection;
             }
 
             /// <summary>
@@ -1183,15 +1143,15 @@ namespace SharpIrc.IrcConnection
             public void Start()
             {
                 DateTime now = DateTime.Now;
-                connection.lastPingSent = now;
-                connection.lastPongReceived = now;
+                _connection._lastPingSent = now;
+                _connection._lastPongReceived = now;
 
-                thread = new Thread(_Worker)
+                _thread = new Thread(_Worker)
                 {
-                    Name = "IdleWorkerThread (" + connection.Address + ":" + connection.Port + ")",
+                    Name = "IdleWorkerThread (" + _connection.Address + ":" + _connection.Port + ")",
                     IsBackground = true
                 };
-                thread.Start();
+                _thread.Start();
             }
 
             /// <summary>
@@ -1199,52 +1159,52 @@ namespace SharpIrc.IrcConnection
             /// </summary>
             public void Stop()
             {
-                thread.Abort();
+                _thread.Abort();
             }
 
             private void _Worker()
             {
                 try
                 {
-                    while (connection.IsConnected)
+                    while (_connection.IsConnected)
                     {
-                        Thread.Sleep(connection.IdleWorkerInterval);
+                        Thread.Sleep(_connection.IdleWorkerInterval);
 
                         // only send active pings if we are registered
-                        if (!connection.IsRegistered)
+                        if (!_connection.IsRegistered)
                         {
                             continue;
                         }
 
                         DateTime now = DateTime.Now;
-                        var lastPingSent = (int)(now - connection.lastPingSent).TotalSeconds;
-                        var lastPongRcvd = (int)(now - connection.lastPongReceived).TotalSeconds;
-                        // determins if the resoponse time is ok
-                        if (lastPingSent < connection.PingTimeout)
+                        var lastPingSent = (int)(now - _connection._lastPingSent).TotalSeconds;
+                        var lastPongReceived = (int)(now - _connection._lastPongReceived).TotalSeconds;
+                        // determines if the response time is ok
+                        if (lastPingSent < _connection.PingTimeout)
                         {
-                            if (connection.lastPingSent > connection.lastPongReceived)
+                            if (_connection._lastPingSent > _connection._lastPongReceived)
                             {
                                 // there is a pending ping request, we have to wait
                                 continue;
                             }
 
                             // determines if it need to send another ping yet
-                            if (lastPongRcvd > connection.PingInterval)
+                            if (lastPongReceived > _connection.PingInterval)
                             {
-                                connection.WriteLine(Rfc2812.Ping(connection.Address), Priority.Critical);
-                                connection.lastPingSent = now;
+                                _connection.WriteLine(Rfc2812.Ping(_connection.Address), Priority.Critical);
+                                _connection._lastPingSent = now;
                                 //_Connection._LastPongReceived = now;
                             } // else connection is fine, just continue
                         }
                         else
                         {
-                            if (connection.IsDisconnecting)
+                            if (_connection.IsDisconnecting)
                             {
                                 break;
                             }
                             // only flag this as connection error if we are not
                             // cleanly disconnecting
-                            connection.IsConnectionError = true;
+                            _connection.IsConnectionError = true;
                             break;
                         }
                     }
@@ -1253,7 +1213,7 @@ namespace SharpIrc.IrcConnection
                 {
                     Thread.ResetAbort();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                 }
             }

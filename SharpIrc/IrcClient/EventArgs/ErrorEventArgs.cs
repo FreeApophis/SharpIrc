@@ -12,12 +12,12 @@ namespace SharpIrc.IrcClient.EventArgs
     [Serializable]
     public class ErrorEventArgs : IrcEventArgs
     {
-        internal ErrorEventArgs(IrcMessageData data, string errormsg)
+        internal ErrorEventArgs(IrcMessageData data, string errorMessage)
             : base(data)
         {
-            ErrorMessage = errormsg;
+            ErrorMessage = errorMessage;
         }
 
-        public string ErrorMessage { get; private set; }
+        public string ErrorMessage { get; }
     }
 }

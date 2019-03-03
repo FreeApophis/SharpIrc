@@ -116,7 +116,7 @@ namespace SharpIrc.IrcCommands
         {
             if (nicknames == null)
             {
-                throw new ArgumentNullException("nicknames");
+                throw new ArgumentNullException(nameof(nicknames));
             }
 
             Mode(channel, nicknames.Select(n => "+o").ToArray(), nicknames);
@@ -157,7 +157,7 @@ namespace SharpIrc.IrcCommands
         {
             if (nicknames == null)
             {
-                throw new ArgumentNullException("nicknames");
+                throw new ArgumentNullException(nameof(nicknames));
             }
 
             Mode(channel, nicknames.Select(n => "-o").ToArray(), nicknames);
@@ -193,7 +193,7 @@ namespace SharpIrc.IrcCommands
         {
             if (nicknames == null)
             {
-                throw new ArgumentNullException("nicknames");
+                throw new ArgumentNullException(nameof(nicknames));
             }
 
             Mode(channel, nicknames.Select(n => "+v").ToArray(), nicknames);
@@ -229,7 +229,7 @@ namespace SharpIrc.IrcCommands
         {
             if (nicknames == null)
             {
-                throw new ArgumentNullException("nicknames");
+                throw new ArgumentNullException(nameof(nicknames));
             }
 
             Mode(channel, nicknames.Select(n => "-v").ToArray(), nicknames);
@@ -258,72 +258,72 @@ namespace SharpIrc.IrcCommands
         ///
         /// </summary>
         /// <param name="channel"></param>
-        /// <param name="hostmask"></param>
+        /// <param name="hostMask"></param>
         /// <param name="priority"></param>
-        public void Ban(string channel, string hostmask, Priority priority)
+        public void Ban(string channel, string hostMask, Priority priority)
         {
-            WriteLine(Rfc2812.Mode(channel, "+b " + hostmask), priority);
+            WriteLine(Rfc2812.Mode(channel, "+b " + hostMask), priority);
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="channel"></param>
-        /// <param name="hostmask"></param>
-        public void Ban(string channel, string hostmask)
+        /// <param name="hostMask"></param>
+        public void Ban(string channel, string hostMask)
         {
-            WriteLine(Rfc2812.Mode(channel, "+b " + hostmask));
+            WriteLine(Rfc2812.Mode(channel, "+b " + hostMask));
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="channel"></param>
-        /// <param name="hostmasks"></param>
-        public void Ban(string channel, string[] hostmasks)
+        /// <param name="hostMasks"></param>
+        public void Ban(string channel, string[] hostMasks)
         {
-            if (hostmasks == null)
+            if (hostMasks == null)
             {
-                throw new ArgumentNullException("hostmasks");
+                throw new ArgumentNullException(nameof(hostMasks));
             }
 
-            Mode(channel, hostmasks.Select(n => "+b").ToArray(), hostmasks);
+            Mode(channel, hostMasks.Select(n => "+b").ToArray(), hostMasks);
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="channel"></param>
-        /// <param name="hostmask"></param>
+        /// <param name="hostMask"></param>
         /// <param name="priority"></param>
-        public void Unban(string channel, string hostmask, Priority priority)
+        public void Unban(string channel, string hostMask, Priority priority)
         {
-            WriteLine(Rfc2812.Mode(channel, "-b " + hostmask), priority);
+            WriteLine(Rfc2812.Mode(channel, "-b " + hostMask), priority);
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="channel"></param>
-        /// <param name="hostmask"></param>
-        public void Unban(string channel, string hostmask)
+        /// <param name="hostMask"></param>
+        public void Unban(string channel, string hostMask)
         {
-            WriteLine(Rfc2812.Mode(channel, "-b " + hostmask));
+            WriteLine(Rfc2812.Mode(channel, "-b " + hostMask));
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="channel"></param>
-        /// <param name="hostmasks"></param>
-        public void Unban(string channel, string[] hostmasks)
+        /// <param name="hostMasks"></param>
+        public void Unban(string channel, string[] hostMasks)
         {
-            if (hostmasks == null)
+            if (hostMasks == null)
             {
-                throw new ArgumentNullException("hostmasks");
+                throw new ArgumentNullException(nameof(hostMasks));
             }
 
-            Mode(channel, hostmasks.Select(n => "-b").ToArray(), hostmasks);
+            Mode(channel, hostMasks.Select(n => "-b").ToArray(), hostMasks);
         }
 
         // non-RFC commands
@@ -346,7 +346,7 @@ namespace SharpIrc.IrcCommands
         {
             if (nicknames == null)
             {
-                throw new ArgumentNullException("nicknames");
+                throw new ArgumentNullException(nameof(nicknames));
             }
 
             Mode(channel, nicknames.Select(n => "+h").ToArray(), nicknames);
@@ -371,7 +371,7 @@ namespace SharpIrc.IrcCommands
         {
             if (nicknames == null)
             {
-                throw new ArgumentNullException("nicknames");
+                throw new ArgumentNullException(nameof(nicknames));
             }
 
             Mode(channel, nicknames.Select(n => "-h").ToArray(), nicknames);
@@ -387,19 +387,19 @@ namespace SharpIrc.IrcCommands
         {
             if (target == null)
             {
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
             }
             if (newModes == null)
             {
-                throw new ArgumentNullException("newModes");
+                throw new ArgumentNullException(nameof(newModes));
             }
             if (newModeParameters == null)
             {
-                throw new ArgumentNullException("newModeParameters");
+                throw new ArgumentNullException(nameof(newModeParameters));
             }
             if (newModes.Length == 0)
             {
-                throw new ArgumentException("newModes must not be empty.", "newModes");
+                throw new ArgumentException("newModes must not be empty.", nameof(newModes));
             }
             if (newModeParameters.Length == 0)
             {
@@ -430,7 +430,7 @@ namespace SharpIrc.IrcCommands
 
         #region Client capability commands
 
-        public enum CapabilitySubcommand
+        public enum CapabilitySubCommand
         {
             LS,
             LIST,
@@ -439,7 +439,7 @@ namespace SharpIrc.IrcCommands
             END
         }
 
-        public void Cap(CapabilitySubcommand subCmd, Priority priority)
+        public void Cap(CapabilitySubCommand subCmd, Priority priority)
         {
             WriteLine("CAP " + subCmd, priority);
         }
@@ -523,23 +523,23 @@ namespace SharpIrc.IrcCommands
         ///
         /// </summary>
         /// <param name="username"></param>
-        /// <param name="usermode"></param>
-        /// <param name="realname"></param>
+        /// <param name="userMode"></param>
+        /// <param name="realName"></param>
         /// <param name="priority"></param>
-        public void RfcUser(string username, int usermode, string realname, Priority priority)
+        public void RfcUser(string username, int userMode, string realName, Priority priority)
         {
-            WriteLine(Rfc2812.User(username, usermode, realname), priority);
+            WriteLine(Rfc2812.User(username, userMode, realName), priority);
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="username"></param>
-        /// <param name="usermode"></param>
-        /// <param name="realname"></param>
-        public void RfcUser(string username, int usermode, string realname)
+        /// <param name="userMode"></param>
+        /// <param name="realName"></param>
+        public void RfcUser(string username, int userMode, string realName)
         {
-            WriteLine(Rfc2812.User(username, usermode, realname));
+            WriteLine(Rfc2812.User(username, userMode, realName));
         }
 
         /// <summary>
@@ -727,42 +727,42 @@ namespace SharpIrc.IrcCommands
         ///
         /// </summary>
         /// <param name="channel"></param>
-        /// <param name="partmessage"></param>
+        /// <param name="partMessage"></param>
         /// <param name="priority"></param>
-        public void RfcPart(string channel, string partmessage, Priority priority)
+        public void RfcPart(string channel, string partMessage, Priority priority)
         {
-            WriteLine(Rfc2812.Part(channel, partmessage), priority);
+            WriteLine(Rfc2812.Part(channel, partMessage), priority);
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="channel"></param>
-        /// <param name="partmessage"></param>
-        public void RfcPart(string channel, string partmessage)
+        /// <param name="partMessage"></param>
+        public void RfcPart(string channel, string partMessage)
         {
-            WriteLine(Rfc2812.Part(channel, partmessage));
+            WriteLine(Rfc2812.Part(channel, partMessage));
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="channels"></param>
-        /// <param name="partmessage"></param>
+        /// <param name="partMessage"></param>
         /// <param name="priority"></param>
-        public void RfcPart(string[] channels, string partmessage, Priority priority)
+        public void RfcPart(string[] channels, string partMessage, Priority priority)
         {
-            WriteLine(Rfc2812.Part(channels, partmessage), priority);
+            WriteLine(Rfc2812.Part(channels, partMessage), priority);
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="channels"></param>
-        /// <param name="partmessage"></param>
-        public void RfcPart(string[] channels, string partmessage)
+        /// <param name="partMessage"></param>
+        public void RfcPart(string[] channels, string partMessage)
         {
-            WriteLine(Rfc2812.Part(channels, partmessage));
+            WriteLine(Rfc2812.Part(channels, partMessage));
         }
 
         /// <summary>

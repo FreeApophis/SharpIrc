@@ -20,33 +20,25 @@ namespace SharpIrc.IrcClient
     /// <threadsafety static="true" instance="true" />
     public class IrcClient : SharpIrc.IrcCommands.IrcCommands
     {
-        private string nickname = string.Empty;
-        private string[] nicknameList;
-        private int currentNickname;
-        private string realname = string.Empty;
-        private string usermode = string.Empty;
-        private int iUsermode;
-        private string username = string.Empty;
-        private bool passiveChannelSyncing;
-        private readonly Dictionary<string, string> autoRejoinChannels = new Dictionary<string, string>();
-        private bool autoRejoinOnKick;
-        private bool autoNickHandling = true;
-        private bool supportNonRfc;
-        private bool supportNonRfcLocked;
-        private bool motdReceived;
-        private Array replyCodes = Enum.GetValues(typeof(ReplyCode));
+        private int _currentNickname;
+        private int _iUserMode;
+        private readonly Dictionary<string, string> _autoRejoinChannels = new Dictionary<string, string>();
+        private bool _supportNonRfc;
+        private bool _supportNonRfcLocked;
+        private bool _motdReceived;
+        private Array _replyCodes = Enum.GetValues(typeof(ReplyCode));
 
-        private readonly Dictionary<string, Channel> channels = new Dictionary<string, Channel>(StringComparer.InvariantCultureIgnoreCase);
-        private readonly Dictionary<string, IrcUser> ircUsers = new Dictionary<string, IrcUser>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly Dictionary<string, Channel> _channels = new Dictionary<string, Channel>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly Dictionary<string, IrcUser> _ircUsers = new Dictionary<string, IrcUser>(StringComparer.InvariantCultureIgnoreCase);
 
-        private List<ChannelInfo> channelList;
-        private readonly Object channelListSyncRoot = new Object();
-        private AutoResetEvent channelListReceivedEvent;
-        private List<WhoInfo> whoList;
-        private readonly Object whoListSyncRoot = new Object();
-        private AutoResetEvent whoListReceivedEvent;
-        private List<BanInfo> banList;
-        private AutoResetEvent banListReceivedEvent;
+        private List<ChannelInfo> _channelList;
+        private readonly object _channelListSyncRoot = new object();
+        private AutoResetEvent _channelListReceivedEvent;
+        private List<WhoInfo> _whoList;
+        private readonly object _whoListSyncRoot = new object();
+        private AutoResetEvent _whoListReceivedEvent;
+        private List<BanInfo> _banList;
+        private AutoResetEvent _banListReceivedEvent;
 
         public event EventHandler<System.EventArgs> OnRegistered;
         public event EventHandler<PingEventArgs> OnPing;
@@ -111,16 +103,7 @@ namespace SharpIrc.IrcClient
             }
 
         }
-
-
-        private readonly ServerProperties properties = new ServerProperties();
-        public ServerProperties Properties
-        {
-            get
-            {
-                return properties;
-            }
-        }
+        public ServerProperties Properties { get; } = new ServerProperties();
 
 
         /// <summary>
@@ -134,12 +117,12 @@ namespace SharpIrc.IrcClient
         /// </summary>
         public bool PassiveChannelSyncing
         {
-            get { return passiveChannelSyncing; }
+            get;
             /*
-            set {
-                passiveChannelSyncing = value;
-            }
-            */
+    set {
+    passiveChannelSyncing = value;
+    }
+    */
         }
 
         /// <summary>
@@ -163,33 +146,19 @@ namespace SharpIrc.IrcClient
         /// Enables/disables auto rejoining of channels when kicked.
         /// Default: false
         /// </summary>
-        public bool AutoRejoinOnKick
-        {
-            get { return autoRejoinOnKick; }
-            set
-            {
-                autoRejoinOnKick = value;
-            }
-        }
+        public bool AutoRejoinOnKick { get; set; }
 
         /// <summary>
-        /// Enables/disables auto relogin to the server after a reconnect.
+        /// Enables/disables auto re-login to the server after a reconnect.
         /// Default: false
         /// </summary>
-        public bool AutoRelogin { get; set; }
+        public bool AutoReLogin { get; set; }
 
         /// <summary>
         /// Enables/disables auto nick handling on nick collisions
         /// Default: true
         /// </summary>
-        public bool AutoNickHandling
-        {
-            get { return autoNickHandling; }
-            set
-            {
-                autoNickHandling = value;
-            }
-        }
+        public bool AutoNickHandling { get; set; } = true;
 
         /// <summary>
         /// Enables/disables support for non rfc features.
@@ -197,14 +166,14 @@ namespace SharpIrc.IrcClient
         /// </summary>
         public bool SupportNonRfc
         {
-            get { return supportNonRfc; }
+            get => _supportNonRfc;
             set
             {
-                if (supportNonRfcLocked)
+                if (_supportNonRfcLocked)
                 {
                     return;
                 }
-                supportNonRfc = value;
+                _supportNonRfc = value;
 
                 DispatchEvent(this, SupportNonRfcChanged, System.EventArgs.Empty);
             }
@@ -213,26 +182,17 @@ namespace SharpIrc.IrcClient
         /// <summary>
         /// Gets the nickname of us.
         /// </summary>
-        public string Nickname
-        {
-            get { return nickname; }
-        }
+        public string Nickname { get; private set; } = string.Empty;
 
         /// <summary>
         /// Gets the list of nicknames of us.
         /// </summary>
-        public string[] NicknameList
-        {
-            get { return nicknameList; }
-        }
+        public string[] NicknameList { get; private set; }
 
         /// <summary>
         /// Gets the supposed real name of us.
         /// </summary>
-        public string Realname
-        {
-            get { return realname; }
-        }
+        public string RealName { get; private set; } = string.Empty;
 
         /// <summary>
         /// Gets the username for the server.
@@ -240,26 +200,17 @@ namespace SharpIrc.IrcClient
         /// <remarks>
         /// System username is set by default
         /// </remarks>
-        public string Username
-        {
-            get { return username; }
-        }
+        public string Username { get; private set; } = string.Empty;
 
         /// <summary>
         /// Gets the alphanumeric mode mask of us.
         /// </summary>
-        public string Usermode
-        {
-            get { return usermode; }
-        }
+        public string UserMode { get; private set; } = string.Empty;
 
         /// <summary>
         /// Gets the numeric mode mask of us.
         /// </summary>
-        public int IUsermode
-        {
-            get { return iUsermode; }
-        }
+        public int IUsermode => _iUserMode;
 
         /// <summary>
         /// Gets SASL account name
@@ -284,14 +235,14 @@ namespace SharpIrc.IrcClient
         /// <summary>
         /// Gets the list of channels we are joined.
         /// </summary>
-        public StringCollection JoinedChannels { get; private set; }
+        public StringCollection JoinedChannels { get; }
 
         /// <summary>
         /// Gets the server message of the day.
         /// </summary>
-        public StringCollection Motd { get; private set; }
+        public StringCollection Motd { get; }
 
-        public object BanListSyncRoot { get; private set; }
+        public object BanListSyncRoot { get; }
 
         /// <summary>
         /// This class manages the connection server and provides access to all the objects needed to send and receive messages.
@@ -304,7 +255,7 @@ namespace SharpIrc.IrcClient
             Password = string.Empty;
             SaslPassword = string.Empty;
             SaslAccount = string.Empty;
-            passiveChannelSyncing = false;
+            PassiveChannelSyncing = false;
             OnReadLine += Worker;
             OnDisconnected += Disconnected;
             OnConnectionError += ConnectionError;
@@ -313,12 +264,12 @@ namespace SharpIrc.IrcClient
         /// <summary>
         /// Connection parameters required to establish an server connection.
         /// </summary>
-        /// <param name="addresslist">The list of server hostnames.</param>
+        /// <param name="addresses">The list of server hostnames.</param>
         /// <param name="port">The TCP port the server listens on.</param>
-        public new void Connect(string[] addresslist, int port)
+        public new void Connect(string[] addresses, int port)
         {
-            supportNonRfcLocked = true;
-            base.Connect(addresslist, port);
+            _supportNonRfcLocked = true;
+            base.Connect(addresses, port);
         }
 
         /// <overloads>
@@ -335,10 +286,10 @@ namespace SharpIrc.IrcClient
             Reconnect();
             if (login)
             {
-                //reset the nick to the original nicklist
-                currentNickname = 0;
+                //reset the nick to the original nicks
+                _currentNickname = 0;
                 // FIXME: honor _Nickname (last used nickname)
-                Login(nicknameList, Realname, IUsermode, Username, Password);
+                Login(NicknameList, RealName, IUsermode, Username, Password);
             }
             if (channels)
             {
@@ -355,31 +306,31 @@ namespace SharpIrc.IrcClient
         /// <summary>
         /// Login parameters required identify with server connection
         /// </summary>
-        /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
-        /// <param name="nicklist">The users list of 'nick' names which may NOT contain spaces</param>
-        /// <param name="realname">The users 'real' name which may contain space characters</param>
-        /// <param name="usermode">A numeric mode parameter.
+        /// <remark>Login is used at the beginning of connection to specify the username, hostname and real name of a new user.</remark>
+        /// <param name="nicks">The users list of 'nick' names which may NOT contain spaces</param>
+        /// <param name="realName">The users 'real' name which may contain space characters</param>
+        /// <param name="userMode">A numeric mode parameter.
         ///   <remark>
-        ///     Set to 0 to recieve wallops and be invisible.
+        ///     Set to 0 to receive wallops and be invisible.
         ///     Set to 4 to be invisible and not receive wallops.
         ///   </remark>
         /// </param>
         /// <param name="username">The user's machine logon name</param>
         /// <param name="password">The optional password can and MUST be set before any attempt to register
         ///  the connection is made.</param>
-        public void Login(string[] nicklist, string realname, int usermode, string username, string password)
+        public void Login(string[] nicks, string realName, int userMode, string username, string password)
         {
-            nicknameList = (string[])nicklist.Clone();
+            NicknameList = (string[])nicks.Clone();
             // here we set the nickname which we will try first
-            nickname = nicknameList[0].Replace(" ", "");
-            this.realname = realname;
-            iUsermode = usermode;
+            Nickname = NicknameList[0].Replace(" ", "");
+            RealName = realName;
+            _iUserMode = userMode;
 
-            this.username = !string.IsNullOrEmpty(username) ? username.Replace(" ", "") : Environment.UserName.Replace(" ", "");
+            Username = !string.IsNullOrEmpty(username) ? username.Replace(" ", "") : Environment.UserName.Replace(" ", "");
 
             if (SaslAccount != "")
             {
-                Cap(CapabilitySubcommand.LS, Priority.Critical);
+                Cap(CapabilitySubCommand.LS, Priority.Critical);
             }
 
             if (!string.IsNullOrEmpty(password))
@@ -389,104 +340,104 @@ namespace SharpIrc.IrcClient
             }
 
             RfcNick(Nickname, Priority.Critical);
-            RfcUser(Username, IUsermode, Realname, Priority.Critical);
+            RfcUser(Username, IUsermode, RealName, Priority.Critical);
         }
 
         /// <summary>
         /// Login parameters required identify with server connection
         /// </summary>
-        /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
-        /// <param name="nicklist">The users list of 'nick' names which may NOT contain spaces</param>
-        /// <param name="realname">The users 'real' name which may contain space characters</param>
-        /// <param name="usermode">A numeric mode parameter.
-        /// Set to 0 to recieve wallops and be invisible.
+        /// <remark>Login is used at the beginning of connection to specify the username, hostname and realName of a new user.</remark>
+        /// <param name="nicks">The users list of 'nick' names which may NOT contain spaces</param>
+        /// <param name="realName">The users 'real' name which may contain space characters</param>
+        /// <param name="userMode">A numeric mode parameter.
+        /// Set to 0 to receive wallops and be invisible.
         /// Set to 4 to be invisible and not receive wallops.</param>
         /// <param name="username">The user's machine logon name</param>
-        public void Login(string[] nicklist, string realname, int usermode, string username)
+        public void Login(string[] nicks, string realName, int userMode, string username)
         {
-            Login(nicklist, realname, usermode, username, "");
+            Login(nicks, realName, userMode, username, "");
         }
 
         /// <summary>
         /// Login parameters required identify with server connection
         /// </summary>
-        /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
-        /// <param name="nicklist">The users list of 'nick' names which may NOT contain spaces</param>
-        /// <param name="realname">The users 'real' name which may contain space characters</param>
-        /// <param name="usermode">A numeric mode parameter.
-        /// Set to 0 to recieve wallops and be invisible.
+        /// <remark>Login is used at the beginning of connection to specify the username, hostname and realName of a new user.</remark>
+        /// <param name="nicks">The users list of 'nick' names which may NOT contain spaces</param>
+        /// <param name="realName">The users 'real' name which may contain space characters</param>
+        /// <param name="userMode">A numeric mode parameter.
+        /// Set to 0 to receive wallops and be invisible.
         /// Set to 4 to be invisible and not receive wallops.</param>
-        public void Login(string[] nicklist, string realname, int usermode)
+        public void Login(string[] nicks, string realName, int userMode)
         {
-            Login(nicklist, realname, usermode, "", "");
+            Login(nicks, realName, userMode, "", "");
         }
 
         /// <summary>
         /// Login parameters required identify with server connection
         /// </summary>
-        /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
-        /// <param name="nicklist">The users list of 'nick' names which may NOT contain spaces</param>
-        /// <param name="realname">The users 'real' name which may contain space characters</param>
-        public void Login(string[] nicklist, string realname)
+        /// <remark>Login is used at the beginning of connection to specify the username, hostname and realName of a new user.</remark>
+        /// <param name="nicks">The users list of 'nick' names which may NOT contain spaces</param>
+        /// <param name="realName">The users 'real' name which may contain space characters</param>
+        public void Login(string[] nicks, string realName)
         {
-            Login(nicklist, realname, 0, "", "");
+            Login(nicks, realName, 0, "", "");
         }
 
         /// <summary>
         /// Login parameters required identify with server connection
         /// </summary>
-        /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
+        /// <remark>Login is used at the beginning of connection to specify the username, hostname and realName of a new user.</remark>
         /// <param name="nick">The users 'nick' name which may NOT contain spaces</param>
-        /// <param name="realname">The users 'real' name which may contain space characters</param>
-        /// <param name="usermode">A numeric mode parameter.
-        /// Set to 0 to recieve wallops and be invisible.
+        /// <param name="realName">The users 'real' name which may contain space characters</param>
+        /// <param name="userMode">A numeric mode parameter.
+        /// Set to 0 to receive wallops and be invisible.
         /// Set to 4 to be invisible and not receive wallops.</param>
         /// <param name="username">The user's machine logon name</param>
         /// <param name="password">The optional password can and MUST be set before any attempt to register
         ///  the connection is made.</param>
-        public void Login(string nick, string realname, int usermode, string username, string password)
+        public void Login(string nick, string realName, int userMode, string username, string password)
         {
-            Login(new[] { nick, nick + "_", nick + "__" }, realname, usermode, username, password);
+            Login(new[] { nick, nick + "_", nick + "__" }, realName, userMode, username, password);
         }
 
         /// <summary>
         /// Login parameters required identify with server connection
         /// </summary>
-        /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
+        /// <remark>Login is used at the beginning of connection to specify the username, hostname and realName of a new user.</remark>
         /// <param name="nick">The users 'nick' name which may NOT contain spaces</param>
-        /// <param name="realname">The users 'real' name which may contain space characters</param>
-        /// <param name="usermode">A numeric mode parameter.
-        /// Set to 0 to recieve wallops and be invisible.
+        /// <param name="realName">The users 'real' name which may contain space characters</param>
+        /// <param name="userMode">A numeric mode parameter.
+        /// Set to 0 to receive wallops and be invisible.
         /// Set to 4 to be invisible and not receive wallops.</param>
         /// <param name="username">The user's machine logon name</param>
-        public void Login(string nick, string realname, int usermode, string username)
+        public void Login(string nick, string realName, int userMode, string username)
         {
-            Login(new[] { nick, nick + "_", nick + "__" }, realname, usermode, username, "");
+            Login(new[] { nick, nick + "_", nick + "__" }, realName, userMode, username, "");
         }
 
         /// <summary>
         /// Login parameters required identify with server connection
         /// </summary>
-        /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
+        /// <remark>Login is used at the beginning of connection to specify the username, hostname and realName of a new user.</remark>
         /// <param name="nick">The users 'nick' name which may NOT contain spaces</param>
-        /// <param name="realname">The users 'real' name which may contain space characters</param>
-        /// <param name="usermode">A numeric mode parameter.
-        /// Set to 0 to recieve wallops and be invisible.
+        /// <param name="realName">The users 'real' name which may contain space characters</param>
+        /// <param name="userMode">A numeric mode parameter.
+        /// Set to 0 to receive wallops and be invisible.
         /// Set to 4 to be invisible and not receive wallops.</param>
-        public void Login(string nick, string realname, int usermode)
+        public void Login(string nick, string realName, int userMode)
         {
-            Login(new[] { nick, nick + "_", nick + "__" }, realname, usermode, "", "");
+            Login(new[] { nick, nick + "_", nick + "__" }, realName, userMode, "", "");
         }
 
         /// <summary>
         /// Login parameters required identify with server connection
         /// </summary>
-        /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
+        /// <remark>Login is used at the beginning of connection to specify the username, hostname and realName of a new user.</remark>
         /// <param name="nick">The users 'nick' name which may NOT contain spaces</param>
-        /// <param name="realname">The users 'real' name which may contain space characters</param>
-        public void Login(string nick, string realname)
+        /// <param name="realName">The users 'real' name which may contain space characters</param>
+        public void Login(string nick, string realName)
         {
-            Login(new[] { nick, nick + "_", nick + "__" }, realname, 0, "", "");
+            Login(new[] { nick, nick + "_", nick + "__" }, realName, 0, "", "");
         }
 
         /// <summary>
@@ -502,40 +453,34 @@ namespace SharpIrc.IrcClient
         /// <summary>
         /// Determines if your nickname can be found in a specified channel
         /// </summary>
-        /// <param name="channelname">The name of the channel you wish to query</param>
+        /// <param name="channelName">The name of the channel you wish to query</param>
         /// <returns>True if you are found in channel</returns>
-        public bool IsJoined(string channelname)
+        public bool IsJoined(string channelName)
         {
-            return IsJoined(channelname, Nickname);
+            return IsJoined(channelName, Nickname);
         }
 
         /// <summary>
         /// Determine if a specified nickname can be found in a specified channel
         /// </summary>
-        /// <param name="channelname">The name of the channel you wish to query</param>
+        /// <param name="channelName">The name of the channel you wish to query</param>
         /// <param name="nickname">The users 'nick' name which may NOT contain spaces</param>
         /// <returns>True if nickname is found in channel</returns>
-        public bool IsJoined(string channelname, string nickname)
+        public bool IsJoined(string channelName, string nickname)
         {
-            if (channelname == null)
+            if (channelName == null)
             {
-                throw new ArgumentNullException("channelname");
+                throw new ArgumentNullException(nameof(channelName));
             }
 
             if (nickname == null)
             {
-                throw new ArgumentNullException("nickname");
+                throw new ArgumentNullException(nameof(nickname));
             }
 
-            Channel channel = GetChannel(channelname);
-            if (channel != null &&
-                channel.UnsafeUsers != null &&
-                channel.UnsafeUsers.ContainsKey(nickname))
-            {
-                return true;
-            }
+            Channel channel = GetChannel(channelName);
 
-            return false;
+            return channel?.UnsafeUsers != null && channel.UnsafeUsers.ContainsKey(nickname);
         }
 
         /// <summary>
@@ -547,50 +492,48 @@ namespace SharpIrc.IrcClient
         {
             if (nickname == null)
             {
-                throw new ArgumentNullException("nickname");
+                throw new ArgumentNullException(nameof(nickname));
             }
 
-            IrcUser ircUser;
-            return ircUsers.TryGetValue(nickname, out ircUser) ? ircUser : null;
+            return _ircUsers.TryGetValue(nickname, out var ircUser) ? ircUser : null;
 
         }
 
         /// <summary>
         /// Returns extended user information including channel information
         /// </summary>
-        /// <param name="channelname">The name of the channel you wish to query</param>
+        /// <param name="channelName">The name of the channel you wish to query</param>
         /// <param name="nickname">The users 'nick' name which may NOT contain spaces</param>
-        /// <returns>ChannelUser object of requested channelname/nickname</returns>
-        public ChannelUser GetChannelUser(string channelname, string nickname)
+        /// <returns>ChannelUser object of requested channelName/nickname</returns>
+        public ChannelUser GetChannelUser(string channelName, string nickname)
         {
-            if (channelname == null)
+            if (channelName == null)
             {
-                throw new ArgumentNullException("channelname");
+                throw new ArgumentNullException(nameof(channelName));
             }
 
             if (nickname == null)
             {
-                throw new ArgumentNullException("nickname");
+                throw new ArgumentNullException(nameof(nickname));
             }
 
-            Channel channel = GetChannel(channelname);
-            return channel != null ? (ChannelUser)channel.UnsafeUsers[nickname] : null;
+            Channel channel = GetChannel(channelName);
+            return (ChannelUser)channel?.UnsafeUsers[nickname];
         }
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="channelname">The name of the channel you wish to query</param>
+        /// <param name="channelName">The name of the channel you wish to query</param>
         /// <returns>Channel object of requested channel</returns>
-        public Channel GetChannel(string channelname)
+        public Channel GetChannel(string channelName)
         {
-            if (channelname == null)
+            if (channelName == null)
             {
-                throw new ArgumentNullException("channelname");
+                throw new ArgumentNullException(nameof(channelName));
             }
 
-            Channel channel;
-            return channels.TryGetValue(channelname, out channel) ? channel : null;
+            return _channels.TryGetValue(channelName, out var channel) ? channel : null;
         }
 
         /// <summary>
@@ -599,7 +542,7 @@ namespace SharpIrc.IrcClient
         /// <returns>String array of all joined channel names</returns>
         public string[] GetChannels()
         {
-            return channels.Keys.ToArray();
+            return _channels.Keys.ToArray();
         }
 
         /// <summary>
@@ -609,18 +552,18 @@ namespace SharpIrc.IrcClient
         public IList<ChannelInfo> GetChannelList(string mask)
         {
             var list = new List<ChannelInfo>();
-            lock (channelListSyncRoot)
+            lock (_channelListSyncRoot)
             {
-                channelList = list;
-                channelListReceivedEvent = new AutoResetEvent(false);
+                _channelList = list;
+                _channelListReceivedEvent = new AutoResetEvent(false);
 
                 // request list
                 RfcList(mask);
                 // wait till we have the complete list
-                channelListReceivedEvent.WaitOne();
+                _channelListReceivedEvent.WaitOne();
 
-                channelListReceivedEvent = null;
-                channelList = null;
+                _channelListReceivedEvent = null;
+                _channelList = null;
             }
 
             return list;
@@ -633,18 +576,18 @@ namespace SharpIrc.IrcClient
         public IList<WhoInfo> GetWhoList(string mask)
         {
             var list = new List<WhoInfo>();
-            lock (whoListSyncRoot)
+            lock (_whoListSyncRoot)
             {
-                whoList = list;
-                whoListReceivedEvent = new AutoResetEvent(false);
+                _whoList = list;
+                _whoListReceivedEvent = new AutoResetEvent(false);
 
                 // request list
                 RfcWho(mask);
                 // wait till we have the complete list
-                whoListReceivedEvent.WaitOne();
+                _whoListReceivedEvent.WaitOne();
 
-                whoListReceivedEvent = null;
-                whoList = null;
+                _whoListReceivedEvent = null;
+                _whoList = null;
             }
 
             return list;
@@ -659,16 +602,16 @@ namespace SharpIrc.IrcClient
             var list = new List<BanInfo>();
             lock (BanListSyncRoot)
             {
-                banList = list;
-                banListReceivedEvent = new AutoResetEvent(false);
+                _banList = list;
+                _banListReceivedEvent = new AutoResetEvent(false);
 
                 // request list
                 Ban(channel);
                 // wait till we have the complete list
-                banListReceivedEvent.WaitOne();
+                _banListReceivedEvent.WaitOne();
 
-                banListReceivedEvent = null;
-                banList = null;
+                _banListReceivedEvent = null;
+                _banList = null;
             }
 
             return list;
@@ -681,19 +624,19 @@ namespace SharpIrc.IrcClient
 
         protected virtual Channel CreateChannel(string name)
         {
-            return supportNonRfc ? new NonRfcChannel(name) : new Channel(name);
+            return _supportNonRfc ? new NonRfcChannel(name) : new Channel(name);
         }
 
         protected virtual ChannelUser CreateChannelUser(string channel, IrcUser ircUser)
         {
-            return supportNonRfc ? new NonRfcChannelUser(channel, ircUser) : new ChannelUser(channel, ircUser);
+            return _supportNonRfc ? new NonRfcChannelUser(channel, ircUser) : new ChannelUser(channel, ircUser);
         }
 
         private void Worker(object sender, ReadLineEventArgs e)
         {
             var msg = new IrcMessageData(this, e.Line);
 
-            // lets see if we have events or internal messagehandler for it
+            // lets see if we have events or internal message handler for it
             HandleEvents(msg);
         }
 
@@ -711,9 +654,9 @@ namespace SharpIrc.IrcClient
             try
             {
                 // AutoReconnect is handled in IrcConnection.ConnectionError
-                if (AutoReconnect && AutoRelogin)
+                if (AutoReconnect && AutoReLogin)
                 {
-                    Login(nicknameList, Realname, IUsermode, Username, Password);
+                    Login(NicknameList, RealName, IUsermode, Username, Password);
                 }
                 if (AutoReconnect && AutoRejoin)
                 {
@@ -729,22 +672,22 @@ namespace SharpIrc.IrcClient
 
         private void StoreChannelsToRejoin()
         {
-            lock (autoRejoinChannels)
+            lock (_autoRejoinChannels)
             {
-                autoRejoinChannels.Clear();
+                _autoRejoinChannels.Clear();
                 if (ActiveChannelSyncing || PassiveChannelSyncing)
                 {
                     // store the key using channel sync
-                    foreach (Channel channel in channels.Values)
+                    foreach (Channel channel in _channels.Values)
                     {
-                        autoRejoinChannels.Add(channel.Name, channel.Key);
+                        _autoRejoinChannels.Add(channel.Name, channel.Key);
                     }
                 }
                 else
                 {
                     foreach (string channel in JoinedChannels)
                     {
-                        autoRejoinChannels.Add(channel, null);
+                        _autoRejoinChannels.Add(channel, null);
                     }
                 }
             }
@@ -752,10 +695,10 @@ namespace SharpIrc.IrcClient
 
         private void RejoinChannels()
         {
-            lock (autoRejoinChannels)
+            lock (_autoRejoinChannels)
             {
-                RfcJoin(autoRejoinChannels.Keys.ToArray(), autoRejoinChannels.Values.ToArray(), Priority.High);
-                autoRejoinChannels.Clear();
+                RfcJoin(_autoRejoinChannels.Keys.ToArray(), _autoRejoinChannels.Values.ToArray(), Priority.High);
+                _autoRejoinChannels.Clear();
             }
         }
 
@@ -765,13 +708,13 @@ namespace SharpIrc.IrcClient
             JoinedChannels.Clear();
             if (ActiveChannelSyncing)
             {
-                channels.Clear();
-                ircUsers.Clear();
+                _channels.Clear();
+                _ircUsers.Clear();
             }
 
             IsAway = false;
 
-            motdReceived = false;
+            _motdReceived = false;
             Motd.Clear();
         }
 
@@ -780,137 +723,137 @@ namespace SharpIrc.IrcClient
         /// </summary>
         private string NextNickname()
         {
-            currentNickname++;
+            _currentNickname++;
             //if we reach the end stay there
-            if (currentNickname >= nicknameList.Length)
+            if (_currentNickname >= NicknameList.Length)
             {
-                currentNickname--;
+                _currentNickname--;
             }
-            return NicknameList[currentNickname];
+            return NicknameList[_currentNickname];
         }
 
-        private void HandleEvents(IrcMessageData ircdata)
+        private void HandleEvents(IrcMessageData ircData)
         {
-            DispatchEvent(this, OnRawMessage, new IrcEventArgs(ircdata));
+            DispatchEvent(this, OnRawMessage, new IrcEventArgs(ircData));
 
-            switch (ircdata.Command)
+            switch (ircData.Command)
             {
                 case "PING":
-                    EventPing(ircdata);
+                    EventPing(ircData);
                     break;
                 case "ERROR":
-                    EventError(ircdata);
+                    EventError(ircData);
                     break;
                 case "PRIVMSG":
-                    EventPrivmsg(ircdata);
+                    EventPrivateMessage(ircData);
                     break;
                 case "NOTICE":
-                    EventNotice(ircdata);
+                    EventNotice(ircData);
                     break;
                 case "JOIN":
-                    EventJoin(ircdata);
+                    EventJoin(ircData);
                     break;
                 case "PART":
-                    EventPart(ircdata);
+                    EventPart(ircData);
                     break;
                 case "KICK":
-                    EventKick(ircdata);
+                    EventKick(ircData);
                     break;
                 case "QUIT":
-                    EventQuit(ircdata);
+                    EventQuit(ircData);
                     break;
                 case "TOPIC":
-                    EventTopic(ircdata);
+                    EventTopic(ircData);
                     break;
                 case "NICK":
-                    EventNick(ircdata);
+                    EventNick(ircData);
                     break;
                 case "INVITE":
-                    EventInvite(ircdata);
+                    EventInvite(ircData);
                     break;
                 case "MODE":
-                    EventMode(ircdata);
+                    EventMode(ircData);
                     break;
                 case "PONG":
-                    EventPong(ircdata);
+                    EventPong(ircData);
                     break;
                 case "CAP":
-                    EventCap(ircdata);
+                    EventCap(ircData);
                     break;
                 case "AUTHENTICATE":
-                    EventAuth(ircdata);
+                    EventAuth(ircData);
                     break;
             }
 
-            if (ircdata.ReplyCode != ReplyCode.Null)
+            if (ircData.ReplyCode != ReplyCode.Null)
             {
-                switch (ircdata.ReplyCode)
+                switch (ircData.ReplyCode)
                 {
                     case ReplyCode.Welcome:
-                        EventRplWelcome(ircdata);
+                        EventRplWelcome(ircData);
                         break;
                     case ReplyCode.Topic:
-                        EventRplTopic(ircdata);
+                        EventRplTopic(ircData);
                         break;
                     case ReplyCode.NoTopic:
-                        EventRplNoTopic(ircdata);
+                        EventRplNoTopic(ircData);
                         break;
                     case ReplyCode.NamesReply:
-                        EventRplNamreply(ircdata);
+                        EventRplNamreply(ircData);
                         break;
                     case ReplyCode.EndOfNames:
-                        EventRplEndOfNames(ircdata);
+                        EventRplEndOfNames(ircData);
                         break;
                     case ReplyCode.List:
-                        EventRplList(ircdata);
+                        EventRplList(ircData);
                         break;
                     case ReplyCode.ListEnd:
-                        EventRplListEnd(ircdata);
+                        EventRplListEnd(ircData);
                         break;
                     case ReplyCode.WhoReply:
-                        EventRplWhoreply(ircdata);
+                        EventRplWhoReply(ircData);
                         break;
                     case ReplyCode.EndOfWho:
-                        EventRplEndofwho(ircdata);
+                        EventRplEndOfWho(ircData);
                         break;
                     case ReplyCode.ChannelModeIs:
-                        EventRplChannelmodeis(ircdata);
+                        EventRplChannelModeIs(ircData);
                         break;
                     case ReplyCode.BanList:
-                        EventRplBanList(ircdata);
+                        EventRplBanList(ircData);
                         break;
                     case ReplyCode.EndOfBanList:
-                        EventRplEndOfBanList(ircdata);
+                        EventRplEndOfBanList(ircData);
                         break;
                     case ReplyCode.ErrorNoChannelModes:
-                        EventErrNoChanModes(ircdata);
+                        EventErrNoChanModes(ircData);
                         break;
                     case ReplyCode.Motd:
-                        EventRplMotd(ircdata);
+                        EventRplMotd(ircData);
                         break;
                     case ReplyCode.EndOfMotd:
-                        EventRplEndOfMotd(ircdata);
+                        EventRplEndOfMotd(ircData);
                         break;
                     case ReplyCode.Away:
-                        EventRplAway(ircdata);
+                        EventRplAway(ircData);
                         break;
                     case ReplyCode.UnAway:
-                        EventRplUnaway(ircdata);
+                        EventRplUnAway(ircData);
                         break;
                     case ReplyCode.NowAway:
-                        EventRplNowAway(ircdata);
+                        EventRplNowAway(ircData);
                         break;
                     case ReplyCode.TryAgain:
-                        EventRplTryAgain(ircdata);
+                        EventRplTryAgain(ircData);
                         break;
                     case ReplyCode.ErrorNicknameInUse:
-                        EventErrNickNameInUse(ircdata);
+                        EventErrNickNameInUse(ircData);
                         break;
                     case ReplyCode.Bounce:
-                        if (!ircdata.RawMessage.StartsWith("Try server"))
+                        if (!ircData.RawMessage.StartsWith("Try server"))
                         {
                             // RPL_ISUPPORT (Very common enhancement)
-                            properties.Parse(ircdata.RawMessage);
+                            Properties.Parse(ircData.RawMessage);
                         }
                         // RPL_BOUNCE (Rfc 2812)
                         break;
@@ -918,14 +861,14 @@ namespace SharpIrc.IrcClient
                     case ReplyCode.SaslFailure1:
                     case ReplyCode.SaslFailure2:
                     case ReplyCode.SaslAbort:
-                        EventRplSasl(ircdata);
+                        EventRplSasl(ircData);
                         break;
                 }
             }
 
-            if (ircdata.Type == ReceiveType.ErrorMessage)
+            if (ircData.Type == ReceiveType.ErrorMessage)
             {
-                EventErr(ircdata);
+                EventErr(ircData);
             }
         }
 
@@ -938,7 +881,7 @@ namespace SharpIrc.IrcClient
             if (GetIrcUser(nickname).JoinedChannels.Length == 0)
             {
                 // he is nowhere else, lets kill him
-                ircUsers.Remove(nickname);
+                _ircUsers.Remove(nickname);
                 return true;
             }
 
@@ -948,45 +891,45 @@ namespace SharpIrc.IrcClient
         /// <summary>
         /// Removes a specified user from a specified channel list
         /// </summary>
-        /// <param name="channelname">The name of the channel you wish to query</param>
+        /// <param name="channelName">The name of the channel you wish to query</param>
         /// <param name="nickname">The users 'nick' name which may NOT contain spaces</param>
-        private void RemoveChannelUser(string channelname, string nickname)
+        private void RemoveChannelUser(string channelName, string nickname)
         {
-            Channel chan = GetChannel(channelname);
+            Channel chan = GetChannel(channelName);
             chan.UnsafeUsers.Remove(nickname);
             chan.UnsafeOps.Remove(nickname);
             chan.UnsafeVoices.Remove(nickname);
             if (SupportNonRfc)
             {
-                var nchan = (NonRfcChannel)chan;
-                nchan.UnsafeAdmins.Remove(nickname);
-                nchan.UnsafeHalfops.Remove(nickname);
-                nchan.UnsafeOwners.Remove(nickname);
+                var nonRfcChannel = (NonRfcChannel)chan;
+                nonRfcChannel.UnsafeAdmins.Remove(nickname);
+                nonRfcChannel.UnsafeHalfops.Remove(nickname);
+                nonRfcChannel.UnsafeOwners.Remove(nickname);
             }
         }
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="ircdata">Message data containing channel mode information</param>
+        /// <param name="ircData">Message data containing channel mode information</param>
         /// <param name="mode">Channel mode</param>
-        /// <param name="parameter">List of supplied paramaters</param>
-        private void InterpretChannelMode(IrcMessageData ircdata, string mode, string parameter)
+        /// <param name="parameter">List of supplied parameters</param>
+        private void InterpretChannelMode(IrcMessageData ircData, string mode, string parameter)
         {
-            string[] parameters = parameter.Split(new[] { ' ' });
+            string[] parameters = parameter.Split(' ');
             bool add = false;
             bool remove = false;
-            int modelength = mode.Length;
+            int modeLength = mode.Length;
             Channel channel = null;
             if (ActiveChannelSyncing)
             {
-                channel = GetChannel(ircdata.Channel);
+                channel = GetChannel(ircData.Channel);
             }
 
             IEnumerator parametersEnumerator = parameters.GetEnumerator();
             // bring the enumerator to the 1. element
             parametersEnumerator.MoveNext();
-            for (int i = 0; i < modelength; i++)
+            for (int i = 0; i < modeLength; i++)
             {
                 string temp;
                 switch (mode[i])
@@ -1008,7 +951,7 @@ namespace SharpIrc.IrcClient
                             if (ActiveChannelSyncing)
                             {
                                 // sanity check
-                                if (GetChannelUser(ircdata.Channel, temp) != null)
+                                if (GetChannelUser(ircData.Channel, temp) != null)
                                 {
                                     // update the op list
                                     try
@@ -1020,29 +963,29 @@ namespace SharpIrc.IrcClient
                                     }
 
                                     // update the user op status
-                                    ChannelUser cuser = GetChannelUser(ircdata.Channel, temp);
-                                    cuser.IsOp = true;
+                                    ChannelUser channelUser = GetChannelUser(ircData.Channel, temp);
+                                    channelUser.IsOp = true;
                                 }
                             }
 
-                            DispatchEvent(this, OnOp, new OpEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                            DispatchEvent(this, OnOp, new OpEventArgs(ircData, ircData.Channel, ircData.Nick, temp));
                         }
                         if (remove)
                         {
                             if (ActiveChannelSyncing)
                             {
                                 // sanity check
-                                if (GetChannelUser(ircdata.Channel, temp) != null)
+                                if (GetChannelUser(ircData.Channel, temp) != null)
                                 {
                                     // update the op list
                                     channel.UnsafeOps.Remove(temp);
                                     // update the user op status
-                                    ChannelUser cuser = GetChannelUser(ircdata.Channel, temp);
-                                    cuser.IsOp = false;
+                                    ChannelUser channelUser = GetChannelUser(ircData.Channel, temp);
+                                    channelUser.IsOp = false;
                                 }
                             }
 
-                            DispatchEvent(this, OnDeop, new DeopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                            DispatchEvent(this, OnDeop, new DeopEventArgs(ircData, ircData.Channel, ircData.Nick, temp));
                         }
                         break;
                     case 'h':
@@ -1056,7 +999,7 @@ namespace SharpIrc.IrcClient
                                 if (ActiveChannelSyncing)
                                 {
                                     // sanity check
-                                    if (GetChannelUser(ircdata.Channel, temp) != null)
+                                    if (GetChannelUser(ircData.Channel, temp) != null)
                                     {
                                         // update the halfop list
                                         try
@@ -1068,32 +1011,29 @@ namespace SharpIrc.IrcClient
                                         }
 
                                         // update the user halfop status
-                                        var cuser = (NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp);
-                                        cuser.IsHalfop = true;
-                                    }
-                                    else
-                                    {
+                                        var channelUser = (NonRfcChannelUser)GetChannelUser(ircData.Channel, temp);
+                                        channelUser.IsHalfop = true;
                                     }
                                 }
 
-                                DispatchEvent(this, OnHalfop, new HalfopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                                DispatchEvent(this, OnHalfop, new HalfopEventArgs(ircData, ircData.Channel, ircData.Nick, temp));
                             }
                             if (remove)
                             {
                                 if (ActiveChannelSyncing)
                                 {
                                     // sanity check
-                                    if (GetChannelUser(ircdata.Channel, temp) != null)
+                                    if (GetChannelUser(ircData.Channel, temp) != null)
                                     {
                                         // update the halfop list
                                         ((NonRfcChannel)channel).UnsafeHalfops.Remove(temp);
                                         // update the user halfop status
-                                        var cuser = (NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp);
-                                        cuser.IsHalfop = false;
+                                        var channelUser = (NonRfcChannelUser)GetChannelUser(ircData.Channel, temp);
+                                        channelUser.IsHalfop = false;
                                     }
                                 }
 
-                                DispatchEvent(this, OnDehalfop, new DehalfopEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                                DispatchEvent(this, OnDehalfop, new DehalfopEventArgs(ircData, ircData.Channel, ircData.Nick, temp));
                             }
                         }
                         break;
@@ -1108,7 +1048,7 @@ namespace SharpIrc.IrcClient
                                 if (ActiveChannelSyncing)
                                 {
                                     // sanity check
-                                    if (GetChannelUser(ircdata.Channel, temp) != null)
+                                    if (GetChannelUser(ircData.Channel, temp) != null)
                                     {
                                         // update the halfop list
                                         try
@@ -1120,12 +1060,12 @@ namespace SharpIrc.IrcClient
                                         }
 
                                         // update the user halfop status
-                                        NonRfcChannelUser cuser = (NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp);
-                                        cuser.IsAdmin = true;
+                                        NonRfcChannelUser channelUser = (NonRfcChannelUser)GetChannelUser(ircData.Channel, temp);
+                                        channelUser.IsAdmin = true;
                                     }
                                 }
 
-                                DispatchEvent(this, OnAdmin, new AdminEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                                DispatchEvent(this, OnAdmin, new AdminEventArgs(ircData, ircData.Channel, ircData.Nick, temp));
 
                             }
                             if (remove)
@@ -1133,17 +1073,17 @@ namespace SharpIrc.IrcClient
                                 if (ActiveChannelSyncing)
                                 {
                                     // sanity check
-                                    if (GetChannelUser(ircdata.Channel, temp) != null)
+                                    if (GetChannelUser(ircData.Channel, temp) != null)
                                     {
                                         // update the halfop list
                                         ((NonRfcChannel)channel).UnsafeAdmins.Remove(temp);
                                         // update the user halfop status
-                                        NonRfcChannelUser cuser = (NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp);
-                                        cuser.IsAdmin = false;
+                                        NonRfcChannelUser channelUser = (NonRfcChannelUser)GetChannelUser(ircData.Channel, temp);
+                                        channelUser.IsAdmin = false;
                                     }
                                 }
 
-                                DispatchEvent(this, OnDeadmin, new DeadminEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                                DispatchEvent(this, OnDeadmin, new DeadminEventArgs(ircData, ircData.Channel, ircData.Nick, temp));
                             }
                         }
                         break;
@@ -1158,7 +1098,7 @@ namespace SharpIrc.IrcClient
                                 if (ActiveChannelSyncing)
                                 {
                                     // sanity check
-                                    if (GetChannelUser(ircdata.Channel, temp) != null)
+                                    if (GetChannelUser(ircData.Channel, temp) != null)
                                     {
                                         // update the halfop list
                                         try
@@ -1170,29 +1110,29 @@ namespace SharpIrc.IrcClient
                                         }
 
                                         // update the user halfop status
-                                        NonRfcChannelUser cuser = (NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp);
-                                        cuser.IsOwner = true;
+                                        NonRfcChannelUser channelUser = (NonRfcChannelUser)GetChannelUser(ircData.Channel, temp);
+                                        channelUser.IsOwner = true;
                                     }
                                 }
 
-                                DispatchEvent(this, OnOwner, new OwnerEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                                DispatchEvent(this, OnOwner, new OwnerEventArgs(ircData, ircData.Channel, ircData.Nick, temp));
                             }
                             if (remove)
                             {
                                 if (ActiveChannelSyncing)
                                 {
                                     // sanity check
-                                    if (GetChannelUser(ircdata.Channel, temp) != null)
+                                    if (GetChannelUser(ircData.Channel, temp) != null)
                                     {
                                         // update the halfop list
                                         ((NonRfcChannel)channel).UnsafeOwners.Remove(temp);
                                         // update the user halfop status
-                                        NonRfcChannelUser cuser = (NonRfcChannelUser)GetChannelUser(ircdata.Channel, temp);
-                                        cuser.IsOwner = false;
+                                        NonRfcChannelUser channelUser = (NonRfcChannelUser)GetChannelUser(ircData.Channel, temp);
+                                        channelUser.IsOwner = false;
                                     }
                                 }
 
-                                DispatchEvent(this, OnDeowner, new DeownerEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                                DispatchEvent(this, OnDeowner, new DeownerEventArgs(ircData, ircData.Channel, ircData.Nick, temp));
                             }
                         }
                         break;
@@ -1205,7 +1145,7 @@ namespace SharpIrc.IrcClient
                             if (ActiveChannelSyncing)
                             {
                                 // sanity check
-                                if (GetChannelUser(ircdata.Channel, temp) != null)
+                                if (GetChannelUser(ircData.Channel, temp) != null)
                                 {
                                     // update the voice list
                                     try
@@ -1217,29 +1157,29 @@ namespace SharpIrc.IrcClient
                                     }
 
                                     // update the user voice status
-                                    ChannelUser cuser = GetChannelUser(ircdata.Channel, temp);
-                                    cuser.IsVoice = true;
+                                    ChannelUser channelUser = GetChannelUser(ircData.Channel, temp);
+                                    channelUser.IsVoice = true;
                                 }
                             }
 
-                            DispatchEvent(this, OnVoice, new VoiceEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                            DispatchEvent(this, OnVoice, new VoiceEventArgs(ircData, ircData.Channel, ircData.Nick, temp));
                         }
                         if (remove)
                         {
                             if (ActiveChannelSyncing)
                             {
                                 // sanity check
-                                if (GetChannelUser(ircdata.Channel, temp) != null)
+                                if (GetChannelUser(ircData.Channel, temp) != null)
                                 {
                                     // update the voice list
                                     channel.UnsafeVoices.Remove(temp);
                                     // update the user voice status
-                                    ChannelUser cuser = GetChannelUser(ircdata.Channel, temp);
-                                    cuser.IsVoice = false;
+                                    ChannelUser channelUser = GetChannelUser(ircData.Channel, temp);
+                                    channelUser.IsVoice = false;
                                 }
                             }
 
-                            DispatchEvent(this, OnDevoice, new DevoiceEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                            DispatchEvent(this, OnDevoice, new DevoiceEventArgs(ircData, ircData.Channel, ircData.Nick, temp));
                         }
                         break;
                     case 'b':
@@ -1257,7 +1197,7 @@ namespace SharpIrc.IrcClient
                                 {
                                 }
                             }
-                            DispatchEvent(this, OnBan, new BanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                            DispatchEvent(this, OnBan, new BanEventArgs(ircData, ircData.Channel, ircData.Nick, temp));
                         }
                         if (remove)
                         {
@@ -1265,7 +1205,7 @@ namespace SharpIrc.IrcClient
                             {
                                 channel.Bans.Remove(temp);
                             }
-                            DispatchEvent(this, OnUnban, new UnbanEventArgs(ircdata, ircdata.Channel, ircdata.Nick, temp));
+                            DispatchEvent(this, OnUnban, new UnbanEventArgs(ircData, ircData.Channel, ircData.Nick, temp));
                         }
                         break;
                     case 'l':
@@ -1338,47 +1278,47 @@ namespace SharpIrc.IrcClient
         /// <summary>
         /// Event handler for ping messages
         /// </summary>
-        /// <param name="ircdata">Message data containing ping information</param>
-        private void EventPing(IrcMessageData ircdata)
+        /// <param name="ircData">Message data containing ping information</param>
+        private void EventPing(IrcMessageData ircData)
         {
-            string server = ircdata.RawMessageArray[1].Substring(1);
+            string server = ircData.RawMessageArray[1].Substring(1);
 
             RfcPong(server, Priority.Critical);
 
-            DispatchEvent(this, OnPing, new PingEventArgs(ircdata, server));
+            DispatchEvent(this, OnPing, new PingEventArgs(ircData, server));
         }
 
         /// <summary>
         /// Event handler for PONG messages
         /// </summary>
-        /// <param name="ircdata">Message data containing pong information</param>
-        private void EventPong(IrcMessageData ircdata)
+        /// <param name="ircData">Message data containing pong information</param>
+        private void EventPong(IrcMessageData ircData)
         {
-            DispatchEvent(this, OnPong, new PongEventArgs(ircdata, ircdata.Irc.Lag));
+            DispatchEvent(this, OnPong, new PongEventArgs(ircData, ircData.Irc.Lag));
         }
 
         /// <summary>
         /// Event handler for error messages
         /// </summary>
-        /// <param name="ircdata">Message data containing error information</param>
-        private void EventError(IrcMessageData ircdata)
+        /// <param name="ircData">Message data containing error information</param>
+        private void EventError(IrcMessageData ircData)
         {
-            string message = ircdata.Message;
-            DispatchEvent(this, OnError, new ErrorEventArgs(ircdata, message));
+            string message = ircData.Message;
+            DispatchEvent(this, OnError, new ErrorEventArgs(ircData, message));
         }
 
         /// <summary>
         /// Event handler for join messages
         /// </summary>
-        /// <param name="ircdata">Message data containing join information</param>
-        private void EventJoin(IrcMessageData ircdata)
+        /// <param name="ircData">Message data containing join information</param>
+        private void EventJoin(IrcMessageData ircData)
         {
-            string who = ircdata.Nick;
-            string channelname = ircdata.Channel;
+            string who = ircData.Nick;
+            string channelName = ircData.Channel;
 
             if (IsMe(who))
             {
-                JoinedChannels.Add(channelname);
+                JoinedChannels.Add(channelName);
             }
 
             if (ActiveChannelSyncing)
@@ -1387,17 +1327,17 @@ namespace SharpIrc.IrcClient
                 if (IsMe(who))
                 {
                     // we joined the channel
-                    channel = CreateChannel(channelname);
-                    channels.Add(channelname, channel);
+                    channel = CreateChannel(channelName);
+                    _channels.Add(channelName, channel);
 
                     // request channel mode
-                    RfcMode(channelname);
+                    RfcMode(channelName);
 
-                    // request wholist
-                    RfcWho(channelname);
+                    // request the who-list
+                    RfcWho(channelName);
 
-                    // request banlist
-                    Ban(channelname);
+                    // request the ban-list
+                    Ban(channelName);
                 }
                 else
                 {
@@ -1406,42 +1346,42 @@ namespace SharpIrc.IrcClient
                     RfcWho(who);
                 }
 
-                channel = GetChannel(channelname);
-                IrcUser ircuser = GetIrcUser(who);
+                channel = GetChannel(channelName);
+                IrcUser ircUser = GetIrcUser(who);
 
-                if (ircuser == null)
+                if (ircUser == null)
                 {
-                    ircuser = new IrcUser(who, this) { Ident = ircdata.Ident, Host = ircdata.Host };
-                    ircUsers.Add(who, ircuser);
+                    ircUser = new IrcUser(who, this) { Ident = ircData.Ident, Host = ircData.Host };
+                    _ircUsers.Add(who, ircUser);
                 }
 
                 // HACK: IRCnet's anonymous channel mode feature breaks our
-                // channnel sync here as they use the same nick for ALL channel
+                // channel sync here as they use the same nick for ALL channel
                 // users!
                 // Example: :anonymous!anonymous@anonymous. JOIN :$channel
-                if (who == "anonymous" && ircdata.Ident == "anonymous" && ircdata.Host == "anonymous." && IsJoined(channelname, who))
+                if (who == "anonymous" && ircData.Ident == "anonymous" && ircData.Host == "anonymous." && IsJoined(channelName, who))
                 {
                     // ignore
                 }
                 else
                 {
-                    ChannelUser channeluser = CreateChannelUser(channelname, ircuser);
-                    channel.UnsafeUsers.Add(who, channeluser);
+                    ChannelUser channelUser = CreateChannelUser(channelName, ircUser);
+                    channel.UnsafeUsers.Add(who, channelUser);
                 }
             }
 
-            DispatchEvent(this, OnJoin, new JoinEventArgs(ircdata, channelname, who));
+            DispatchEvent(this, OnJoin, new JoinEventArgs(ircData, channelName, who));
         }
 
         /// <summary>
         /// Event handler for part messages
         /// </summary>
-        /// <param name="ircdata">Message data containing part information</param>
-        private void EventPart(IrcMessageData ircdata)
+        /// <param name="ircData">Message data containing part information</param>
+        private void EventPart(IrcMessageData ircData)
         {
-            string who = ircdata.Nick;
-            string channel = ircdata.Channel;
-            string partmessage = ircdata.Message;
+            string who = ircData.Nick;
+            string channel = ircData.Channel;
+            string partMessage = ircData.Message;
 
             if (IsMe(who))
             {
@@ -1452,17 +1392,17 @@ namespace SharpIrc.IrcClient
             {
                 if (IsMe(who))
                 {
-                    channels.Remove(channel);
+                    _channels.Remove(channel);
                 }
                 else
                 {
                     // HACK: IRCnet's anonymous channel mode feature breaks our
-                    // channnel sync here as they use the same nick for ALL channel
+                    // channel sync here as they use the same nick for ALL channel
                     // users!
                     // Example: :anonymous!anonymous@anonymous. PART $channel :$msg
                     if (who == "anonymous" &&
-                        ircdata.Ident == "anonymous" &&
-                        ircdata.Host == "anonymous." &&
+                        ircData.Ident == "anonymous" &&
+                        ircData.Host == "anonymous." &&
                         !IsJoined(channel, who))
                     {
                         // ignore
@@ -1475,62 +1415,62 @@ namespace SharpIrc.IrcClient
                 }
             }
 
-            DispatchEvent(this, OnPart, new PartEventArgs(ircdata, channel, who, partmessage));
+            DispatchEvent(this, OnPart, new PartEventArgs(ircData, channel, who, partMessage));
         }
 
         /// <summary>
         /// Event handler for kick messages
         /// </summary>
-        /// <param name="ircdata">Message data containing kick information</param>
-        private void EventKick(IrcMessageData ircdata)
+        /// <param name="ircData">Message data containing kick information</param>
+        private void EventKick(IrcMessageData ircData)
         {
-            string channelname = ircdata.Channel;
-            string who = ircdata.Nick;
-            string whom = ircdata.RawMessageArray[3];
-            string reason = ircdata.Message;
-            bool isme = IsMe(whom);
+            string channelName = ircData.Channel;
+            string who = ircData.Nick;
+            string whom = ircData.RawMessageArray[3];
+            string reason = ircData.Message;
+            bool isMe = IsMe(whom);
 
-            if (isme)
+            if (isMe)
             {
-                JoinedChannels.Remove(channelname);
+                JoinedChannels.Remove(channelName);
             }
 
             if (ActiveChannelSyncing)
             {
-                if (isme)
+                if (isMe)
                 {
-                    Channel channel = GetChannel(channelname);
-                    channels.Remove(channelname);
-                    if (autoRejoinOnKick)
+                    Channel channel = GetChannel(channelName);
+                    _channels.Remove(channelName);
+                    if (AutoRejoinOnKick)
                     {
                         RfcJoin(channel.Name, channel.Key);
                     }
                 }
                 else
                 {
-                    RemoveChannelUser(channelname, whom);
+                    RemoveChannelUser(channelName, whom);
                     RemoveIrcUser(whom);
                 }
             }
             else
             {
-                if (isme && AutoRejoinOnKick)
+                if (isMe && AutoRejoinOnKick)
                 {
-                    RfcJoin(channelname);
+                    RfcJoin(channelName);
                 }
             }
 
-            DispatchEvent(this, OnKick, new KickEventArgs(ircdata, channelname, who, whom, reason));
+            DispatchEvent(this, OnKick, new KickEventArgs(ircData, channelName, who, whom, reason));
         }
 
         /// <summary>
         /// Event handler for quit messages
         /// </summary>
-        /// <param name="ircdata">Message data containing quit information</param>
-        private void EventQuit(IrcMessageData ircdata)
+        /// <param name="ircData">Message data containing quit information</param>
+        private void EventQuit(IrcMessageData ircData)
         {
-            string who = ircdata.Nick;
-            string reason = ircdata.Message;
+            string who = ircData.Nick;
+            string reason = ircData.Message;
 
             // no need to handle if we quit, disconnect event will take care
 
@@ -1538,57 +1478,54 @@ namespace SharpIrc.IrcClient
             {
                 // sanity checks, freshirc is very broken about RFC
                 IrcUser user = GetIrcUser(who);
-                if (user != null)
+                string[] joinedChannels = user?.JoinedChannels;
+                if (joinedChannels != null)
                 {
-                    string[] joinedChannels = user.JoinedChannels;
-                    if (joinedChannels != null)
+                    foreach (string channel in joinedChannels)
                     {
-                        foreach (string channel in joinedChannels)
-                        {
-                            RemoveChannelUser(channel, who);
-                        }
-                        RemoveIrcUser(who);
+                        RemoveChannelUser(channel, who);
                     }
+                    RemoveIrcUser(who);
                 }
             }
 
-            DispatchEvent(this, OnQuit, new QuitEventArgs(ircdata, who, reason));
+            DispatchEvent(this, OnQuit, new QuitEventArgs(ircData, who, reason));
         }
 
         /// <summary>
         /// Event handler for private messages
         /// </summary>
-        /// <param name="ircdata">Message data containing private message information</param>
-        private void EventPrivmsg(IrcMessageData ircdata)
+        /// <param name="ircData">Message data containing private message information</param>
+        private void EventPrivateMessage(IrcMessageData ircData)
         {
-            switch (ircdata.Type)
+            switch (ircData.Type)
             {
                 case ReceiveType.ChannelMessage:
-                    DispatchEvent(this, OnChannelMessage, new IrcEventArgs(ircdata));
+                    DispatchEvent(this, OnChannelMessage, new IrcEventArgs(ircData));
                     break;
                 case ReceiveType.ChannelAction:
-                    DispatchEvent(this, OnChannelAction, new ActionEventArgs(ircdata, ircdata.Message.Substring(8, ircdata.Message.Length - 9)));
+                    DispatchEvent(this, OnChannelAction, new ActionEventArgs(ircData, ircData.Message.Substring(8, ircData.Message.Length - 9)));
                     break;
                 case ReceiveType.QueryMessage:
-                    DispatchEvent(this, OnQueryMessage, new IrcEventArgs(ircdata));
+                    DispatchEvent(this, OnQueryMessage, new IrcEventArgs(ircData));
                     break;
                 case ReceiveType.QueryAction:
-                    DispatchEvent(this, OnQueryAction, new ActionEventArgs(ircdata, ircdata.Message.Substring(8, ircdata.Message.Length - 9)));
+                    DispatchEvent(this, OnQueryAction, new ActionEventArgs(ircData, ircData.Message.Substring(8, ircData.Message.Length - 9)));
                     break;
                 case ReceiveType.CtcpRequest:
-                    int spacePos = ircdata.Message.IndexOf(' ');
+                    int spacePos = ircData.Message.IndexOf(' ');
                     string cmd;
                     string param = "";
                     if (spacePos != -1)
                     {
-                        cmd = ircdata.Message.Substring(1, spacePos - 1);
-                        param = ircdata.Message.Substring(spacePos + 1, ircdata.Message.Length - spacePos - 2);
+                        cmd = ircData.Message.Substring(1, spacePos - 1);
+                        param = ircData.Message.Substring(spacePos + 1, ircData.Message.Length - spacePos - 2);
                     }
                     else
                     {
-                        cmd = ircdata.Message.Substring(1, ircdata.Message.Length - 2);
+                        cmd = ircData.Message.Substring(1, ircData.Message.Length - 2);
                     }
-                    DispatchEvent(this, OnCtcpRequest, new CtcpEventArgs(ircdata, cmd, param));
+                    DispatchEvent(this, OnCtcpRequest, new CtcpEventArgs(ircData, cmd, param));
                     break;
             }
         }
@@ -1596,31 +1533,31 @@ namespace SharpIrc.IrcClient
         /// <summary>
         /// Event handler for notice messages
         /// </summary>
-        /// <param name="ircdata">Message data containing notice information</param>
-        private void EventNotice(IrcMessageData ircdata)
+        /// <param name="ircData">Message data containing notice information</param>
+        private void EventNotice(IrcMessageData ircData)
         {
-            switch (ircdata.Type)
+            switch (ircData.Type)
             {
                 case ReceiveType.ChannelNotice:
-                    DispatchEvent(this, OnChannelNotice, new IrcEventArgs(ircdata));
+                    DispatchEvent(this, OnChannelNotice, new IrcEventArgs(ircData));
                     break;
                 case ReceiveType.QueryNotice:
-                    DispatchEvent(this, OnQueryNotice, new IrcEventArgs(ircdata));
+                    DispatchEvent(this, OnQueryNotice, new IrcEventArgs(ircData));
                     break;
                 case ReceiveType.CtcpReply:
-                    int spacePos = ircdata.Message.IndexOf(' ');
+                    int spacePos = ircData.Message.IndexOf(' ');
                     string cmd;
                     string param = "";
                     if (spacePos != -1)
                     {
-                        cmd = ircdata.Message.Substring(1, spacePos - 1);
-                        param = ircdata.Message.Substring(spacePos + 1, ircdata.Message.Length - spacePos - 2);
+                        cmd = ircData.Message.Substring(1, spacePos - 1);
+                        param = ircData.Message.Substring(spacePos + 1, ircData.Message.Length - spacePos - 2);
                     }
                     else
                     {
-                        cmd = ircdata.Message.Substring(1, ircdata.Message.Length - 2);
+                        cmd = ircData.Message.Substring(1, ircData.Message.Length - 2);
                     }
-                    DispatchEvent(this, OnCtcpReply, new CtcpEventArgs(ircdata, cmd, param));
+                    DispatchEvent(this, OnCtcpReply, new CtcpEventArgs(ircData, cmd, param));
                     break;
             }
         }
@@ -1628,116 +1565,112 @@ namespace SharpIrc.IrcClient
         /// <summary>
         /// Event handler for topic messages
         /// </summary>
-        /// <param name="ircdata">Message data containing topic information</param>
-        private void EventTopic(IrcMessageData ircdata)
+        /// <param name="ircData">Message data containing topic information</param>
+        private void EventTopic(IrcMessageData ircData)
         {
-            string who = ircdata.Nick;
-            string channel = ircdata.Channel;
-            string newtopic = ircdata.Message;
+            string who = ircData.Nick;
+            string channel = ircData.Channel;
+            string newTopic = ircData.Message;
 
             if (ActiveChannelSyncing &&
                 IsJoined(channel))
             {
-                GetChannel(channel).Topic = newtopic;
+                GetChannel(channel).Topic = newTopic;
             }
 
-            DispatchEvent(this, OnTopicChange, new TopicChangeEventArgs(ircdata, channel, who, newtopic));
+            DispatchEvent(this, OnTopicChange, new TopicChangeEventArgs(ircData, channel, who, newTopic));
         }
 
         /// <summary>
         /// Event handler for nickname messages
         /// </summary>
-        /// <param name="ircdata">Message data containing nickname information</param>
-        private void EventNick(IrcMessageData ircdata)
+        /// <param name="ircData">Message data containing nickname information</param>
+        private void EventNick(IrcMessageData ircData)
         {
-            string oldnickname = ircdata.Nick;
-            //string newnickname = ircdata.Message;
-            // the colon in the NICK message is optional, thus we can't rely on Message
-            string newnickname = ircdata.RawMessageArray[2];
+            string oldNickname = ircData.Nick;
+            string newNickname = ircData.RawMessageArray[2];
 
             // so let's strip the colon if it's there
-            if (newnickname.StartsWith(":"))
+            if (newNickname.StartsWith(":"))
             {
-                newnickname = newnickname.Substring(1);
+                newNickname = newNickname.Substring(1);
             }
 
-            if (IsMe(ircdata.Nick))
+            if (IsMe(ircData.Nick))
             {
                 // nickname change is your own
-                nickname = newnickname;
+                Nickname = newNickname;
             }
 
             if (ActiveChannelSyncing)
             {
-                IrcUser ircuser = GetIrcUser(oldnickname);
+                IrcUser ircUser = GetIrcUser(oldNickname);
 
                 // if we don't have any info about him, don't update him!
                 // (only queries or ourself in no channels)
-                if (ircuser != null)
+                if (ircUser != null)
                 {
-                    string[] joinedchannels = ircuser.JoinedChannels;
+                    string[] joinedChannels = ircUser.JoinedChannels;
 
                     // update his nickname
-                    ircuser.Nick = newnickname;
+                    ircUser.Nick = newNickname;
                     // remove the old entry
                     // remove first to avoid duplication, Foo -> foo
-                    ircUsers.Remove(oldnickname);
+                    _ircUsers.Remove(oldNickname);
                     // add him as new entry and new nickname as key
-                    ircUsers.Add(newnickname, ircuser);
+                    _ircUsers.Add(newNickname, ircUser);
                     // now the same for all channels he is joined
-                    Channel channel;
-                    ChannelUser channeluser;
-                    foreach (string channelname in joinedchannels)
+                    foreach (string channelName in joinedChannels)
                     {
-                        channel = GetChannel(channelname);
-                        channeluser = GetChannelUser(channelname, oldnickname);
+                        var channel = GetChannel(channelName);
+                        var channelUser = GetChannelUser(channelName, oldNickname);
                         // remove first to avoid duplication, Foo -> foo
-                        channel.UnsafeUsers.Remove(oldnickname);
-                        channel.UnsafeUsers.Add(newnickname, channeluser);
-                        if (channeluser.IsOp)
+                        channel.UnsafeUsers.Remove(oldNickname);
+                        channel.UnsafeUsers.Add(newNickname, channelUser);
+                        if (channelUser.IsOp)
                         {
-                            channel.UnsafeOps.Remove(oldnickname);
-                            channel.UnsafeOps.Add(newnickname, channeluser);
+                            channel.UnsafeOps.Remove(oldNickname);
+                            channel.UnsafeOps.Add(newNickname, channelUser);
                         }
-                        if (channeluser.IsVoice)
+                        if (channelUser.IsVoice)
                         {
-                            channel.UnsafeVoices.Remove(oldnickname);
-                            channel.UnsafeVoices.Add(newnickname, channeluser);
+                            channel.UnsafeVoices.Remove(oldNickname);
+                            channel.UnsafeVoices.Add(newNickname, channelUser);
                         }
                         if (SupportNonRfc)
                         {
-                            var nchannel = (NonRfcChannel)channel;
-                            if (((NonRfcChannelUser)channeluser).IsAdmin)
+                            var nonRfcChannel = (NonRfcChannel)channel;
+                            if (((NonRfcChannelUser)channelUser).IsAdmin)
                             {
-                                nchannel.UnsafeAdmins.Remove(oldnickname);
-                                nchannel.UnsafeAdmins.Add(newnickname, channeluser);
+                                nonRfcChannel.UnsafeAdmins.Remove(oldNickname);
+                                nonRfcChannel.UnsafeAdmins.Add(newNickname, channelUser);
                             }
-                            if (((NonRfcChannelUser)channeluser).IsHalfop)
+                            if (((NonRfcChannelUser)channelUser).IsHalfop)
                             {
-                                nchannel.UnsafeHalfops.Remove(oldnickname);
-                                nchannel.UnsafeHalfops.Add(newnickname, channeluser);
+                                nonRfcChannel.UnsafeHalfops.Remove(oldNickname);
+                                nonRfcChannel.UnsafeHalfops.Add(newNickname, channelUser);
                             }
-                            if (((NonRfcChannelUser)channeluser).IsOwner)
+                            if (((NonRfcChannelUser)channelUser).IsOwner)
                             {
-                                nchannel.UnsafeOwners.Remove(oldnickname);
-                                nchannel.UnsafeOwners.Add(newnickname, channeluser);
+                                nonRfcChannel.UnsafeOwners.Remove(oldNickname);
+                                nonRfcChannel.UnsafeOwners.Add(newNickname, channelUser);
                             }
                         }
                     }
                 }
             }
 
-            DispatchEvent(this, OnNickChange, new NickChangeEventArgs(ircdata, oldnickname, newnickname));
+            DispatchEvent(this, OnNickChange, new NickChangeEventArgs(ircData, oldNickname, newNickname));
         }
 
         /// <summary>
         /// Event handler for invite messages
         /// </summary>
-        /// <param name="ircdata">Message data containing invite information</param>
-        private void EventInvite(IrcMessageData ircdata)
+        /// <param name="ircData">Message data containing invite information</param>
+        private void EventInvite(IrcMessageData ircData)
         {
-            string channel = ircdata.Channel;
-            string inviter = ircdata.Nick;
+            string channel = ircData.Channel;
+            string inviter = ircData.Nick;
 
             if (AutoJoinOnInvite)
             {
@@ -1747,63 +1680,63 @@ namespace SharpIrc.IrcClient
                 }
             }
 
-            DispatchEvent(this, OnInvite, new InviteEventArgs(ircdata, channel, inviter));
+            DispatchEvent(this, OnInvite, new InviteEventArgs(ircData, channel, inviter));
         }
 
         /// <summary>
         /// Event handler for mode messages
         /// </summary>
-        /// <param name="ircdata">Message data containing mode information</param>
-        private void EventMode(IrcMessageData ircdata)
+        /// <param name="ircData">Message data containing mode information</param>
+        private void EventMode(IrcMessageData ircData)
         {
-            if (IsMe(ircdata.RawMessageArray[2]))
+            if (IsMe(ircData.RawMessageArray[2]))
             {
                 // my user mode changed
-                usermode = ircdata.RawMessageArray[3].Substring(1);
+                UserMode = ircData.RawMessageArray[3].Substring(1);
             }
             else
             {
                 // channel mode changed
-                string mode = ircdata.RawMessageArray[3];
-                string parameter = String.Join(" ", ircdata.RawMessageArray, 4, ircdata.RawMessageArray.Length - 4);
-                InterpretChannelMode(ircdata, mode, parameter);
+                string mode = ircData.RawMessageArray[3];
+                string parameter = String.Join(" ", ircData.RawMessageArray, 4, ircData.RawMessageArray.Length - 4);
+                InterpretChannelMode(ircData, mode, parameter);
             }
 
-            switch (ircdata.Type)
+            switch (ircData.Type)
             {
                 case ReceiveType.UserModeChange:
-                    DispatchEvent(this, OnUserModeChange, new IrcEventArgs(ircdata));
+                    DispatchEvent(this, OnUserModeChange, new IrcEventArgs(ircData));
                     break;
                 case ReceiveType.ChannelModeChange:
-                    DispatchEvent(this, OnChannelModeChange, new IrcEventArgs(ircdata));
+                    DispatchEvent(this, OnChannelModeChange, new IrcEventArgs(ircData));
                     break;
             }
 
-            DispatchEvent(this, OnModeChange, new IrcEventArgs(ircdata));
+            DispatchEvent(this, OnModeChange, new IrcEventArgs(ircData));
         }
 
         /// <summary>
         /// Event handler for SASL authentication
         /// </summary>
-        /// <param name="ircdata">Message data containing authentication subcommand </param>
-        private void EventAuth(IrcMessageData ircdata)
+        /// <param name="ircData">Message data containing authentication sub command </param>
+        private void EventAuth(IrcMessageData ircData)
         {
-            byte[] src = Encoding.UTF8.GetBytes(String.Format("{0}\0{0}\0{1}", SaslAccount, SaslPassword));
+            byte[] src = Encoding.UTF8.GetBytes($"{SaslAccount}\0{SaslAccount}\0{SaslPassword}");
             Authenticate(Convert.ToBase64String(src), Priority.Critical);
         }
 
         /// <summary>
         /// Event handler for capability negotiation
         /// </summary>
-        /// <param name="ircdata">Message data containing capability subcommand </param>
-        private void EventCap(IrcMessageData ircdata)
+        /// <param name="ircData">Message data containing capability sub command </param>
+        private void EventCap(IrcMessageData ircData)
         {
-            if (ircdata.Args.Length > 1)
+            if (ircData.Args.Length > 1)
             {
-                switch (ircdata.Args[1])
+                switch (ircData.Args[1])
                 {
                     case "LS":
-                        if (ircdata.MessageArray.Contains("sasl"))
+                        if (ircData.MessageArray.Contains("sasl"))
                         {
                             // sasl supported, request use
                             if (SaslAccount != "")
@@ -1812,7 +1745,7 @@ namespace SharpIrc.IrcClient
                         break;
 
                     case "ACK":
-                        if (ircdata.MessageArray.Contains("sasl"))
+                        if (ircData.MessageArray.Contains("sasl"))
                         {
                             // sasl negotiated, authenticate
                             Authenticate(SaslAuthMethod.Plain, Priority.Critical);
@@ -1825,28 +1758,28 @@ namespace SharpIrc.IrcClient
         /// <summary>
         /// Event handler for SASL authentication
         /// </summary>
-        /// <param name="ircdata">Message data containing authentication subcommand </param>
-        private void EventRplSasl(IrcMessageData ircdata)
+        /// <param name="ircData">Message data containing authentication sub command </param>
+        private void EventRplSasl(IrcMessageData ircData)
         {
-            Cap(CapabilitySubcommand.END, Priority.Critical);
-            //check ircdata.ReplyCode for success
+            Cap(CapabilitySubCommand.END, Priority.Critical);
+            //check ircData.ReplyCode for success
         }
 
         /// <summary>
         /// Event handler for channel mode reply messages
         /// </summary>
-        /// <param name="ircdata">Message data containing reply information</param>
-        private void EventRplChannelmodeis(IrcMessageData ircdata)
+        /// <param name="ircData">Message data containing reply information</param>
+        private void EventRplChannelModeIs(IrcMessageData ircData)
         {
             if (ActiveChannelSyncing &&
-                IsJoined(ircdata.Channel))
+                IsJoined(ircData.Channel))
             {
                 // reset stored mode first, as this is the complete mode
-                Channel chan = GetChannel(ircdata.Channel);
+                Channel chan = GetChannel(ircData.Channel);
                 chan.Mode = String.Empty;
-                string mode = ircdata.RawMessageArray[4];
-                string parameter = String.Join(" ", ircdata.RawMessageArray, 5, ircdata.RawMessageArray.Length - 5);
-                InterpretChannelMode(ircdata, mode, parameter);
+                string mode = ircData.RawMessageArray[4];
+                string parameter = String.Join(" ", ircData.RawMessageArray, 5, ircData.RawMessageArray.Length - 5);
+                InterpretChannelMode(ircData, mode, parameter);
             }
         }
 
@@ -1860,19 +1793,19 @@ namespace SharpIrc.IrcClient
         /// The reply message MUST contain the full client identifier upon which
         /// it was registered.
         /// </remark>
-        /// <param name="ircdata">Message data containing reply information</param>
-        private void EventRplWelcome(IrcMessageData ircdata)
+        /// <param name="ircData">Message data containing reply information</param>
+        private void EventRplWelcome(IrcMessageData ircData)
         {
-            // updating our nickname, that we got (maybe cutted...)
-            nickname = ircdata.RawMessageArray[2];
+            // updating our nickname, that we got (maybe cut...)
+            Nickname = ircData.RawMessageArray[2];
 
             DispatchEvent(this, OnRegistered, System.EventArgs.Empty);
         }
 
-        private void EventRplTopic(IrcMessageData ircdata)
+        private void EventRplTopic(IrcMessageData ircData)
         {
-            string topic = ircdata.Message;
-            string channel = ircdata.Channel;
+            string topic = ircData.Message;
+            string channel = ircData.Channel;
 
             if (ActiveChannelSyncing &&
                 IsJoined(channel))
@@ -1880,46 +1813,44 @@ namespace SharpIrc.IrcClient
                 GetChannel(channel).Topic = topic;
             }
 
-            DispatchEvent(this, OnTopic, new TopicEventArgs(ircdata, channel, topic));
+            DispatchEvent(this, OnTopic, new TopicEventArgs(ircData, channel, topic));
         }
 
-        private void EventRplNoTopic(IrcMessageData ircdata)
+        private void EventRplNoTopic(IrcMessageData ircData)
         {
-            string channel = ircdata.Channel;
+            string channel = ircData.Channel;
 
             if (ActiveChannelSyncing && IsJoined(channel))
             {
                 GetChannel(channel).Topic = "";
             }
 
-            DispatchEvent(this, OnTopic, new TopicEventArgs(ircdata, channel, string.Empty));
+            DispatchEvent(this, OnTopic, new TopicEventArgs(ircData, channel, string.Empty));
         }
 
-        private void EventRplNamreply(IrcMessageData ircdata)
+        private void EventRplNamreply(IrcMessageData ircData)
         {
-            string channelname = ircdata.Channel;
-            string[] userlist = ircdata.MessageArray ?? (ircdata.RawMessageArray.Length > 5 ? new[] { ircdata.RawMessageArray[5] } : new string[] { });
+            string channelName = ircData.Channel;
+            string[] users = ircData.MessageArray ?? (ircData.RawMessageArray.Length > 5 ? new[] { ircData.RawMessageArray[5] } : new string[] { });
             // HACK: BIP skips the colon after the channel name even though
-            // RFC 1459 and 2812 says it's mandantory in RPL_NAMREPLY
+            // RFC 1459 and 2812 says it's mandatory in RPL_NAMREPLY
 
-            if (ActiveChannelSyncing && IsJoined(channelname))
+            if (ActiveChannelSyncing && IsJoined(channelName))
             {
-                string nickname;
-                bool op, voice;
-                bool halfop, admin, owner;
-                foreach (string user in userlist)
+                foreach (string user in users)
                 {
                     if (user.Length <= 0)
                     {
                         continue;
                     }
 
-                    op = false;
-                    voice = false;
-                    halfop = false;
-                    admin = false;
-                    owner = false;
+                    var op = false;
+                    var voice = false;
+                    var halfop = false;
+                    var admin = false;
+                    var owner = false;
 
+                    string nickname;
                     switch (user[0])
                     {
                         case '@':
@@ -1955,62 +1886,62 @@ namespace SharpIrc.IrcClient
                             break;
                     }
 
-                    IrcUser ircuser = GetIrcUser(nickname);
-                    ChannelUser channeluser = GetChannelUser(channelname, nickname);
+                    IrcUser ircUser = GetIrcUser(nickname);
+                    ChannelUser channelUser = GetChannelUser(channelName, nickname);
 
-                    if (ircuser == null)
+                    if (ircUser == null)
                     {
-                        ircuser = new IrcUser(nickname, this);
-                        ircUsers.Add(nickname, ircuser);
+                        ircUser = new IrcUser(nickname, this);
+                        _ircUsers.Add(nickname, ircUser);
                     }
 
-                    if (channeluser == null)
+                    if (channelUser == null)
                     {
 
-                        channeluser = CreateChannelUser(channelname, ircuser);
-                        Channel channel = GetChannel(channelname);
+                        channelUser = CreateChannelUser(channelName, ircUser);
+                        Channel channel = GetChannel(channelName);
 
-                        channel.UnsafeUsers.Add(nickname, channeluser);
+                        channel.UnsafeUsers.Add(nickname, channelUser);
                         if (op)
                         {
-                            channel.UnsafeOps.Add(nickname, channeluser);
+                            channel.UnsafeOps.Add(nickname, channelUser);
                         }
                         if (voice)
                         {
-                            channel.UnsafeVoices.Add(nickname, channeluser);
+                            channel.UnsafeVoices.Add(nickname, channelUser);
                         }
                         if (SupportNonRfc)
                         {
                             if (admin)
                             {
-                                ((NonRfcChannel)channel).UnsafeAdmins.Add(nickname, channeluser);
+                                ((NonRfcChannel)channel).UnsafeAdmins.Add(nickname, channelUser);
                             }
                             if (halfop)
                             {
-                                ((NonRfcChannel)channel).UnsafeHalfops.Add(nickname, channeluser);
+                                ((NonRfcChannel)channel).UnsafeHalfops.Add(nickname, channelUser);
                             }
                             if (owner)
                             {
-                                ((NonRfcChannel)channel).UnsafeOwners.Add(nickname, channeluser);
+                                ((NonRfcChannel)channel).UnsafeOwners.Add(nickname, channelUser);
                             }
 
                         }
                     }
 
-                    channeluser.IsOp = op;
-                    channeluser.IsVoice = voice;
+                    channelUser.IsOp = op;
+                    channelUser.IsVoice = voice;
                     if (SupportNonRfc)
                     {
-                        ((NonRfcChannelUser)channeluser).IsAdmin = admin;
-                        ((NonRfcChannelUser)channeluser).IsHalfop = halfop;
-                        ((NonRfcChannelUser)channeluser).IsOwner = owner;
+                        ((NonRfcChannelUser)channelUser).IsAdmin = admin;
+                        ((NonRfcChannelUser)channelUser).IsHalfop = halfop;
+                        ((NonRfcChannelUser)channelUser).IsOwner = owner;
                     }
                 }
             }
 
-            var filteredUserlist = new List<string>(userlist.Length);
+            var filteredUsers = new List<string>(users.Length);
             // filter user modes from nicknames
-            foreach (string user in userlist)
+            foreach (string user in users)
             {
                 if (String.IsNullOrEmpty(user))
                 {
@@ -2024,57 +1955,48 @@ namespace SharpIrc.IrcClient
                     case '&':
                     case '%':
                     case '~':
-                        filteredUserlist.Add(user.Substring(1));
+                        filteredUsers.Add(user.Substring(1));
                         break;
                     default:
-                        filteredUserlist.Add(user);
+                        filteredUsers.Add(user);
                         break;
                 }
             }
 
-            DispatchEvent(this, OnNames, new NamesEventArgs(ircdata, channelname, filteredUserlist.ToArray()));
+            DispatchEvent(this, OnNames, new NamesEventArgs(ircData, channelName, filteredUsers.ToArray()));
         }
 
-        private void EventRplList(IrcMessageData ircdata)
+        private void EventRplList(IrcMessageData ircData)
         {
-            string channelName = ircdata.Channel;
-            int userCount = Int32.Parse(ircdata.RawMessageArray[4]);
-            string topic = ircdata.Message;
+            string channelName = ircData.Channel;
+            int userCount = Int32.Parse(ircData.RawMessageArray[4]);
+            string topic = ircData.Message;
 
             ChannelInfo info = null;
-            if (OnList != null || channelList != null)
+            if (OnList != null || _channelList != null)
             {
                 info = new ChannelInfo(channelName, userCount, topic);
             }
 
-            if (channelList != null)
-            {
-                channelList.Add(info);
-            }
+            _channelList?.Add(info);
 
-            DispatchEvent(this, OnList, new ListEventArgs(ircdata, info));
+            DispatchEvent(this, OnList, new ListEventArgs(ircData, info));
         }
 
-        private void EventRplListEnd(IrcMessageData ircdata)
+        private void EventRplListEnd(IrcMessageData ircData)
         {
-            if (channelListReceivedEvent != null)
-            {
-                channelListReceivedEvent.Set();
-            }
+            _channelListReceivedEvent?.Set();
         }
 
-        private void EventRplTryAgain(IrcMessageData ircdata)
+        private void EventRplTryAgain(IrcMessageData ircData)
         {
-            if (channelListReceivedEvent != null)
-            {
-                channelListReceivedEvent.Set();
-            }
+            _channelListReceivedEvent?.Set();
         }
 
         /*
         // BUG: RFC2812 says LIST and WHO might return ERR_TOOMANYMATCHES which
         // is not defined :(
-        private void _Event_ERR_TOOMANYMATCHES(IrcMessageData ircdata)
+        private void _Event_ERR_TOOMANYMATCHES(IrcMessageData ircData)
         {
             if (ListInfosReceivedEvent != null)
             {
@@ -2083,57 +2005,54 @@ namespace SharpIrc.IrcClient
         }
         */
 
-        private void EventRplEndOfNames(IrcMessageData ircdata)
+        private void EventRplEndOfNames(IrcMessageData ircData)
         {
-            string channelname = ircdata.RawMessageArray[3];
+            string channelName = ircData.RawMessageArray[3];
             if (ActiveChannelSyncing &&
-                IsJoined(channelname))
+                IsJoined(channelName))
             {
-                DispatchEvent(this, OnChannelPassiveSynced, new IrcEventArgs(ircdata));
+                DispatchEvent(this, OnChannelPassiveSynced, new IrcEventArgs(ircData));
             }
         }
 
-        private void EventRplAway(IrcMessageData ircdata)
+        private void EventRplAway(IrcMessageData ircData)
         {
-            string who = ircdata.RawMessageArray[3];
-            string awaymessage = ircdata.Message;
+            string who = ircData.RawMessageArray[3];
+            string awayMessage = ircData.Message;
 
             if (ActiveChannelSyncing)
             {
-                IrcUser ircuser = GetIrcUser(who);
-                if (ircuser != null)
+                IrcUser ircUser = GetIrcUser(who);
+                if (ircUser != null)
                 {
-                    ircuser.IsAway = true;
+                    ircUser.IsAway = true;
                 }
             }
 
-            DispatchEvent(this, OnAway, new AwayEventArgs(ircdata, who, awaymessage));
+            DispatchEvent(this, OnAway, new AwayEventArgs(ircData, who, awayMessage));
         }
 
-        private void EventRplUnaway(IrcMessageData ircdata)
+        private void EventRplUnAway(IrcMessageData ircData)
         {
             IsAway = false;
 
-            DispatchEvent(this, OnUnAway, new IrcEventArgs(ircdata));
+            DispatchEvent(this, OnUnAway, new IrcEventArgs(ircData));
         }
 
-        private void EventRplNowAway(IrcMessageData ircdata)
+        private void EventRplNowAway(IrcMessageData ircData)
         {
             IsAway = true;
 
-            DispatchEvent(this, OnNowAway, new IrcEventArgs(ircdata));
+            DispatchEvent(this, OnNowAway, new IrcEventArgs(ircData));
         }
 
-        private void EventRplWhoreply(IrcMessageData ircdata)
+        private void EventRplWhoReply(IrcMessageData ircData)
         {
-            WhoInfo info = WhoInfo.Parse(ircdata);
+            WhoInfo info = WhoInfo.Parse(ircData);
             string channel = info.Channel;
             string nick = info.Nick;
 
-            if (whoList != null)
-            {
-                whoList.Add(info);
-            }
+            _whoList?.Add(info);
 
             if (ActiveChannelSyncing &&
                 IsJoined(channel))
@@ -2141,20 +2060,20 @@ namespace SharpIrc.IrcClient
                 // checking the irc and channel user I only do for sanity!
                 // according to RFC they must be known to us already via RPL_NAMREPLY
                 // psyBNC is not very correct with this... maybe other bouncers too
-                IrcUser ircuser = GetIrcUser(nick);
-                ChannelUser channeluser = GetChannelUser(channel, nick);
+                IrcUser ircUser = GetIrcUser(nick);
+                ChannelUser channelUser = GetChannelUser(channel, nick);
 
-                if (ircuser != null)
+                if (ircUser != null)
                 {
-                    ircuser.Ident = info.Ident;
-                    ircuser.Host = info.Host;
-                    ircuser.Server = info.Server;
-                    ircuser.Nick = info.Nick;
-                    ircuser.HopCount = info.HopCount;
-                    ircuser.Realname = info.Realname;
-                    ircuser.IsAway = info.IsAway;
-                    ircuser.IsIrcOp = info.IsIrcOp;
-                    ircuser.IsRegistered = info.IsRegistered;
+                    ircUser.Ident = info.Ident;
+                    ircUser.Host = info.Host;
+                    ircUser.Server = info.Server;
+                    ircUser.Nick = info.Nick;
+                    ircUser.HopCount = info.HopCount;
+                    ircUser.RealName = info.RealName;
+                    ircUser.IsAway = info.IsAway;
+                    ircUser.IsIrcOp = info.IsIrcOp;
+                    ircUser.IsRegistered = info.IsRegistered;
 
                     switch (channel[0])
                     {
@@ -2163,59 +2082,53 @@ namespace SharpIrc.IrcClient
                         case '&':
                         case '+':
                             // this channel may not be where we are joined!
-                            // see RFC 1459 and RFC 2812, it must return a channelname
+                            // see RFC 1459 and RFC 2812, it must return a channelName
                             // we use this channel info when possible...
-                            if (channeluser != null)
+                            if (channelUser != null)
                             {
-                                channeluser.IsOp = info.IsOp;
-                                channeluser.IsVoice = info.IsVoice;
+                                channelUser.IsOp = info.IsOp;
+                                channelUser.IsVoice = info.IsVoice;
                             }
                             break;
                     }
                 }
             }
 
-            DispatchEvent(this, OnWho, new WhoEventArgs(ircdata, info));
+            DispatchEvent(this, OnWho, new WhoEventArgs(ircData, info));
         }
 
-        private void EventRplEndofwho(IrcMessageData ircdata)
+        private void EventRplEndOfWho(IrcMessageData ircData)
         {
-            if (whoListReceivedEvent != null)
-            {
-                whoListReceivedEvent.Set();
-            }
+            _whoListReceivedEvent?.Set();
         }
 
-        private void EventRplMotd(IrcMessageData ircdata)
+        private void EventRplMotd(IrcMessageData ircData)
         {
-            if (!motdReceived)
+            if (!_motdReceived)
             {
-                Motd.Add(ircdata.Message);
+                Motd.Add(ircData.Message);
             }
 
-            DispatchEvent(this, OnMotd, new MotdEventArgs(ircdata, ircdata.Message));
+            DispatchEvent(this, OnMotd, new MotdEventArgs(ircData, ircData.Message));
         }
 
-        private void EventRplEndOfMotd(IrcMessageData ircdata)
+        private void EventRplEndOfMotd(IrcMessageData ircData)
         {
-            motdReceived = true;
+            _motdReceived = true;
         }
 
-        private void EventRplBanList(IrcMessageData ircdata)
+        private void EventRplBanList(IrcMessageData ircData)
         {
-            string channelname = ircdata.Channel;
+            string channelName = ircData.Channel;
 
-            BanInfo info = BanInfo.Parse(ircdata);
-            if (banList != null)
-            {
-                banList.Add(info);
-            }
+            BanInfo info = BanInfo.Parse(ircData);
+            _banList?.Add(info);
 
             if (ActiveChannelSyncing &&
-                IsJoined(channelname))
+                IsJoined(channelName))
             {
-                Channel channel = GetChannel(channelname);
-                if (channel.IsSycned)
+                Channel channel = GetChannel(channelName);
+                if (channel.IsSynced)
                 {
                     return;
                 }
@@ -2224,55 +2137,52 @@ namespace SharpIrc.IrcClient
             }
         }
 
-        private void EventRplEndOfBanList(IrcMessageData ircdata)
+        private void EventRplEndOfBanList(IrcMessageData ircData)
         {
-            string channelname = ircdata.Channel;
+            string ircDataChannel = ircData.Channel;
 
-            if (banListReceivedEvent != null)
-            {
-                banListReceivedEvent.Set();
-            }
+            _banListReceivedEvent?.Set();
 
-            if (ActiveChannelSyncing && IsJoined(channelname))
+            if (ActiveChannelSyncing && IsJoined(ircDataChannel))
             {
-                Channel channel = GetChannel(channelname);
-                if (channel.IsSycned)
+                Channel channel = GetChannel(ircDataChannel);
+                if (channel.IsSynced)
                 {
                     // only fire the event once
                     return;
                 }
 
                 channel.ActiveSyncStop = DateTime.Now;
-                channel.IsSycned = true;
-                DispatchEvent(this, OnChannelActiveSynced, new IrcEventArgs(ircdata));
+                channel.IsSynced = true;
+                DispatchEvent(this, OnChannelActiveSynced, new IrcEventArgs(ircData));
             }
         }
 
         // MODE +b might return ERR_NOCHANMODES for mode-less channels (like +chan)
-        private void EventErrNoChanModes(IrcMessageData ircdata)
+        private void EventErrNoChanModes(IrcMessageData ircData)
         {
-            string channelname = ircdata.RawMessageArray[3];
-            if (ActiveChannelSyncing && IsJoined(channelname))
+            string channelName = ircData.RawMessageArray[3];
+            if (ActiveChannelSyncing && IsJoined(channelName))
             {
-                Channel channel = GetChannel(channelname);
-                if (channel.IsSycned)
+                Channel channel = GetChannel(channelName);
+                if (channel.IsSynced)
                 {
                     // only fire the event once
                     return;
                 }
 
                 channel.ActiveSyncStop = DateTime.Now;
-                channel.IsSycned = true;
-                DispatchEvent(this, OnChannelActiveSynced, new IrcEventArgs(ircdata));
+                channel.IsSynced = true;
+                DispatchEvent(this, OnChannelActiveSynced, new IrcEventArgs(ircData));
             }
         }
 
-        private void EventErr(IrcMessageData ircdata)
+        private void EventErr(IrcMessageData ircData)
         {
-            DispatchEvent(this, OnErrorMessage, new IrcEventArgs(ircdata));
+            DispatchEvent(this, OnErrorMessage, new IrcEventArgs(ircData));
         }
 
-        private void EventErrNickNameInUse(IrcMessageData ircdata)
+        private void EventErrNickNameInUse(IrcMessageData ircData)
         {
             if (!AutoNickHandling)
             {
@@ -2280,10 +2190,10 @@ namespace SharpIrc.IrcClient
             }
 
             string nick;
-            // if a nicklist has been given loop through the nicknames
+            // if a nicks has been given loop through the nicknames
             // if the upper limit of this list has been reached and still no nickname has registered
             // then generate a random nick
-            if (currentNickname == NicknameList.Length - 1)
+            if (_currentNickname == NicknameList.Length - 1)
             {
                 var rand = new Random();
                 int number = rand.Next(999);

@@ -18,6 +18,6 @@ namespace SharpIrc.IrcClient.EventArgs
             Lag = lag;
         }
 
-        public TimeSpan Lag { get; private set; }
+        public TimeSpan Lag { get; }
     }
 }

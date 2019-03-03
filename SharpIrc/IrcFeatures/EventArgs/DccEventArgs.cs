@@ -21,6 +21,6 @@ namespace SharpIrc.IrcFeatures.EventArgs
             Dcc = dcc;
         }
 
-        public DccConnection Dcc { get; private set; }
+        public DccConnection Dcc { get; }
     }
 }

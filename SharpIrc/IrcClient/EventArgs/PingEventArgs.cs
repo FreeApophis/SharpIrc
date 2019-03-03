@@ -12,12 +12,12 @@ namespace SharpIrc.IrcClient.EventArgs
     [Serializable]
     public class PingEventArgs : IrcEventArgs
     {
-        internal PingEventArgs(IrcMessageData data, string pingdata)
+        internal PingEventArgs(IrcMessageData data, string pingData)
             : base(data)
         {
-            PingData = pingdata;
+            PingData = pingData;
         }
 
-        public string PingData { get; private set; }
+        public string PingData { get; }
     }
 }

@@ -12,18 +12,18 @@ namespace SharpIrc.IrcClient.EventArgs
     [Serializable]
     public class PartEventArgs : IrcEventArgs
     {
-        internal PartEventArgs(IrcMessageData data, string channel, string who, string partmessage)
+        internal PartEventArgs(IrcMessageData data, string channel, string who, string partMessage)
             : base(data)
         {
             Channel = channel;
             Who = who;
-            PartMessage = partmessage;
+            PartMessage = partMessage;
         }
 
-        public string Channel { get; private set; }
+        public string Channel { get; }
 
-        public string Who { get; private set; }
+        public string Who { get; }
 
-        public string PartMessage { get; private set; }
+        public string PartMessage { get; }
     }
 }

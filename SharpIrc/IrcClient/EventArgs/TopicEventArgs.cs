@@ -19,8 +19,8 @@ namespace SharpIrc.IrcClient.EventArgs
             Topic = topic;
         }
 
-        public string Channel { get; private set; }
+        public string Channel { get; }
 
-        public string Topic { get; private set; }
+        public string Topic { get; }
     }
 }

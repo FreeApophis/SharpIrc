@@ -12,20 +12,15 @@ namespace SharpIrc.IrcClient.EventArgs
     [Serializable]
     public class NamesEventArgs : IrcEventArgs
     {
-        private readonly string[] userList;
-
-        internal NamesEventArgs(IrcMessageData data, string channel, string[] userlist)
+        internal NamesEventArgs(IrcMessageData data, string channel, string[] users)
             : base(data)
         {
             Channel = channel;
-            userList = userlist;
+            Users = users;
         }
 
-        public string Channel { get; private set; }
+        public string Channel { get; }
 
-        public string[] UserList
-        {
-            get { return userList; }
-        }
+        public string[] Users { get; }
     }
 }
