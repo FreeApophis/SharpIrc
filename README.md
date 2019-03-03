@@ -3,8 +3,8 @@ SharpIRC
 
 SharpIRC is a IRC Client Library which works transparently through App Domains.
 
-[![Build Status](https://travis-ci.org/FreeApophis/SharpIRC.svg?branch=master)](https://travis-ci.org/FreeApophis/SharpIRC)
-[![NuGet package](https://buildstats.info/nuget/SharpIRC)](https://www.nuget.org/packages/SharpIRC)
+[![Build Status](https://travis-ci.org/FreeApophis/SharpIrc.svg?branch=master)](https://travis-ci.org/FreeApophis/SharpIrc)
+[![NuGet package](https://buildstats.info/nuget/SharpIrc)](https://www.nuget.org/packages/SharpIrc)
 
 
 * SharpIRC is a fork of SmartIRC4net
