@@ -1,7 +1,7 @@
 /*
  *  Authors:  Benton Stark
- * 
- *  Copyright (c) 2007-2009 Starksoft, LLC (http://www.starksoft.com) 
+ *
+ *  Copyright (c) 2007-2009 Starksoft, LLC (http://www.starksoft.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -9,10 +9,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- * 
+ *
  */
 
 using System;
@@ -30,10 +30,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using apophis.SharpIRC.StarkSoftProxy.EventArgs;
-using Starksoft.Net.Proxy;
+using StarkSoftProxy.EventArgs;
+using StarkSoftProxy.Exceptions;
 
-namespace apophis.SharpIRC.StarkSoftProxy
+namespace StarkSoftProxy
 {
     /// <summary>
     /// Socks4 connection proxy class.  This class implements the Socks4 standard proxy protocol.
@@ -211,7 +211,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
         }
 
         /// <summary>
-        /// Gets String representing the name of the proxy. 
+        /// Gets String representing the name of the proxy.
         /// </summary>
         /// <remarks>This property will always return the value 'SOCKS4'</remarks>
         public virtual string ProxyName
@@ -220,7 +220,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
         }
 
         /// <summary>
-        /// Gets or sets the TcpClient object. 
+        /// Gets or sets the TcpClient object.
         /// This property can be set prior to executing CreateConnection to use an existing TcpClient connection.
         /// </summary>
         public TcpClient TcpClient
@@ -242,7 +242,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
         /// <remarks>
         /// This method creates a connection to the proxy server and instructs the proxy server
         /// to make a pass through connection to the specified destination host on the specified
-        /// port.  
+        /// port.
         /// </remarks>
         public TcpClient CreateConnection(string destinationHost, int destinationPort)
         {
@@ -285,7 +285,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
             }
         }
 
-        #endregion
+        #endregion IProxyClient Members
 
         /// <summary>
         /// Sends a command to the proxy server.
@@ -311,7 +311,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
             //
             // VN is the SOCKS protocol version number and should be 4. CD is the
             // SOCKS command code and should be 1 for CONNECT request. NULL is a byte
-            // of all zero bits.         
+            // of all zero bits.
 
             //  userId needs to be a zero length string so that the GetBytes method
             //  works properly
@@ -344,7 +344,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
             // consulting IDENT, cf. RFC 1413.  If the request is granted, the SOCKS
             // server makes a connection to the specified port of the destination host.
             // A reply packet is sent to the client when this connection is established,
-            // or when the request is rejected or the operation fails. 
+            // or when the request is rejected or the operation fails.
             //
             //        +----+----+----+----+----+----+----+----+
             //        | VN | CD | DSTPORT |      DSTIP        |
@@ -369,7 +369,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
             // enables the client to do I/O on its connection as if it were directly
             // connected to the application server.
 
-            // create an 8 byte response array  
+            // create an 8 byte response array
             var response = new byte[8];
 
             // read the resonse from the network stream
@@ -417,8 +417,8 @@ namespace apophis.SharpIRC.StarkSoftProxy
         internal byte[] GetDestinationPortBytes(int value)
         {
             var array = new byte[2];
-            array[0] = Convert.ToByte(value/256);
-            array[1] = Convert.ToByte(value%256);
+            array[0] = Convert.ToByte(value / 256);
+            array[1] = Convert.ToByte(value % 256);
             return array;
         }
 
@@ -478,7 +478,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
                                                 proxyErrorText, destinationHost, destinationPort, ipAddr,
                                                 port.ToString(CultureInfo.InvariantCulture));
 
-            //  throw a new application exception 
+            //  throw a new application exception
             throw new ProxyException(exceptionMsg);
         }
 
@@ -533,11 +533,11 @@ namespace apophis.SharpIRC.StarkSoftProxy
         /// <param name="destinationPort">Port number to connect to on the destination host.</param>
         /// <returns>
         /// Returns TcpClient object that can be used normally to communicate
-        /// with the destination server.  
+        /// with the destination server.
         /// </returns>
         /// <remarks>
         /// This instructs the proxy server to make a pass through connection to the specified destination host on the specified
-        /// port.  
+        /// port.
         /// </remarks>
         public void CreateConnectionAsync(string destinationHost, int destinationPort)
         {
@@ -581,8 +581,8 @@ namespace apophis.SharpIRC.StarkSoftProxy
         {
             try
             {
-                var args = (Object[]) e.Argument;
-                e.Result = CreateConnection((string) args[0], (int) args[1]);
+                var args = (Object[])e.Argument;
+                e.Result = CreateConnection((string)args[0], (int)args[1]);
             }
             catch (Exception ex)
             {
@@ -596,9 +596,9 @@ namespace apophis.SharpIRC.StarkSoftProxy
                 CreateConnectionAsyncCompleted(this,
                                                new CreateConnectionAsyncCompletedEventArgs(_asyncException,
                                                                                            _asyncCancelled,
-                                                                                           (TcpClient) e.Result));
+                                                                                           (TcpClient)e.Result));
         }
 
-        #endregion
+        #endregion "Async Methods"
     }
 }

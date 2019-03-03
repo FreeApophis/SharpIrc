@@ -1,23 +1,5 @@
 ﻿/*
  * SharpIRC- IRC library for .NET/C# <https://github.com/FreeApophis/sharpIRC>
- *
- * Copyright (c) 2008-2013 Thomas Bruderer <apophis@apophis.ch> <http://www.apophis.ch>
- * 
- * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 using System;
@@ -25,9 +7,10 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using apophis.SharpIRC.IrcClient;
+using SharpIrc.IrcClient.EventArgs;
+using SharpIrc.IrcFeatures.EventArgs;
 
-namespace apophis.SharpIRC.IrcFeatures
+namespace SharpIrc.IrcFeatures
 {
     /// <summary>
     /// Dcc Chat Connection, Line Based Text
@@ -36,34 +19,34 @@ namespace apophis.SharpIRC.IrcFeatures
     {
         #region Private Variables
 
-        private StreamReader streamReader;
-        private StreamWriter streamWriter;
+        private StreamReader _streamReader;
+        private StreamWriter _streamWriter;
 
-        #endregion
+        #endregion Private Variables
 
         #region Public Properties
 
         public int LineCount { get; private set; }
 
-        #endregion
+        #endregion Public Properties
 
         /// <summary>
-        /// Constructor of DCC CHat for local DCC Chat Request to a certain user.
+        /// Constructor of DCC Chat for local DCC Chat Request to a certain user.
         /// </summary>
         /// <param name="irc">IrcFeature Class</param>
         /// <param name="user">Chat Destination (channels are no valid targets)</param>
-        /// <param name="externalIpAdress">Our externally reachable IP Adress (can be anything if passive)</param>
+        /// <param name="externalIpAddress">Our externally reachable IP address (can be anything if passive)</param>
         /// <param name="passive">if you have no reachable ports!</param>
         /// <param name="priority">Non DCC Message Priority</param>
-        internal DccChat(IrcFeatures irc, string user, IPAddress externalIpAdress, bool passive, Priority priority)
+        internal DccChat(IrcFeatures irc, string user, IPAddress externalIpAddress, bool passive, Priority priority)
         {
             Irc = irc;
-            ExternalIPAdress = externalIpAdress;
+            ExternalIPAdress = externalIpAddress;
             User = user;
 
             if (passive)
             {
-                irc.SendMessage(SendType.CtcpRequest, user, "DCC CHAT chat " + HostToDccInt(externalIpAdress) + " 0 " + SessionID, priority);
+                irc.SendMessage(SendType.CtcpRequest, user, "DCC CHAT chat " + HostToDccInt(externalIpAddress) + " 0 " + SessionID, priority);
                 Disconnect();
             }
             else
@@ -71,7 +54,7 @@ namespace apophis.SharpIRC.IrcFeatures
                 DccServer = new TcpListener(new IPEndPoint(IPAddress.Any, 0));
                 DccServer.Start();
                 LocalEndPoint = (IPEndPoint)DccServer.LocalEndpoint;
-                irc.SendMessage(SendType.CtcpRequest, user, "DCC CHAT chat " + HostToDccInt(externalIpAdress) + " " + LocalEndPoint.Port, priority);
+                irc.SendMessage(SendType.CtcpRequest, user, "DCC CHAT chat " + HostToDccInt(externalIpAddress) + " " + LocalEndPoint.Port, priority);
             }
         }
 
@@ -79,26 +62,24 @@ namespace apophis.SharpIRC.IrcFeatures
         /// Constructor of a DCC Chat for a Incoming DCC Chat Request
         /// </summary>
         /// <param name="irc">IrcFeature Class</param>
-        /// <param name="externalIpAdress">Our externally reachable IP Adress</param>
+        /// <param name="externalIpAddress">Our externally reachable IP Adress</param>
         /// <param name="e">The Ctcp Event which initiated this constructor</param>
-        internal DccChat(IrcFeatures irc, IPAddress externalIpAdress, CtcpEventArgs e)
+        internal DccChat(IrcFeatures irc, IPAddress externalIpAddress, CtcpEventArgs e)
         {
             Irc = irc;
-            ExternalIPAdress = externalIpAdress;
+            ExternalIPAdress = externalIpAddress;
             User = e.Data.Nick;
 
             if (e.Data.MessageArray.Length > 4)
             {
-                long ip;
-                bool okIP = long.TryParse(e.Data.MessageArray[3], out ip);
-                int port;
-                bool okPort = int.TryParse(FilterMarker(e.Data.MessageArray[4]), out port); // port 0 = passive
+                bool okIP = long.TryParse(e.Data.MessageArray[3], out var ip);
+                bool okPort = int.TryParse(FilterMarker(e.Data.MessageArray[4]), out var port); // port 0 = passive
                 if ((e.Data.MessageArray[2] == "chat") && okIP && okPort)
                 {
                     RemoteEndPoint = new IPEndPoint(IPAddress.Parse(DccIntToHost(ip)), port);
                     if (e.Data.MessageArray.Length > 5 && e.Data.MessageArray[5] != "T")
                     {
-                        AcceptRequest(); // Since we initated the Request, we accept DCC
+                        AcceptRequest(); // Since we initiated the Request, we accept DCC
                         return; // No OnDccChatRequestEvent Event! (we know that we want a connection)
                     }
                     DccChatRequestEvent(new DccEventArgs(this));
@@ -139,11 +120,11 @@ namespace apophis.SharpIRC.IrcFeatures
 
             DccChatStartEvent(new DccEventArgs(this));
 
-            streamReader = new StreamReader(Connection.GetStream(), Irc.Encoding);
-            streamWriter = new StreamWriter(Connection.GetStream(), Irc.Encoding) { AutoFlush = true };
+            _streamReader = new StreamReader(Connection.GetStream(), Irc.Encoding);
+            _streamWriter = new StreamWriter(Connection.GetStream(), Irc.Encoding) { AutoFlush = true };
 
             string line;
-            while (((line = streamReader.ReadLine()) != null) && (IsConnected))
+            while (((line = _streamReader.ReadLine()) != null) && (IsConnected))
             {
                 DccChatReceiveLineEvent(new DccChatEventArgs(this, line));
                 LineCount++;
@@ -156,7 +137,7 @@ namespace apophis.SharpIRC.IrcFeatures
         #region Public Methods for the DCC Chat Object
 
         /// <summary>
-        /// Accept an incoming Chatrequest, returns false if anything but a Connect happens
+        /// Accept an incoming chat request, returns false if anything but a Connect happens
         /// </summary>
         /// <returns></returns>
         public bool AcceptRequest()
@@ -195,11 +176,11 @@ namespace apophis.SharpIRC.IrcFeatures
             {
                 throw new NotConnectedException("DCC Chat is not Connected");
             }
-            streamWriter.WriteLine(message);
+            _streamWriter.WriteLine(message);
             LineCount++;
             DccChatSentLineEvent(new DccChatEventArgs(this, message));
         }
 
-        #endregion
+        #endregion Public Methods for the DCC Chat Object
     }
 }

@@ -1,43 +1,26 @@
 /*
  * SharpIRC- IRC library for .NET/C# <https://github.com/FreeApophis/sharpIRC>
- * This is a simple test client for the library.
- *
- * Copyright (c) 2003-2004 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
- * 
- * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 using System;
-using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
-using apophis.SharpIRC.IrcClient;
+using System.Threading;
+using SharpIrc;
+using SharpIrc.IrcClient;
+using SharpIrc.IrcClient.EventArgs;
 
 // This is an VERY basic example how your IRC application could be written
 // its mainly for showing how to use the API, this program just connects sends
 // a few message to a channel and waits for commands on the console
 // (raw RFC commands though! it's later explained).
 // There are also a few commands the IRC bot/client allows via private message.
-namespace apophis.SharpIRC.Example
+namespace IrcClient
 {
-    public class Test
+    public class Program
     {
         // make an instance of the high-level API
-        public static IrcClient.IrcClient Client = new IrcClient.IrcClient();
+        public static SharpIrc.IrcClient.IrcClient Client = new SharpIrc.IrcClient.IrcClient();
 
         // this method we will use to analyse queries (also known as private messages)
         public static void OnQueryMessage(object sender, IrcEventArgs e)
@@ -60,7 +43,7 @@ namespace apophis.SharpIRC.Example
                     Client.SendMessage(SendType.Message, e.Data.Nick, "UserLimit: '" + channel.UserLimit + "'");
 
                     // here we go through all users of the channel and show their
-                    // hashtable key and nickname 
+                    // hashtable key and nickname
                     string nicknameList = "";
                     nicknameList += "Users: ";
                     foreach (DictionaryEntry de in channel.Users)
@@ -155,7 +138,7 @@ namespace apophis.SharpIRC.Example
 
             try
             {
-                // here we logon and register our nickname and so on 
+                // here we logon and register our nickname and so on
                 Client.Login("SharpIRC", "SharpIRC Test Bot");
                 // join the channel
                 Client.RfcJoin(channel);
@@ -177,8 +160,8 @@ namespace apophis.SharpIRC.Example
                 // here we tell the IRC API to go into a receive mode, all events
                 // will be triggered by _this_ thread (main thread in this case)
                 // Listen() blocks by default, you can also use ListenOnce() if you
-                // need that does one IRC operation and then returns, so you need then 
-                // an own loop 
+                // need that does one IRC operation and then returns, so you need then
+                // an own loop
                 Client.Listen();
 
                 // when Listen() returns our IRC session is over, to be sure we call

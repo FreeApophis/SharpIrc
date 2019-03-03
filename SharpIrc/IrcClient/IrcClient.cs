@@ -1,24 +1,5 @@
 /*
  * SharpIRC- IRC library for .NET/C# <https://github.com/FreeApophis/sharpIRC>
- *
- * Copyright (c) 2003-2011 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
- * Copyright (c) 2008-2013 Thomas Bruderer <apophis@apophis.ch> <http://www.apophis.ch>
- *
- * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 using System;
@@ -28,15 +9,16 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using apophis.SharpIRC.IrcConnection;
+using SharpIrc.IrcClient.EventArgs;
+using SharpIrc.IrcConnection;
 
-namespace apophis.SharpIRC.IrcClient
+namespace SharpIrc.IrcClient
 {
     /// <summary>
     /// This layer is an event driven high-level API with all features you could need for IRC programming.
     /// </summary>
     /// <threadsafety static="true" instance="true" />
-    public class IrcClient : IrcCommands.IrcCommands
+    public class IrcClient : SharpIrc.IrcCommands.IrcCommands
     {
         private string nickname = string.Empty;
         private string[] nicknameList;
@@ -66,7 +48,7 @@ namespace apophis.SharpIRC.IrcClient
         private List<BanInfo> banList;
         private AutoResetEvent banListReceivedEvent;
 
-        public event EventHandler<EventArgs> OnRegistered;
+        public event EventHandler<System.EventArgs> OnRegistered;
         public event EventHandler<PingEventArgs> OnPing;
         public event EventHandler<PongEventArgs> OnPong;
         public event EventHandler<IrcEventArgs> OnRawMessage;
@@ -113,9 +95,9 @@ namespace apophis.SharpIRC.IrcClient
         public event EventHandler<CtcpEventArgs> OnCtcpRequest;
         public event EventHandler<CtcpEventArgs> OnCtcpReply;
 
-        public event EventHandler<EventArgs> SupportNonRfcChanged;
+        public event EventHandler<System.EventArgs> SupportNonRfcChanged;
 
-        protected void DispatchEvent<T>(object sender, EventHandler<T> handler, T eventArgs) where T : EventArgs
+        protected void DispatchEvent<T>(object sender, EventHandler<T> handler, T eventArgs) where T : System.EventArgs
         {
             if (handler == null) return;
 
@@ -125,7 +107,7 @@ namespace apophis.SharpIRC.IrcClient
             }
             catch (Exception exception)
             {
-                Console.WriteLine("I should handle this better: TODO FAILINDISPATCH: PROBABLY REMOTE ("+exception.Message+")");
+                Console.WriteLine("I should handle this better: TODO FAILINDISPATCH: PROBABLY REMOTE (" + exception.Message + ")");
             }
 
         }
@@ -224,7 +206,7 @@ namespace apophis.SharpIRC.IrcClient
                 }
                 supportNonRfc = value;
 
-                DispatchEvent(this, SupportNonRfcChanged, EventArgs.Empty);
+                DispatchEvent(this, SupportNonRfcChanged, System.EventArgs.Empty);
             }
         }
 
@@ -256,7 +238,7 @@ namespace apophis.SharpIRC.IrcClient
         /// Gets the username for the server.
         /// </summary>
         /// <remarks>
-        /// System username is set by default 
+        /// System username is set by default
         /// </remarks>
         public string Username
         {
@@ -376,15 +358,15 @@ namespace apophis.SharpIRC.IrcClient
         /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
         /// <param name="nicklist">The users list of 'nick' names which may NOT contain spaces</param>
         /// <param name="realname">The users 'real' name which may contain space characters</param>
-        /// <param name="usermode">A numeric mode parameter.  
+        /// <param name="usermode">A numeric mode parameter.
         ///   <remark>
-        ///     Set to 0 to recieve wallops and be invisible. 
+        ///     Set to 0 to recieve wallops and be invisible.
         ///     Set to 4 to be invisible and not receive wallops.
         ///   </remark>
         /// </param>
-        /// <param name="username">The user's machine logon name</param>        
+        /// <param name="username">The user's machine logon name</param>
         /// <param name="password">The optional password can and MUST be set before any attempt to register
-        ///  the connection is made.</param>        
+        ///  the connection is made.</param>
         public void Login(string[] nicklist, string realname, int usermode, string username, string password)
         {
             nicknameList = (string[])nicklist.Clone();
@@ -416,10 +398,10 @@ namespace apophis.SharpIRC.IrcClient
         /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
         /// <param name="nicklist">The users list of 'nick' names which may NOT contain spaces</param>
         /// <param name="realname">The users 'real' name which may contain space characters</param>
-        /// <param name="usermode">A numeric mode parameter.  
-        /// Set to 0 to recieve wallops and be invisible. 
-        /// Set to 4 to be invisible and not receive wallops.</param>        
-        /// <param name="username">The user's machine logon name</param>        
+        /// <param name="usermode">A numeric mode parameter.
+        /// Set to 0 to recieve wallops and be invisible.
+        /// Set to 4 to be invisible and not receive wallops.</param>
+        /// <param name="username">The user's machine logon name</param>
         public void Login(string[] nicklist, string realname, int usermode, string username)
         {
             Login(nicklist, realname, usermode, username, "");
@@ -431,9 +413,9 @@ namespace apophis.SharpIRC.IrcClient
         /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
         /// <param name="nicklist">The users list of 'nick' names which may NOT contain spaces</param>
         /// <param name="realname">The users 'real' name which may contain space characters</param>
-        /// <param name="usermode">A numeric mode parameter.  
-        /// Set to 0 to recieve wallops and be invisible. 
-        /// Set to 4 to be invisible and not receive wallops.</param>        
+        /// <param name="usermode">A numeric mode parameter.
+        /// Set to 0 to recieve wallops and be invisible.
+        /// Set to 4 to be invisible and not receive wallops.</param>
         public void Login(string[] nicklist, string realname, int usermode)
         {
             Login(nicklist, realname, usermode, "", "");
@@ -444,7 +426,7 @@ namespace apophis.SharpIRC.IrcClient
         /// </summary>
         /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
         /// <param name="nicklist">The users list of 'nick' names which may NOT contain spaces</param>
-        /// <param name="realname">The users 'real' name which may contain space characters</param> 
+        /// <param name="realname">The users 'real' name which may contain space characters</param>
         public void Login(string[] nicklist, string realname)
         {
             Login(nicklist, realname, 0, "", "");
@@ -456,12 +438,12 @@ namespace apophis.SharpIRC.IrcClient
         /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
         /// <param name="nick">The users 'nick' name which may NOT contain spaces</param>
         /// <param name="realname">The users 'real' name which may contain space characters</param>
-        /// <param name="usermode">A numeric mode parameter.  
-        /// Set to 0 to recieve wallops and be invisible. 
-        /// Set to 4 to be invisible and not receive wallops.</param>        
-        /// <param name="username">The user's machine logon name</param>        
+        /// <param name="usermode">A numeric mode parameter.
+        /// Set to 0 to recieve wallops and be invisible.
+        /// Set to 4 to be invisible and not receive wallops.</param>
+        /// <param name="username">The user's machine logon name</param>
         /// <param name="password">The optional password can and MUST be set before any attempt to register
-        ///  the connection is made.</param>   
+        ///  the connection is made.</param>
         public void Login(string nick, string realname, int usermode, string username, string password)
         {
             Login(new[] { nick, nick + "_", nick + "__" }, realname, usermode, username, password);
@@ -473,10 +455,10 @@ namespace apophis.SharpIRC.IrcClient
         /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
         /// <param name="nick">The users 'nick' name which may NOT contain spaces</param>
         /// <param name="realname">The users 'real' name which may contain space characters</param>
-        /// <param name="usermode">A numeric mode parameter.  
-        /// Set to 0 to recieve wallops and be invisible. 
-        /// Set to 4 to be invisible and not receive wallops.</param>        
-        /// <param name="username">The user's machine logon name</param>        
+        /// <param name="usermode">A numeric mode parameter.
+        /// Set to 0 to recieve wallops and be invisible.
+        /// Set to 4 to be invisible and not receive wallops.</param>
+        /// <param name="username">The user's machine logon name</param>
         public void Login(string nick, string realname, int usermode, string username)
         {
             Login(new[] { nick, nick + "_", nick + "__" }, realname, usermode, username, "");
@@ -488,9 +470,9 @@ namespace apophis.SharpIRC.IrcClient
         /// <remark>Login is used at the beginning of connection to specify the username, hostname and realname of a new user.</remark>
         /// <param name="nick">The users 'nick' name which may NOT contain spaces</param>
         /// <param name="realname">The users 'real' name which may contain space characters</param>
-        /// <param name="usermode">A numeric mode parameter.  
-        /// Set to 0 to recieve wallops and be invisible. 
-        /// Set to 4 to be invisible and not receive wallops.</param>        
+        /// <param name="usermode">A numeric mode parameter.
+        /// Set to 0 to recieve wallops and be invisible.
+        /// Set to 4 to be invisible and not receive wallops.</param>
         public void Login(string nick, string realname, int usermode)
         {
             Login(new[] { nick, nick + "_", nick + "__" }, realname, usermode, "", "");
@@ -596,7 +578,7 @@ namespace apophis.SharpIRC.IrcClient
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channelname">The name of the channel you wish to query</param>
         /// <returns>Channel object of requested channel</returns>
@@ -715,7 +697,7 @@ namespace apophis.SharpIRC.IrcClient
             HandleEvents(msg);
         }
 
-        private void Disconnected(object sender, EventArgs e)
+        private void Disconnected(object sender, System.EventArgs e)
         {
             if (AutoRejoin)
             {
@@ -724,7 +706,7 @@ namespace apophis.SharpIRC.IrcClient
             SyncingCleanup();
         }
 
-        private void ConnectionError(object sender, EventArgs e)
+        private void ConnectionError(object sender, System.EventArgs e)
         {
             try
             {
@@ -741,7 +723,7 @@ namespace apophis.SharpIRC.IrcClient
             catch (NotConnectedException)
             {
                 // HACK: this is hacky, we don't know if the Reconnect was actually successful
-                // means sending IRC commands without a connection throws NotConnectedExceptions 
+                // means sending IRC commands without a connection throws NotConnectedExceptions
             }
         }
 
@@ -794,7 +776,7 @@ namespace apophis.SharpIRC.IrcClient
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         private string NextNickname()
         {
@@ -984,7 +966,7 @@ namespace apophis.SharpIRC.IrcClient
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="ircdata">Message data containing channel mode information</param>
         /// <param name="mode">Channel mode</param>
@@ -1697,7 +1679,7 @@ namespace apophis.SharpIRC.IrcClient
 
                     // update his nickname
                     ircuser.Nick = newnickname;
-                    // remove the old entry 
+                    // remove the old entry
                     // remove first to avoid duplication, Foo -> foo
                     ircUsers.Remove(oldnickname);
                     // add him as new entry and new nickname as key
@@ -1884,7 +1866,7 @@ namespace apophis.SharpIRC.IrcClient
             // updating our nickname, that we got (maybe cutted...)
             nickname = ircdata.RawMessageArray[2];
 
-            DispatchEvent(this, OnRegistered, EventArgs.Empty);
+            DispatchEvent(this, OnRegistered, System.EventArgs.Empty);
         }
 
         private void EventRplTopic(IrcMessageData ircdata)
@@ -2094,7 +2076,7 @@ namespace apophis.SharpIRC.IrcClient
         // is not defined :(
         private void _Event_ERR_TOOMANYMATCHES(IrcMessageData ircdata)
         {
-            if (ListInfosReceivedEvent != null) 
+            if (ListInfosReceivedEvent != null)
             {
                 ListInfosReceivedEvent.Set();
             }
@@ -2266,7 +2248,7 @@ namespace apophis.SharpIRC.IrcClient
             }
         }
 
-        // MODE +b might return ERR_NOCHANMODES for mode-less channels (like +chan) 
+        // MODE +b might return ERR_NOCHANMODES for mode-less channels (like +chan)
         private void EventErrNoChanModes(IrcMessageData ircdata)
         {
             string channelname = ircdata.RawMessageArray[3];
@@ -2322,6 +2304,6 @@ namespace apophis.SharpIRC.IrcClient
             RfcNick(nick, Priority.Critical);
         }
 
-        #endregion
+        #endregion Internal Messagehandlers
     }
 }

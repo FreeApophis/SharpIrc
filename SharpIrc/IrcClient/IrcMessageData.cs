@@ -1,31 +1,12 @@
 /*
  * SharpIRC- IRC library for .NET/C# <https://github.com/FreeApophis/sharpIRC>
- *
- * Copyright (c) 2003-2005 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
- * Copyright (c) 2008-2013 Thomas Bruderer <apophis@apophis.ch> <http://www.apophis.ch>
- * 
- * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 using System;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace apophis.SharpIRC.IrcClient
+namespace SharpIrc.IrcClient
 {
     /// <summary>
     /// This class contains an IRC message in a parsed form
@@ -37,7 +18,7 @@ namespace apophis.SharpIRC.IrcClient
         private static readonly Regex PrefixRegex = new Regex("([^!@]+)(![^@]+)?(@.+)?");
         private readonly string[] args;
         private readonly string command;
-        private readonly IrcClient irc;
+        private readonly SharpIrc.IrcClient.IrcClient irc;
         private readonly string[] messageArray;
         private readonly string prefix;
         private readonly string rawMessage;
@@ -63,7 +44,7 @@ namespace apophis.SharpIRC.IrcClient
         /// <param name="rawmessage">raw message sent by the server</param>
         /// <param name="type">message type</param>
         /// <param name="replycode">message reply code</param>
-        public IrcMessageData(IrcClient ircclient, string from, string nick, string ident, string host, string channel, string message, string rawmessage, ReceiveType type, ReplyCode replycode)
+        public IrcMessageData(SharpIrc.IrcClient.IrcClient ircclient, string from, string nick, string ident, string host, string channel, string message, string rawmessage, ReceiveType type, ReplyCode replycode)
         {
             irc = ircclient;
             rawMessage = rawmessage;
@@ -88,7 +69,7 @@ namespace apophis.SharpIRC.IrcClient
         /// </summary>
         /// <param name="ircClient">IrcClient the message originated from</param>
         /// <param name="rawMessage">message as it appears on wire, stripped of newline</param>
-        public IrcMessageData(IrcClient ircClient, string rawMessage)
+        public IrcMessageData(SharpIrc.IrcClient.IrcClient ircClient, string rawMessage)
         {
 
             if (rawMessage == null)
@@ -154,7 +135,7 @@ namespace apophis.SharpIRC.IrcClient
         /// <summary>
         /// Gets the IrcClient object the message originated from
         /// </summary>
-        public IrcClient Irc
+        public SharpIrc.IrcClient.IrcClient Irc
         {
             get { return irc; }
         }

@@ -1,7 +1,7 @@
 /*
  *  Authors:  Benton Stark
- * 
- *  Copyright (c) 2007-2009 Starksoft, LLC (http://www.starksoft.com) 
+ *
+ *  Copyright (c) 2007-2009 Starksoft, LLC (http://www.starksoft.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -9,10 +9,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- * 
+ *
  */
 
 using System;
@@ -29,10 +29,10 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using apophis.SharpIRC.StarkSoftProxy.EventArgs;
-using Starksoft.Net.Proxy;
+using StarkSoftProxy.EventArgs;
+using StarkSoftProxy.Exceptions;
 
-namespace apophis.SharpIRC.StarkSoftProxy
+namespace StarkSoftProxy
 {
     /// <summary>
     /// Socks5 connection proxy class.  This class implements the Socks5 standard proxy protocol.
@@ -79,7 +79,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
         private TcpClient _tcpClient;
 
         /// <summary>
-        /// Create a Socks5 proxy client object. 
+        /// Create a Socks5 proxy client object.
         /// </summary>
         public Socks5ProxyClient()
         {
@@ -151,7 +151,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
         }
 
         /// <summary>
-        /// Create a Socks5 proxy client object.  
+        /// Create a Socks5 proxy client object.
         /// </summary>
         /// <param name="proxyHost">Host name or IP address of the proxy server.</param>
         /// <param name="proxyPort">Port used to connect to proxy server.</param>
@@ -216,7 +216,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
         }
 
         /// <summary>
-        /// Gets String representing the name of the proxy. 
+        /// Gets String representing the name of the proxy.
         /// </summary>
         /// <remarks>This property will always return the value 'SOCKS5'</remarks>
         public string ProxyName
@@ -225,7 +225,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
         }
 
         /// <summary>
-        /// Gets or sets the TcpClient object. 
+        /// Gets or sets the TcpClient object.
         /// This property can be set prior to executing CreateConnection to use an existing TcpClient connection.
         /// </summary>
         public TcpClient TcpClient
@@ -246,7 +246,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
         /// <remarks>
         /// This method creates a connection to the proxy server and instructs the proxy server
         /// to make a pass through connection to the specified destination host on the specified
-        /// port.  
+        /// port.
         /// </remarks>
         public TcpClient CreateConnection(string destinationHost, int destinationPort)
         {
@@ -295,7 +295,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
             }
         }
 
-        #endregion
+        #endregion IProxyClient Members
 
         private void DetermineClientAuthMethod()
         {
@@ -351,7 +351,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
             //   * X'80' to X'FE' RESERVED FOR PRIVATE METHODS
             //   * X'FF' NO ACCEPTABLE METHODS
 
-            //  receive the server response 
+            //  receive the server response
             var response = new byte[2];
             stream.Read(response, 0, response.Length);
 
@@ -493,7 +493,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
             //   * DOMAINNAME: X'03'
             //   * IP V6 address: X'04'
             // * DST.ADDR desired destination address
-            // * DST.PORT desired destination port in network octet order            
+            // * DST.PORT desired destination port in network octet order
 
             var request = new byte[4 + destAddr.Length + 2];
             request[0] = SOCKS5_VERSION_NUMBER;
@@ -672,7 +672,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
         /// <remarks>
         /// This method instructs the proxy server
         /// to make a pass through connection to the specified destination host on the specified
-        /// port.  
+        /// port.
         /// </remarks>
         public void CreateConnectionAsync(string destinationHost, int destinationPort)
         {
@@ -734,7 +734,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
                                                                                            (TcpClient)e.Result));
         }
 
-        #endregion
+        #endregion "Async Methods"
 
         #region Nested type: SocksAuthentication
 
@@ -753,6 +753,6 @@ namespace apophis.SharpIRC.StarkSoftProxy
             UsernamePassword
         }
 
-        #endregion
+        #endregion Nested type: SocksAuthentication
     }
 }

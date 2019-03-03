@@ -1,33 +1,14 @@
 /*
  * SharpIRC- IRC library for .NET/C# <https://github.com/FreeApophis/sharpIRC>
- *
- * Copyright (c) 2003-2005 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
- * Copyright (c) 2008-2013 Thomas Bruderer <apophis@apophis.ch> <http://www.apophis.ch>
- * 
- * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using apophis.SharpIRC.IrcClient;
+using SharpIrc.IrcClient;
 
-namespace apophis.SharpIRC.IrcCommands
+namespace SharpIrc.IrcCommands
 {
     /// <summary>
     ///
@@ -44,7 +25,7 @@ namespace apophis.SharpIRC.IrcCommands
 
         // API commands
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="type"></param>
         /// <param name="destination"></param>
@@ -73,7 +54,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="type"></param>
         /// <param name="destination"></param>
@@ -84,7 +65,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="data"></param>
         /// <param name="message"></param>
@@ -106,7 +87,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="data"></param>
         /// <param name="message"></param>
@@ -116,7 +97,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
@@ -147,7 +128,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
@@ -158,7 +139,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
@@ -183,7 +164,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
@@ -194,7 +175,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
@@ -219,7 +200,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
@@ -230,7 +211,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
@@ -255,7 +236,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="priority"></param>
@@ -265,7 +246,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         public void Ban(string channel)
@@ -274,7 +255,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="hostmask"></param>
@@ -285,7 +266,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="hostmask"></param>
@@ -310,7 +291,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="hostmask"></param>
@@ -321,7 +302,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="hostmask"></param>
@@ -347,7 +328,7 @@ namespace apophis.SharpIRC.IrcCommands
 
         // non-RFC commands
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
@@ -372,7 +353,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
@@ -479,7 +460,7 @@ namespace apophis.SharpIRC.IrcCommands
             WriteLine(sb.ToString(), priority);
         }
 
-        #endregion
+        #endregion Client capability commands
 
         public enum SaslAuthMethod
         {
@@ -520,7 +501,7 @@ namespace apophis.SharpIRC.IrcCommands
         #region RFC commands
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="password"></param>
         /// <param name="priority"></param>
@@ -530,7 +511,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="password"></param>
         public void RfcPass(string password)
@@ -539,7 +520,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="username"></param>
         /// <param name="usermode"></param>
@@ -551,7 +532,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="username"></param>
         /// <param name="usermode"></param>
@@ -562,7 +543,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="name"></param>
         /// <param name="password"></param>
@@ -573,7 +554,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="name"></param>
         /// <param name="password"></param>
@@ -583,7 +564,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="destination"></param>
         /// <param name="message"></param>
@@ -594,7 +575,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="destination"></param>
         /// <param name="message"></param>
@@ -604,7 +585,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="destination"></param>
         /// <param name="message"></param>
@@ -615,7 +596,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="destination"></param>
         /// <param name="message"></param>
@@ -625,7 +606,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="priority"></param>
@@ -635,7 +616,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         public void RfcJoin(string channel)
@@ -644,7 +625,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="priority"></param>
@@ -654,7 +635,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         public void RfcJoin(string[] channels)
@@ -663,7 +644,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="key"></param>
@@ -674,7 +655,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="key"></param>
@@ -684,7 +665,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="keys"></param>
@@ -695,7 +676,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="keys"></param>
@@ -705,7 +686,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="priority"></param>
@@ -715,7 +696,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         public void RfcPart(string channel)
@@ -724,7 +705,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="priority"></param>
@@ -734,7 +715,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         public void RfcPart(string[] channels)
@@ -743,7 +724,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="partmessage"></param>
@@ -754,7 +735,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="partmessage"></param>
@@ -764,7 +745,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="partmessage"></param>
@@ -775,7 +756,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="partmessage"></param>
@@ -785,7 +766,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
@@ -796,7 +777,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
@@ -806,7 +787,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="nickname"></param>
@@ -817,7 +798,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="nickname"></param>
@@ -827,7 +808,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nicknames"></param>
@@ -838,7 +819,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nicknames"></param>
@@ -848,7 +829,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="nicknames"></param>
@@ -859,7 +840,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="nicknames"></param>
@@ -869,7 +850,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
@@ -881,7 +862,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nickname"></param>
@@ -892,7 +873,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="nickname"></param>
@@ -904,7 +885,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="nickname"></param>
@@ -915,7 +896,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nicknames"></param>
@@ -927,7 +908,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="nicknames"></param>
@@ -938,7 +919,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="nicknames"></param>
@@ -950,7 +931,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="nicknames"></param>
@@ -961,7 +942,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="priority"></param>
         public void RfcMotd(Priority priority)
@@ -970,7 +951,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void RfcMotd()
         {
@@ -978,7 +959,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         /// <param name="priority"></param>
@@ -988,7 +969,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         public void RfcMotd(string target)
@@ -1027,7 +1008,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="priority"></param>
         public void RfcVersion(Priority priority)
@@ -1036,7 +1017,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void RfcVersion()
         {
@@ -1044,7 +1025,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         /// <param name="priority"></param>
@@ -1054,7 +1035,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         public void RfcVersion(string target)
@@ -1063,7 +1044,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="priority"></param>
         public void RfcStats(Priority priority)
@@ -1072,7 +1053,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void RfcStats()
         {
@@ -1080,7 +1061,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="query"></param>
         /// <param name="priority"></param>
@@ -1090,7 +1071,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="query"></param>
         public void RfcStats(string query)
@@ -1099,7 +1080,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="query"></param>
         /// <param name="target"></param>
@@ -1110,7 +1091,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="query"></param>
         /// <param name="target"></param>
@@ -1120,7 +1101,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void RfcLinks()
         {
@@ -1128,7 +1109,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="servermask"></param>
         /// <param name="priority"></param>
@@ -1138,7 +1119,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="servermask"></param>
         public void RfcLinks(string servermask)
@@ -1147,7 +1128,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="remoteserver"></param>
         /// <param name="servermask"></param>
@@ -1158,7 +1139,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="remoteserver"></param>
         /// <param name="servermask"></param>
@@ -1168,7 +1149,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="priority"></param>
         public void RfcTime(Priority priority)
@@ -1177,7 +1158,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void RfcTime()
         {
@@ -1185,7 +1166,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         /// <param name="priority"></param>
@@ -1195,7 +1176,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         public void RfcTime(string target)
@@ -1204,7 +1185,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="targetserver"></param>
         /// <param name="port"></param>
@@ -1215,7 +1196,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="targetserver"></param>
         /// <param name="port"></param>
@@ -1225,7 +1206,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="targetserver"></param>
         /// <param name="port"></param>
@@ -1237,7 +1218,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="targetserver"></param>
         /// <param name="port"></param>
@@ -1248,7 +1229,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="priority"></param>
         public void RfcTrace(Priority priority)
@@ -1257,7 +1238,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void RfcTrace()
         {
@@ -1265,7 +1246,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         /// <param name="priority"></param>
@@ -1275,7 +1256,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         public void RfcTrace(string target)
@@ -1284,7 +1265,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="priority"></param>
         public void RfcAdmin(Priority priority)
@@ -1293,7 +1274,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void RfcAdmin()
         {
@@ -1301,7 +1282,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         /// <param name="priority"></param>
@@ -1311,7 +1292,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         public void RfcAdmin(string target)
@@ -1320,7 +1301,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="priority"></param>
         public void RfcInfo(Priority priority)
@@ -1329,7 +1310,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void RfcInfo()
         {
@@ -1337,7 +1318,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         /// <param name="priority"></param>
@@ -1347,7 +1328,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         public void RfcInfo(string target)
@@ -1356,7 +1337,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="priority"></param>
         public void RfcServlist(Priority priority)
@@ -1365,7 +1346,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void RfcServlist()
         {
@@ -1373,7 +1354,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="mask"></param>
         /// <param name="priority"></param>
@@ -1383,7 +1364,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="mask"></param>
         public void RfcServlist(string mask)
@@ -1392,7 +1373,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="mask"></param>
         /// <param name="type"></param>
@@ -1403,7 +1384,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="mask"></param>
         /// <param name="type"></param>
@@ -1413,7 +1394,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="servicename"></param>
         /// <param name="servicetext"></param>
@@ -1424,7 +1405,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="servicename"></param>
         /// <param name="servicetext"></param>
@@ -1434,7 +1415,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="priority"></param>
@@ -1444,7 +1425,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         public void RfcList(string channel)
@@ -1453,7 +1434,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="priority"></param>
@@ -1463,7 +1444,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         public void RfcList(string[] channels)
@@ -1472,7 +1453,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="target"></param>
@@ -1483,7 +1464,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="target"></param>
@@ -1493,7 +1474,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="target"></param>
@@ -1504,7 +1485,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="target"></param>
@@ -1514,7 +1495,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="priority"></param>
@@ -1524,7 +1505,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         public void RfcNames(string channel)
@@ -1533,7 +1514,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="priority"></param>
@@ -1543,7 +1524,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         public void RfcNames(string[] channels)
@@ -1552,7 +1533,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="target"></param>
@@ -1563,7 +1544,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="target"></param>
@@ -1573,7 +1554,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="target"></param>
@@ -1584,7 +1565,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channels"></param>
         /// <param name="target"></param>
@@ -1594,7 +1575,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="priority"></param>
@@ -1604,7 +1585,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         public void RfcTopic(string channel)
@@ -1613,7 +1594,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="newtopic"></param>
@@ -1624,7 +1605,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="channel"></param>
         /// <param name="newtopic"></param>
@@ -1634,7 +1615,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         /// <param name="priority"></param>
@@ -1644,7 +1625,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         public void RfcMode(string target)
@@ -1653,7 +1634,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         /// <param name="newmode"></param>
@@ -1664,7 +1645,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         /// <param name="newmode"></param>
@@ -1674,7 +1655,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nickname"></param>
         /// <param name="distribution"></param>
@@ -1686,7 +1667,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nickname"></param>
         /// <param name="distribution"></param>
@@ -1697,7 +1678,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nickname"></param>
         /// <param name="channel"></param>
@@ -1708,7 +1689,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nickname"></param>
         /// <param name="channel"></param>
@@ -1718,7 +1699,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="newnickname"></param>
         /// <param name="priority"></param>
@@ -1728,7 +1709,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="newnickname"></param>
         public void RfcNick(string newnickname)
@@ -1737,7 +1718,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="priority"></param>
         public void RfcWho(Priority priority)
@@ -1746,7 +1727,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void RfcWho()
         {
@@ -1754,7 +1735,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="mask"></param>
         /// <param name="priority"></param>
@@ -1764,7 +1745,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="mask"></param>
         public void RfcWho(string mask)
@@ -1773,7 +1754,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="mask"></param>
         /// <param name="ircop"></param>
@@ -1784,7 +1765,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="mask"></param>
         /// <param name="ircop"></param>
@@ -1794,7 +1775,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="mask"></param>
         /// <param name="priority"></param>
@@ -1804,7 +1785,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="mask"></param>
         public void RfcWhois(string mask)
@@ -1813,7 +1794,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="masks"></param>
         /// <param name="priority"></param>
@@ -1823,7 +1804,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="masks"></param>
         public void RfcWhois(string[] masks)
@@ -1832,7 +1813,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         /// <param name="mask"></param>
@@ -1843,7 +1824,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         /// <param name="mask"></param>
@@ -1853,7 +1834,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         /// <param name="masks"></param>
@@ -1864,7 +1845,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         /// <param name="masks"></param>
@@ -1874,7 +1855,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nickname"></param>
         /// <param name="priority"></param>
@@ -1884,7 +1865,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nickname"></param>
         public void RfcWhowas(string nickname)
@@ -1893,7 +1874,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nicknames"></param>
         /// <param name="priority"></param>
@@ -1903,7 +1884,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nicknames"></param>
         public void RfcWhowas(string[] nicknames)
@@ -1912,7 +1893,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nickname"></param>
         /// <param name="count"></param>
@@ -1923,7 +1904,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nickname"></param>
         /// <param name="count"></param>
@@ -1933,7 +1914,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nicknames"></param>
         /// <param name="count"></param>
@@ -1944,7 +1925,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nicknames"></param>
         /// <param name="count"></param>
@@ -1954,7 +1935,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nickname"></param>
         /// <param name="count"></param>
@@ -1966,7 +1947,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nickname"></param>
         /// <param name="count"></param>
@@ -1977,7 +1958,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nicknames"></param>
         /// <param name="count"></param>
@@ -1989,7 +1970,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nicknames"></param>
         /// <param name="count"></param>
@@ -2000,7 +1981,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nickname"></param>
         /// <param name="comment"></param>
@@ -2011,7 +1992,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nickname"></param>
         /// <param name="comment"></param>
@@ -2021,7 +2002,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="server"></param>
         /// <param name="priority"></param>
@@ -2031,7 +2012,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="server"></param>
         public void RfcPing(string server)
@@ -2040,7 +2021,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="server"></param>
         /// <param name="server2"></param>
@@ -2051,7 +2032,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="server"></param>
         /// <param name="server2"></param>
@@ -2061,7 +2042,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="server"></param>
         /// <param name="priority"></param>
@@ -2071,7 +2052,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="server"></param>
         public void RfcPong(string server)
@@ -2080,7 +2061,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="server"></param>
         /// <param name="server2"></param>
@@ -2091,7 +2072,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="server"></param>
         /// <param name="server2"></param>
@@ -2101,7 +2082,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="priority"></param>
         public void RfcAway(Priority priority)
@@ -2110,7 +2091,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void RfcAway()
         {
@@ -2118,7 +2099,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="awaytext"></param>
         /// <param name="priority"></param>
@@ -2128,7 +2109,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="awaytext"></param>
         public void RfcAway(string awaytext)
@@ -2137,7 +2118,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void RfcRehash()
         {
@@ -2145,7 +2126,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void RfcDie()
         {
@@ -2153,7 +2134,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void RfcRestart()
         {
@@ -2161,7 +2142,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="user"></param>
         /// <param name="priority"></param>
@@ -2171,7 +2152,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="user"></param>
         public void RfcSummon(string user)
@@ -2180,7 +2161,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="user"></param>
         /// <param name="target"></param>
@@ -2191,7 +2172,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="user"></param>
         /// <param name="target"></param>
@@ -2201,7 +2182,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="user"></param>
         /// <param name="target"></param>
@@ -2213,7 +2194,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="user"></param>
         /// <param name="target"></param>
@@ -2224,7 +2205,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="priority"></param>
         public void RfcUsers(Priority priority)
@@ -2233,7 +2214,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void RfcUsers()
         {
@@ -2241,7 +2222,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         /// <param name="priority"></param>
@@ -2251,7 +2232,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="target"></param>
         public void RfcUsers(string target)
@@ -2260,7 +2241,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="wallopstext"></param>
         /// <param name="priority"></param>
@@ -2270,7 +2251,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="wallopstext"></param>
         public void RfcWallops(string wallopstext)
@@ -2279,7 +2260,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nickname"></param>
         /// <param name="priority"></param>
@@ -2289,7 +2270,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nickname"></param>
         public void RfcUserhost(string nickname)
@@ -2298,7 +2279,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nicknames"></param>
         /// <param name="priority"></param>
@@ -2308,7 +2289,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nicknames"></param>
         public void RfcUserhost(string[] nicknames)
@@ -2317,7 +2298,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nickname"></param>
         /// <param name="priority"></param>
@@ -2327,7 +2308,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nickname"></param>
         public void RfcIson(string nickname)
@@ -2336,7 +2317,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nicknames"></param>
         /// <param name="priority"></param>
@@ -2346,7 +2327,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="nicknames"></param>
         public void RfcIson(string[] nicknames)
@@ -2355,7 +2336,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="priority"></param>
         public void RfcQuit(Priority priority)
@@ -2364,7 +2345,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public void RfcQuit()
         {
@@ -2377,7 +2358,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="quitmessage"></param>
         public void RfcQuit(string quitmessage)
@@ -2386,7 +2367,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="server"></param>
         /// <param name="comment"></param>
@@ -2397,7 +2378,7 @@ namespace apophis.SharpIRC.IrcCommands
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="server"></param>
         /// <param name="comment"></param>
@@ -2406,6 +2387,6 @@ namespace apophis.SharpIRC.IrcCommands
             WriteLine(Rfc2812.Squit(server, comment));
         }
 
-        #endregion
+        #endregion RFC commands
     }
 }

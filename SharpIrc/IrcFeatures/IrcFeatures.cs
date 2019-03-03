@@ -1,24 +1,5 @@
 ﻿/*
- *
  * SharpIRC- IRC library for .NET/C# <https://github.com/FreeApophis/sharpIRC>
- *
- * Copyright (c) 2008-2013 Thomas Bruderer <apophis@apophis.ch> <http://www.apophis.ch>
- * 
- * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 using System;
@@ -28,14 +9,15 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using apophis.SharpIRC.IrcClient;
+using SharpIrc.IrcClient.EventArgs;
+using SharpIrc.IrcFeatures.EventArgs;
 
-namespace apophis.SharpIRC.IrcFeatures
+namespace SharpIrc.IrcFeatures
 {
     /// <summary>
     /// Description of IrcFeatures2.
     /// </summary>
-    /// 
+    ///
     public class IrcFeatures : IrcClient.IrcClient
     {
         #region Public Field Access
@@ -75,7 +57,7 @@ namespace apophis.SharpIRC.IrcFeatures
         /// </summary>
         public string CtcpSource { get; set; }
 
-        #endregion
+        #endregion Public Field Access
 
         #region private variables
 
@@ -85,7 +67,7 @@ namespace apophis.SharpIRC.IrcFeatures
 
         internal DccSpeed Speed = DccSpeed.RfcSendAhead;
 
-        #endregion
+        #endregion private variables
 
         #region Public DCC Events (Global: All Dcc Events)
 
@@ -189,7 +171,7 @@ namespace apophis.SharpIRC.IrcFeatures
             }
         }
 
-        #endregion
+        #endregion Public DCC Events (Global: All Dcc Events)
 
         #region Public Interface Methods
 
@@ -322,7 +304,7 @@ namespace apophis.SharpIRC.IrcFeatures
             RemoveInvalidDccConnections();
         }
 
-        #endregion
+        #endregion Public Interface Methods
 
         #region Private Methods
 
@@ -335,7 +317,7 @@ namespace apophis.SharpIRC.IrcFeatures
             RemoveInvalidDccConnections();
         }
 
-        #endregion
+        #endregion Private Methods
 
         #region implemented ctcp delegates, can be overwritten by changing the ctcpDelagtes Dictionary
 
@@ -483,6 +465,6 @@ namespace apophis.SharpIRC.IrcFeatures
             return msg.Where(c => c != IrcConstants.CtcpChar).Aggregate("", (current, c) => current + c);
         }
 
-        #endregion
+        #endregion implemented ctcp delegates, can be overwritten by changing the ctcpDelagtes Dictionary
     }
 }

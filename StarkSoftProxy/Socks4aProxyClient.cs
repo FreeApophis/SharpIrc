@@ -1,7 +1,7 @@
 /*
  *  Authors:  Benton Stark
- * 
- *  Copyright (c) 2007-2009 Starksoft, LLC (http://www.starksoft.com) 
+ *
+ *  Copyright (c) 2007-2009 Starksoft, LLC (http://www.starksoft.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -9,10 +9,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,22 +20,21 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- * 
+ *
  */
 
 using System.Net.Sockets;
 using System.Text;
-using Starksoft.Net.Proxy;
 
-namespace apophis.SharpIRC.StarkSoftProxy
+namespace StarkSoftProxy
 {
     /// <summary>
     /// Socks4a connection proxy class.  This class implements the Socks4a standard proxy protocol
-    /// which is an extension of the Socks4 protocol 
+    /// which is an extension of the Socks4 protocol
     /// </summary>
     /// <remarks>
-    /// In Socks version 4A if the client cannot resolve the destination host's domain name 
-    /// to find its IP address the server will attempt to resolve it.  
+    /// In Socks version 4A if the client cannot resolve the destination host's domain name
+    /// to find its IP address the server will attempt to resolve it.
     /// </remarks>
     public class Socks4aProxyClient : Socks4ProxyClient
     {
@@ -98,7 +97,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
         }
 
         /// <summary>
-        /// Gets String representing the name of the proxy. 
+        /// Gets String representing the name of the proxy.
         /// </summary>
         /// <remarks>This property will always return the value 'SOCKS4a'</remarks>
         public override string ProxyName
@@ -117,8 +116,8 @@ namespace apophis.SharpIRC.StarkSoftProxy
         /// <param name="userId">IDENTD user ID value.</param>
         /// <remarks>
         /// This method override the SendCommand message in the Sock4ProxyClient object.  The override adds support for the
-        /// Socks4a extensions which allow the proxy client to optionally command the proxy server to resolve the 
-        /// destination host IP address. 
+        /// Socks4a extensions which allow the proxy client to optionally command the proxy server to resolve the
+        /// destination host IP address.
         /// </remarks>
         internal override void SendCommand(NetworkStream proxy, byte command, string destinationHost,
                                            int destinationPort, string userId)
@@ -154,10 +153,10 @@ namespace apophis.SharpIRC.StarkSoftProxy
             //If it represent address 0.0.0.x with nonzero x, the server must read
             //in the domain name that the client sends in the packet. The server
             //should resolve the domain name and make connection to the destination
-            //host if it can. 
+            //host if it can.
             //
             //SOCKSified sockd may pass domain names that it cannot resolve to
-            //the next-hop SOCKS server.    
+            //the next-hop SOCKS server.
 
             //  userId needs to be a zero length string so that the GetBytes method
             //  works properly
@@ -194,7 +193,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
             // consulting IDENT, cf. RFC 1413.  If the request is granted, the SOCKS
             // server makes a connection to the specified port of the destination host.
             // A reply packet is sent to the client when this connection is established,
-            // or when the request is rejected or the operation fails. 
+            // or when the request is rejected or the operation fails.
             //
             //        +----+----+----+----+----+----+----+----+
             //        | VN | CD | DSTPORT |      DSTIP        |
@@ -219,7 +218,7 @@ namespace apophis.SharpIRC.StarkSoftProxy
             // enables the client to do I/O on its connection as if it were directly
             // connected to the application server.
 
-            // create an 8 byte response array  
+            // create an 8 byte response array
             var response = new byte[8];
 
             // read the resonse from the network stream

@@ -1,31 +1,12 @@
 ﻿/*
- *
  * SharpIRC- IRC library for .NET/C# <https://github.com/FreeApophis/sharpIRC>
- *
- * Copyright (c) 2008-2013 Thomas Bruderer <apophis@apophis.ch> <http://www.apophis.ch>
- * 
- * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace apophis.SharpIRC.IrcClient
+namespace SharpIrc.IrcClient
 {
     /// <summary>
     /// Description of ServerProperties.
@@ -44,106 +25,154 @@ namespace apophis.SharpIRC.IrcClient
                 // Boolean value;
                 switch (pv[0])
                 {
-                    case "EXCEPTS": BanException = true;
+                    case "EXCEPTS":
+                        BanException = true;
                         break;
-                    case "INVEX": InviteExceptions = true;
+                    case "INVEX":
+                        InviteExceptions = true;
                         break;
-                    case "WALLCHOPS": wAllChannelOps = true;
+                    case "WALLCHOPS":
+                        wAllChannelOps = true;
                         break;
-                    case "WALLVOICES": wAllVoices = true;
+                    case "WALLVOICES":
+                        wAllVoices = true;
                         break;
-                    case "RFC2812": RfC2812 = true;
+                    case "RFC2812":
+                        RfC2812 = true;
                         break;
-                    case "PENALTY": Penalty = true;
+                    case "PENALTY":
+                        Penalty = true;
                         break;
-                    case "FNC": ForcedNickChange = true;
+                    case "FNC":
+                        ForcedNickChange = true;
                         break;
-                    case "SAFELIST": SafeList = true;
+                    case "SAFELIST":
+                        SafeList = true;
                         break;
-                    case "NOQUIT": NoQuit = true;
+                    case "NOQUIT":
+                        NoQuit = true;
                         break;
-                    case "USERIP": UserIp = true;
+                    case "USERIP":
+                        UserIp = true;
                         break;
-                    case "CPRIVMSG": CPrivateMessage = true;
+                    case "CPRIVMSG":
+                        CPrivateMessage = true;
                         break;
-                    case "CNOTICE": CNotice = true;
+                    case "CNOTICE":
+                        CNotice = true;
                         break;
-                    case "KNOCK": Knock = true;
+                    case "KNOCK":
+                        Knock = true;
                         break;
-                    case "VCHANS": VirtualChannels = true;
+                    case "VCHANS":
+                        VirtualChannels = true;
                         break;
-                    case "WHOX": WhoX = true;
+                    case "WHOX":
+                        WhoX = true;
                         break;
-                    case "CALLERID": ModeG = true;
+                    case "CALLERID":
+                        ModeG = true;
                         break;
-                    case "IRCD": ircDaemon = pv[1];
+                    case "IRCD":
+                        ircDaemon = pv[1];
                         break;
-                    case "PREFIX": nickPrefix = pv[1];
+                    case "PREFIX":
+                        nickPrefix = pv[1];
                         break;
-                    case "CHANTYPES": channelTypes = pv[1];
+                    case "CHANTYPES":
+                        channelTypes = pv[1];
                         break;
-                    case "CHANMODES": channelModes = pv[1];
+                    case "CHANMODES":
+                        channelModes = pv[1];
                         break;
-                    case "MODES": maxChannelModes = int.Parse(pv[1]);
+                    case "MODES":
+                        maxChannelModes = int.Parse(pv[1]);
                         break;
-                    case "MAXCHANNELS": maxChannels = int.Parse(pv[1]);
+                    case "MAXCHANNELS":
+                        maxChannels = int.Parse(pv[1]);
                         break;
-                    case "CHANLIMIT": maxChannelsByType = pv[1];
+                    case "CHANLIMIT":
+                        maxChannelsByType = pv[1];
                         break;
-                    case "NICKLEN": maxNickLength = int.Parse(pv[1]);
+                    case "NICKLEN":
+                        maxNickLength = int.Parse(pv[1]);
                         break;
-                    case "MAXBANS": maxBans = int.Parse(pv[1]);
+                    case "MAXBANS":
+                        maxBans = int.Parse(pv[1]);
                         break;
-                    case "MAXLIST": maxList = pv[1];
+                    case "MAXLIST":
+                        maxList = pv[1];
                         break;
-                    case "NETWORK": networkName = pv[1];
+                    case "NETWORK":
+                        networkName = pv[1];
                         break;
-                    case "STATUSMSG": statusMessage = pv[1];
+                    case "STATUSMSG":
+                        statusMessage = pv[1];
                         break;
                     case "CASEMAPPING":
                         if (pv[1] == "ascii") caseMapping = CaseMappingType.Ascii;
                         if (pv[1] == "rfc1459") caseMapping = CaseMappingType.Rfc1459;
                         if (pv[1] == "strict-rfc1459") caseMapping = CaseMappingType.Rfc1459Strict;
                         break;
-                    case "ELIST": extendedListCommand = pv[1];
+                    case "ELIST":
+                        extendedListCommand = pv[1];
                         break;
-                    case "TOPICLEN": maxTopicLength = int.Parse(pv[1]);
+                    case "TOPICLEN":
+                        maxTopicLength = int.Parse(pv[1]);
                         break;
-                    case "KICKLEN": maxKickLength = int.Parse(pv[1]);
+                    case "KICKLEN":
+                        maxKickLength = int.Parse(pv[1]);
                         break;
-                    case "CHANNELLEN": maxChannelLength = int.Parse(pv[1]);
+                    case "CHANNELLEN":
+                        maxChannelLength = int.Parse(pv[1]);
                         break;
-                    case "CHIDLEN": channelIDLength = int.Parse(pv[1]);
+                    case "CHIDLEN":
+                        channelIDLength = int.Parse(pv[1]);
                         break;
-                    case "IDCHAN": channelIDLengthByType = pv[1];
+                    case "IDCHAN":
+                        channelIDLengthByType = pv[1];
                         break;
-                    case "STD": ircStandard = pv[1];
+                    case "STD":
+                        ircStandard = pv[1];
                         break;
-                    case "SILENCE": MaxSilence = int.Parse(pv[1]);
+                    case "SILENCE":
+                        MaxSilence = int.Parse(pv[1]);
                         break;
-                    case "AWAYLEN": maxAwayLength = int.Parse(pv[1]);
+                    case "AWAYLEN":
+                        maxAwayLength = int.Parse(pv[1]);
                         break;
-                    case "MAXTARGETS": maxTargets = int.Parse(pv[1]);
+                    case "MAXTARGETS":
+                        maxTargets = int.Parse(pv[1]);
                         break;
-                    case "WATCH": MaxWatch = int.Parse(pv[1]);
+                    case "WATCH":
+                        MaxWatch = int.Parse(pv[1]);
                         break;
-                    case "LANGUAGE": language = pv[1];
+                    case "LANGUAGE":
+                        language = pv[1];
                         break;
-                    case "KEYLEN": maxKeyLength = int.Parse(pv[1]);
+                    case "KEYLEN":
+                        maxKeyLength = int.Parse(pv[1]);
                         break;
-                    case "USERLEN": maxUserLength = int.Parse(pv[1]);
+                    case "USERLEN":
+                        maxUserLength = int.Parse(pv[1]);
                         break;
-                    case "HOSTLEN": maxHostLength = int.Parse(pv[1]);
+                    case "HOSTLEN":
+                        maxHostLength = int.Parse(pv[1]);
                         break;
-                    case "CMDS": SetCommands(pv[1]);
+                    case "CMDS":
+                        SetCommands(pv[1]);
                         break;
-                    case "MAXNICKLEN": maxNickLength = int.Parse(pv[1]);
+                    case "MAXNICKLEN":
+                        maxNickLength = int.Parse(pv[1]);
                         break;
-                    case "MAXCHANNELLEN": maxChannelLength = int.Parse(pv[1]);
+                    case "MAXCHANNELLEN":
+                        maxChannelLength = int.Parse(pv[1]);
                         break;
-                    case "MAP": Map = true;
+                    case "MAP":
+                        Map = true;
                         break;
-                    case "TARGMAX": maxTargetsByCommand = pv[1];
+                    case "TARGMAX":
+                        maxTargetsByCommand = pv[1];
                         break;
                     default:
                         break;
@@ -165,13 +194,17 @@ namespace apophis.SharpIRC.IrcClient
             {
                 switch (command)
                 {
-                    case "KNOCK": Knock = true;
+                    case "KNOCK":
+                        Knock = true;
                         break;
-                    case "MAP": Map = true;
+                    case "MAP":
+                        Map = true;
                         break;
-                    case "DCCALLOW": DccAllow = true;
+                    case "DCCALLOW":
+                        DccAllow = true;
                         break;
-                    case "USERIP": UserIp = true;
+                    case "USERIP":
+                        UserIp = true;
                         break;
                     default:
                         break;
@@ -322,7 +355,7 @@ namespace apophis.SharpIRC.IrcClient
         ///  Returns the maximal number of List entries in a List.
         /// </summary>
         /// <param name="listType">On Which type of List (ex. Ban: 'b' )</param>
-        /// <returns>Maximal Length of List (of type listType)</returns>        
+        /// <returns>Maximal Length of List (of type listType)</returns>
         public int GetMaxList(char listType)
         {
             Dictionary<char, int> pfn = ParsePfxNum(maxList);
@@ -597,7 +630,7 @@ namespace apophis.SharpIRC.IrcClient
 
         /// <summary>
         /// Returns the maximum number of targets for PrivMsg and Notice
-        /// </summary>        
+        /// </summary>
         public int MaxTargets
         {
             get
@@ -663,7 +696,7 @@ namespace apophis.SharpIRC.IrcClient
         /// If we don't have values from the servers you can assume at least +ov / @+ are supported
         /// However the dictionary will be empty!
         /// Key = Mode, Value = Prefix, ex. NickPrefix['o'] = '@'
-        /// Note: Some servers only show the most powerful, others may show all of them. 
+        /// Note: Some servers only show the most powerful, others may show all of them.
         /// </summary>
         public Dictionary<char, char> NickPrefix
         {
@@ -736,7 +769,7 @@ namespace apophis.SharpIRC.IrcClient
             return ((IEnumerable<KeyValuePair<string, string>>)raw).GetEnumerator();
         }
 
-        #endregion
+        #endregion foreach
     }
 
     public enum CaseMappingType
@@ -762,7 +795,7 @@ namespace apophis.SharpIRC.IrcClient
     /// N = !mask search
     /// U = usercount search (< >)
     /// C = creation time search (C< C>)
-    /// T = topic search (T< T>) 
+    /// T = topic search (T< T>)
     /// </summary>
     [Flags]
     public enum EListType

@@ -1,37 +1,20 @@
 /*
  * SharpIRC- IRC library for .NET/C# <https://github.com/FreeApophis/sharpIRC>
- * This is a simple test client for the library.
- *
- * Copyright (c) 2003-2004 Mirco Bauer <meebey@meebey.net> <http://www.meebey.net>
- * 
- * Full LGPL License: <http://www.gnu.org/licenses/lgpl.txt>
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 using System;
 using System.Collections;
 using System.Threading;
-using apophis.SharpIRC.IrcClient;
+using SharpIrc;
+using SharpIrc.IrcClient;
+using SharpIrc.IrcClient.EventArgs;
 
-namespace apophis.SharpIRC.StressTest
+namespace StressTest
 {
     public class StressTest
     {
         // make an instance of the high-level API
-        public static IrcClient.IrcClient irc = new IrcClient.IrcClient();
+        public static IrcClient irc = new IrcClient();
 
         // this method we will use to analyse queries (also known as private messages)
         public static void OnQueryMessage(object sender, IrcEventArgs e)
@@ -54,7 +37,7 @@ namespace apophis.SharpIRC.StressTest
                     irc.SendMessage(SendType.Message, e.Data.Nick, "UserLimit: '" + channel.UserLimit + "'");
 
                     // here we go through all users of the channel and show their
-                    // hashtable key and nickname 
+                    // hashtable key and nickname
                     string nickname_list = "";
                     nickname_list += "Users: ";
                     IDictionaryEnumerator it = channel.Users.GetEnumerator();

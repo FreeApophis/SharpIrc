@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 
-namespace apophis.SharpIRC.StarkSoftProxy
+namespace StarkSoftProxy
 {
     internal static class Utils
     {
